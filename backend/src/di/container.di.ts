@@ -1,12 +1,16 @@
 import { Container } from "inversify";
-import { User } from "../entities/User";
-import { AppDataSource } from "../config/db.connection";
 import { TYPES } from "../types/types";
 import {
   IUserRepository,
   UserRepositoryDB,
 } from "../repositories/user.repositorie";
 
+import { AuthService, IAuthService } from "../services/auth.service";
+import { AuthController } from "../controllers/auth.controller";
+
 export const container: Container = new Container();
 
+//essa é pra camada de autenticação macaco :)
 container.bind<IUserRepository>(TYPES.UserRepositoryDB).to(UserRepositoryDB);
+container.bind<IAuthService>(TYPES.AuthService).to(AuthService);
+container.bind<AuthController>(TYPES.AuthController).to(AuthController);

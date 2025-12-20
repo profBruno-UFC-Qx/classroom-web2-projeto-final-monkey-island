@@ -5,11 +5,13 @@ export interface IUserRepository {
   create(user: User): Promise<void>;
   findAll(): Promise<User[]>;
   findByEmail(email: string): Promise<User | null>;
-  existsByEmail(email : string) : Promise<boolean>:
+  existsByEmail(email: string): Promise<boolean>;
 }
 
 export class UserRepositoryDB implements IUserRepository {
-  private repo = AppDataSource.getRepository(User);
+  private get repo() {
+    return AppDataSource.getRepository(User);
+  }
 
   async findAll(): Promise<User[]> {
     return await this.repo.find();
@@ -23,9 +25,7 @@ export class UserRepositoryDB implements IUserRepository {
     return await this.repo.findOne({ where: { email } });
   }
 
-  async async existsByEmail(email: string): Promise<boolean> {
-    return await this.repo.existsBy({email})
+  async existsByEmail(email: string): Promise<boolean> {
+    return await this.repo.existsBy({ email });
   }
-
-
 }

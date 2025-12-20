@@ -9,17 +9,16 @@ import {
 import { RegisterRequestDto } from "../dtos/auth/request/register.request.dto";
 
 export enum UserRole {
-    ADMIN = "admin",
-    USER = "user",
-    RESEARCHER = "researcher",
+  ADMIN = "admin",
+  USER = "user",
+  RESEARCHER = "researcher",
 }
 
 export enum UserStatus {
-    ACTIVE = "active",
-    INACTIVE = "inactive",
-    BANNED = "banned",
+  ACTIVE = "active",
+  INACTIVE = "inactive",
+  BANNED = "banned",
 }
-
 
 @Entity()
 export class User {
@@ -55,10 +54,10 @@ export class User {
   @Column({ type: "datetime", nullable: true })
   lastLoginAt: Date;
 
-  @Column({ nullable: true })
+  @Column({ type: "varchar", nullable: true })
   institution: string;
 
-  @Column({ nullable: true, length: 500 })
+  @Column({ type: "text", nullable: true, length: 500 })
   bio: string;
 
   @Column({
@@ -73,6 +72,4 @@ export class User {
 
   @UpdateDateColumn()
   updatedAt: Date;
-
-  dtoToEntity(RegisterRequestDto registerRequestDto) : 
 }

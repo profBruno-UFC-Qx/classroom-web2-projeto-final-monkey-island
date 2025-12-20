@@ -4,8 +4,8 @@
   "description": "Esta pasta deve conter os arquivos referentes ao backend da aplicação que devem ser escritos usando NodeJs + Express.",
   "main": "index.js",
   "scripts": {
-    "dev": "tsx watch src/app.ts",
-    "start": "tsx src/app.ts",
+    "dev": "tsx watch src/server.ts",
+    "start": "tsx src/server.ts",
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "migration:generate": "npx typeorm-ts-node-commonjs migration:generate src/migrations/AutoMigration -d src/config/db.connection.ts",

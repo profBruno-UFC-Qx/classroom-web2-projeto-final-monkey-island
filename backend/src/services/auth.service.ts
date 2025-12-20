@@ -7,7 +7,7 @@ import { TYPES } from "../types/types";
 import { LoginRequestDto } from "../dtos/auth/request/login.request.dto";
 import { User } from "../entities/User";
 
-interface IAuthService {
+export interface IAuthService {
   register(request: RegisterRequestDto): Promise<void>;
   login(request: LoginRequestDto): Promise<LoginResponseDto>;
 }

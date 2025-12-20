@@ -14,3 +14,5 @@ export const container: Container = new Container();
 container.bind<IUserRepository>(TYPES.UserRepositoryDB).to(UserRepositoryDB);
 container.bind<IAuthService>(TYPES.AuthService).to(AuthService);
 container.bind<AuthController>(TYPES.AuthController).to(AuthController);
+
+//essa daqui é pra camada de usuário macaco ;), é uma boa prática deixar o fluxo de auth e user separados

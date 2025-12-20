@@ -7,8 +7,12 @@ const authController: AuthController = container.get(TYPES.AuthController);
 
 const authRoutes = Router();
 
-authRoutes.post("/auth/register", (req, res) =>
-  authController.register(req, res)
+authRoutes.post("/auth/register-user", (req, res) =>
+  authController.registerUser(req, res)
+);
+
+authRoutes.post("/auth/register-admin", (req, res) =>
+  authController.registerUser(req, res)
 );
 
 authRoutes.post("/auth/login", (req, res) => authController.login(req, res));

@@ -5,6 +5,7 @@ export interface IUserRepository {
   create(user: User): Promise<void>;
   findAll(): Promise<User[]>;
   findByEmail(email: string): Promise<User | null>;
+  existsByEmail(email : string) : Promise<boolean>:
 }
 
 export class UserRepositoryDB implements IUserRepository {
@@ -21,4 +22,10 @@ export class UserRepositoryDB implements IUserRepository {
   async findByEmail(email: string): Promise<User | null> {
     return await this.repo.findOne({ where: { email } });
   }
+
+  async async existsByEmail(email: string): Promise<boolean> {
+    return await this.repo.existsBy({email})
+  }
+
+
 }

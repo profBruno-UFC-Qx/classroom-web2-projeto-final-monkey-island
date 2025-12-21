@@ -61,6 +61,15 @@ export class ResearcherRequestService implements IResearcherRequestService {
     return reponse;
   }
 
+  async findPending(): Promise<RequestToBeResearcherResponseDto[]> {
+    const dataResponse =
+      await this.researcherRequestRepository.findPendingRequests();
+    const reponse = dataResponse.map((data) => this.entityToResponseDto(data));
+    return reponse;
+  }
+
+  async approve(requestId: string): Promise<void> {}
+
   private entityToResponseDto(
     data: ResearcherRequest
   ): RequestToBeResearcherResponseDto {

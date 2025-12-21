@@ -11,6 +11,7 @@ export interface IResearcherRequestRepositorie {
   findRequestsByUser(user: User): Promise<ResearcherRequest[]>;
   findPendingRequests(): Promise<ResearcherRequest[]>;
   existsPendingRequest(user: User): Promise<boolean>;
+  findRequestById(requestId: string): Promise<ResearcherRequest | null>;
 }
 
 @injectable()
@@ -27,6 +28,10 @@ export class ResearcherRequestRepositorieDB
 
   async findRequestsByUser(user: User): Promise<ResearcherRequest[]> {
     return await this.repo.find({ where: { user } });
+  }
+
+  async findRequestById(requestId: string): Promise<ResearcherRequest | null> {
+    return await this.repo.findOne({ where: { id: requestId } });
   }
 
   async findPendingRequests(): Promise<ResearcherRequest[]> {

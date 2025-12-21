@@ -51,6 +51,16 @@ export class ResearcherRequestService implements IResearcherRequestService {
     return response;
   }
 
+  async findByUser(
+    userId: string
+  ): Promise<RequestToBeResearcherResponseDto[]> {
+    const user = await this.userService.findUserById(userId);
+    const dataResponse =
+      await this.researcherRequestRepository.findRequestsByUser(user);
+    const reponse = dataResponse.map((data) => this.entityToResponseDto(data));
+    return reponse;
+  }
+
   private entityToResponseDto(
     data: ResearcherRequest
   ): RequestToBeResearcherResponseDto {

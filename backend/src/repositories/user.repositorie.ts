@@ -2,7 +2,7 @@ import { User } from "../entities/User";
 import { AppDataSource } from "../config/db.connection";
 
 export interface IUserRepository {
-  create(user: User): Promise<void>;
+  save(user: User): Promise<void>;
   findAll(): Promise<User[]>;
   findByEmail(email: string): Promise<User | null>;
   existsByEmail(email: string): Promise<boolean>;
@@ -22,7 +22,7 @@ export class UserRepositoryDB implements IUserRepository {
     return await this.repo.findOne({ where: { id } });
   }
 
-  async create(user: User): Promise<void> {
+  async save(user: User): Promise<void> {
     await this.repo.save(user);
   }
 

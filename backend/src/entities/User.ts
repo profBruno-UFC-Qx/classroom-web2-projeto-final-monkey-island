@@ -9,8 +9,6 @@ import {
 
 import { ResearcherRequest } from "./researcher.request";
 
-import { RegisterRequestDto } from "../dtos/auth/request/register.request.dto";
-
 export enum UserRole {
   ADMIN = "admin",
   USER = "user",

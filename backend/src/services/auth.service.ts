@@ -47,7 +47,7 @@ export class AuthService implements IAuthService {
       role
     );
 
-    await this.userRepository.create(user);
+    await this.userRepository.save(user);
   }
 
   private registerDtoToUser(request: RegisterRequestDto, role: UserRole): User {

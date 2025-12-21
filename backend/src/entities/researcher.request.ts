@@ -1,6 +1,8 @@
 import {
   Entity,
   JoinColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
   Column,
@@ -32,4 +34,10 @@ export class ResearcherRequest {
     default: ResearcherRequestStatus.PENDING,
   })
   status: ResearcherRequestStatus;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

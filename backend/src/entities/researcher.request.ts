@@ -21,6 +21,7 @@ export class ResearcherRequest {
   id: string;
 
   @ManyToOne(() => User, (user) => user.researcherRequests, {
+    eager: true,
     onDelete: "CASCADE",
   })
   user: User;

@@ -93,6 +93,27 @@ export class ResearcherRequestService implements IResearcherRequestService {
     return response;
   }
 
+  async reject(requestId: string): Promise<RequestToBeResearcherResponseDto> {
+    const request =
+      await this.researcherRequestRepository.findRequestById(requestId);
+
+    if (!request) {
+      throw new Error("this researcher request does not exists");
+    }
+
+    if (request.status !== ResearcherRequestStatus.PENDING) {
+      throw new Error("only pending requests can be rejected");
+    }
+
+    if (request.user.status !== UserStatus.ACTIVE) {
+      throw new Error("the requester user is banned or inactive");
+    }
+    request.status = ResearcherRequestStatus.REJECTED;
+    const responseData = await this.researcherRequestRepository.save(request);
+    const response = this.entityToResponseDto(responseData);
+    return response;
+  }
+
   private entityToResponseDto(
     data: ResearcherRequest
   ): RequestToBeResearcherResponseDto {

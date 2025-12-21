@@ -1,10 +1,13 @@
 import {
   Column,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
 } from "typeorm";
+
+import { ResearcherRequest } from "./researcher.request";
 
 import { RegisterRequestDto } from "../dtos/auth/request/register.request.dto";
 
@@ -66,6 +69,9 @@ export class User {
     default: UserStatus.ACTIVE,
   })
   status: UserStatus;
+
+  @OneToMany(() => ResearcherRequest, (request) => request.user)
+  researcherRequests: ResearcherRequest[];
 
   @CreateDateColumn()
   createdAt: Date;

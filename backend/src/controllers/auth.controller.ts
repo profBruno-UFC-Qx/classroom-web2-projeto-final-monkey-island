@@ -23,7 +23,7 @@ export class AuthController {
     try {
       const request: RegisterRequestDto = req.body;
       await this.authService.registerAdmin(request);
-      res.status(201).json({ msg: "user successfully registered" });
+      res.status(201).json({ msg: "admin successfully registered" });
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }

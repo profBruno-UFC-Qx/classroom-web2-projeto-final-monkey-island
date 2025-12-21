@@ -2,10 +2,13 @@ import { inject, injectable } from "inversify";
 import { RequestToBeResearcherDto } from "../dtos/researcher_request/request/RequestToBeResearcherDto";
 import { RequestToBeResearcherResponseDto } from "../dtos/researcher_request/response/RequestToBeResearcherResponseDto";
 import { TYPES } from "../types/types";
-import { User } from "../entities/User";
+import { User, UserRole, UserStatus } from "../entities/User";
 import { IUserService } from "./user.service";
 import { IResearcherRequestRepositorie } from "../repositories/researcher.request.repositorie";
-import { ResearcherRequest } from "../entities/researcher.request";
+import {
+  ResearcherRequest,
+  ResearcherRequestStatus,
+} from "../entities/researcher.request";
 
 export interface IResearcherRequestService {
   create(
@@ -17,9 +20,9 @@ export interface IResearcherRequestService {
 
   findPending(): Promise<RequestToBeResearcherResponseDto[]>;
 
-  approve(requestId: string): Promise<void>;
+  approve(requestId: string): Promise<RequestToBeResearcherResponseDto>;
 
-  reject(requestId: string): Promise<void>;
+  reject(requestId: string): Promise<RequestToBeResearcherResponseDto>;
 }
 
 @injectable()
@@ -68,7 +71,27 @@ export class ResearcherRequestService implements IResearcherRequestService {
     return reponse;
   }
 
-  async approve(requestId: string): Promise<void> {}
+  async approve(requestId: string): Promise<RequestToBeResearcherResponseDto> {
+    const request =
+      await this.researcherRequestRepository.findRequestById(requestId);
+
+    if (!request) {
+      throw new Error("this researcher request does not exists");
+    }
+
+    if (request.status !== ResearcherRequestStatus.PENDING) {
+      throw new Error("only pending requests can be approved");
+    }
+
+    if (request.user.status !== UserStatus.ACTIVE) {
+      throw new Error("the requester user is banned or inactive");
+    }
+    request.status = ResearcherRequestStatus.APPROVED;
+    await this.userService.changeUserRole(request.user.id, UserRole.RESEARCHER);
+    const responseData = await this.researcherRequestRepository.save(request);
+    const response = this.entityToResponseDto(responseData);
+    return response;
+  }
 
   private entityToResponseDto(
     data: ResearcherRequest

@@ -41,9 +41,14 @@ export class ResearcherRequestController {
     }
   }
 
-  async findPending(_req: Request, res: Response) {
+  async findPending(req: Request, res: Response) {
     try {
-      const response = await this.researcherRequestService.findPending();
+      const page = req.query.page ? Number(req.query.page) : undefined;
+      const limit = req.query.limit ? Number(req.query.limit) : undefined;
+      const response = await this.researcherRequestService.findPending(
+        limit,
+        page
+      );
       return res.status(200).json(response);
     } catch (error: any) {
       res.status(400).json({ message: error.message });

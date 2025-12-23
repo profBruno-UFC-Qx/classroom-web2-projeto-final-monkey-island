@@ -9,9 +9,7 @@ export async function userIsAdmin(
   const role = req.user?.role;
   if (!req.user || req.user.role !== UserRole.ADMIN) {
     res.status(403).json({
-      message:
-        "You do not have permission to perform this action: " +
-        `your role is ${role}`,
+      message: "You do not have permission to perform this action",
     });
     return;
   }

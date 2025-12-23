@@ -8,7 +8,10 @@ import { AppDataSource } from "../config/db.connection";
 export interface IResearcherRequestRepositorie {
   save(researcherRequest: ResearcherRequest): Promise<ResearcherRequest>;
   findRequestsByUserId(userId: string): Promise<ResearcherRequest[]>;
-  findPendingRequests(): Promise<ResearcherRequest[]>;
+  findPendingRequests(
+    skip: number,
+    take: number
+  ): Promise<[ResearcherRequest[], number]>;
   existsPendingRequest(userId: string): Promise<boolean>;
   findRequestById(requestId: string): Promise<ResearcherRequest | null>;
 }
@@ -36,9 +39,14 @@ export class ResearcherRequestRepositorieDB
     return await this.repo.findOne({ where: { id: requestId } });
   }
 
-  async findPendingRequests(): Promise<ResearcherRequest[]> {
-    return await this.repo.find({
+  async findPendingRequests(
+    skip: number,
+    take: number
+  ): Promise<[ResearcherRequest[], number]> {
+    return await this.repo.findAndCount({
       where: { status: ResearcherRequestStatus.PENDING },
+      take,
+      skip,
     });
   }
 

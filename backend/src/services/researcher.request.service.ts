@@ -9,6 +9,7 @@ import {
   ResearcherRequest,
   ResearcherRequestStatus,
 } from "../entities/researcher.request";
+import { PendingRequestsResponseDto } from "../dtos/researcher_request/response/PendingRequestsResponseDto";
 
 export interface IResearcherRequestService {
   create(
@@ -18,7 +19,10 @@ export interface IResearcherRequestService {
 
   findByUser(userId: string): Promise<RequestToBeResearcherResponseDto[]>;
 
-  findPending(): Promise<RequestToBeResearcherResponseDto[]>;
+  findPending(
+    limit?: number,
+    page?: number
+  ): Promise<PendingRequestsResponseDto>;
 
   approve(requestId: string): Promise<RequestToBeResearcherResponseDto>;
 
@@ -65,17 +69,31 @@ export class ResearcherRequestService implements IResearcherRequestService {
     userId: string
   ): Promise<RequestToBeResearcherResponseDto[]> {
     const user = await this.userService.findUserById(userId);
+    console.log(user);
     const dataResponse =
       await this.researcherRequestRepository.findRequestsByUserId(userId);
     const reponse = dataResponse.map((data) => this.entityToResponseDto(data));
     return reponse;
   }
 
-  public async findPending(): Promise<RequestToBeResearcherResponseDto[]> {
-    const dataResponse =
-      await this.researcherRequestRepository.findPendingRequests();
-    const reponse = dataResponse.map((data) => this.entityToResponseDto(data));
-    return reponse;
+  public async findPending(
+    limit?: number,
+    page?: number
+  ): Promise<PendingRequestsResponseDto> {
+    const currentPage = Math.max(page ?? 1, 1);
+    const currentLimit = Math.min(limit ?? 10, 20);
+    const skip = (currentPage - 1) * currentPage;
+    const [entities, totalItems] =
+      await this.researcherRequestRepository.findPendingRequests(
+        skip,
+        currentLimit
+      );
+    const data = entities.map((data) => this.entityToResponseDto(data));
+    return {
+      data,
+      totalItems,
+      totalPages: Math.ceil(totalItems / currentLimit),
+    };
   }
 
   public async approve(

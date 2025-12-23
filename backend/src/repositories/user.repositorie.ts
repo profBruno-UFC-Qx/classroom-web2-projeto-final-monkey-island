@@ -1,4 +1,4 @@
-import { User } from "../entities/User";
+import { User, UserRole } from "../entities/User";
 import { AppDataSource } from "../config/db.connection";
 
 export interface IUserRepository {
@@ -7,6 +7,7 @@ export interface IUserRepository {
   findByEmail(email: string): Promise<User | null>;
   existsByEmail(email: string): Promise<boolean>;
   findById(id: string): Promise<User | null>;
+  userIsResearcher(userId: string): Promise<boolean>;
 }
 
 export class UserRepositoryDB implements IUserRepository {
@@ -32,5 +33,9 @@ export class UserRepositoryDB implements IUserRepository {
 
   async existsByEmail(email: string): Promise<boolean> {
     return await this.repo.existsBy({ email });
+  }
+
+  async userIsResearcher(userId: string): Promise<boolean> {
+    return await this.repo.existsBy({ id: userId, role: UserRole.RESEARCHER });
   }
 }

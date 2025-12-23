@@ -6,4 +6,6 @@ export const TYPES = {
   AuthController: Symbol.for("AuthController"),
   UserService: Symbol.for("UserService"),
   ResearcherRequestRepositoryDB: Symbol.for("ResearcherRequestRepositoryDB"),
+  ResearcherRequestService: Symbol.for("ResearcherRequestService"),
+  ResearcherRequestController: Symbol.for("ResearcherRequestController"),
 };

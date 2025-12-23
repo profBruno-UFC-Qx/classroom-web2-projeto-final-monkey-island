@@ -4,13 +4,12 @@ import {
   ResearcherRequestStatus,
 } from "../entities/researcher.request";
 import { AppDataSource } from "../config/db.connection";
-import { User } from "../entities/User";
 
 export interface IResearcherRequestRepositorie {
   save(researcherRequest: ResearcherRequest): Promise<ResearcherRequest>;
-  findRequestsByUser(user: User): Promise<ResearcherRequest[]>;
+  findRequestsByUserId(userId: string): Promise<ResearcherRequest[]>;
   findPendingRequests(): Promise<ResearcherRequest[]>;
-  existsPendingRequest(user: User): Promise<boolean>;
+  existsPendingRequest(userId: string): Promise<boolean>;
   findRequestById(requestId: string): Promise<ResearcherRequest | null>;
 }
 
@@ -26,8 +25,11 @@ export class ResearcherRequestRepositorieDB
     return await this.repo.save(researcherRequest);
   }
 
-  async findRequestsByUser(user: User): Promise<ResearcherRequest[]> {
-    return await this.repo.find({ where: { user } });
+  async findRequestsByUserId(userId: string): Promise<ResearcherRequest[]> {
+    console.log(userId);
+    const result = await this.repo.find({ where: { user: { id: userId } } });
+
+    return result;
   }
 
   async findRequestById(requestId: string): Promise<ResearcherRequest | null> {
@@ -40,9 +42,9 @@ export class ResearcherRequestRepositorieDB
     });
   }
 
-  async existsPendingRequest(user: User): Promise<boolean> {
+  async existsPendingRequest(userId: string): Promise<boolean> {
     return await this.repo.exists({
-      where: { user, status: ResearcherRequestStatus.PENDING },
+      where: { user: { id: userId }, status: ResearcherRequestStatus.PENDING },
     });
   }
 }

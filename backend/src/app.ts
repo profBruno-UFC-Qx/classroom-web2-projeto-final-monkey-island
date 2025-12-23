@@ -1,8 +1,9 @@
 import express from "express";
 import authRoutes from "./routes/auth.route";
+import researcherRequestRoutes from "./routes/researcher.request.route";
 
 const app = express();
 app.use(express.json());
-app.use(authRoutes);
+app.use(authRoutes, researcherRequestRoutes);
 
 export default app;

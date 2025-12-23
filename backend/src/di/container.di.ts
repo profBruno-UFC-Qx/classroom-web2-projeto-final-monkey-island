@@ -12,6 +12,11 @@ import {
   IResearcherRequestRepositorie,
   ResearcherRequestRepositorieDB,
 } from "../repositories/researcher.request.repositorie";
+import {
+  IResearcherRequestService,
+  ResearcherRequestService,
+} from "../services/researcher.request.service";
+import { ResearcherRequestController } from "../controllers/researcher.request.controller";
 
 export const container: Container = new Container();
 
@@ -27,3 +32,11 @@ container.bind<IUserService>(TYPES.UserService).to(UserService);
 container
   .bind<IResearcherRequestRepositorie>(TYPES.ResearcherRequestRepositoryDB)
   .to(ResearcherRequestRepositorieDB);
+
+container
+  .bind<IResearcherRequestService>(TYPES.ResearcherRequestService)
+  .to(ResearcherRequestService);
+
+container
+  .bind<ResearcherRequestController>(TYPES.ResearcherRequestController)
+  .to(ResearcherRequestController);

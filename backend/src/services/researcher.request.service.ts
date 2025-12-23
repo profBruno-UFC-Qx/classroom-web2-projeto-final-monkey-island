@@ -34,13 +34,20 @@ export class ResearcherRequestService implements IResearcherRequestService {
     private researcherRequestRepository: IResearcherRequestRepositorie
   ) {}
 
-  async create(
+  public async create(
     userId: string,
     dto: RequestToBeResearcherDto
   ): Promise<RequestToBeResearcherResponseDto> {
     const user = await this.userService.findUserById(userId);
+
+    const userIsResearcher = await this.userService.userIsResearcher(userId);
+
+    if (userIsResearcher) {
+      throw new Error("you are already a researcher");
+    }
+
     const existsPendingRequest =
-      await this.researcherRequestRepository.existsPendingRequest(user);
+      await this.researcherRequestRepository.existsPendingRequest(userId);
 
     if (existsPendingRequest) {
       throw new Error("pending request already exists!");
@@ -54,24 +61,26 @@ export class ResearcherRequestService implements IResearcherRequestService {
     return response;
   }
 
-  async findByUser(
+  public async findByUser(
     userId: string
   ): Promise<RequestToBeResearcherResponseDto[]> {
     const user = await this.userService.findUserById(userId);
     const dataResponse =
-      await this.researcherRequestRepository.findRequestsByUser(user);
+      await this.researcherRequestRepository.findRequestsByUserId(userId);
     const reponse = dataResponse.map((data) => this.entityToResponseDto(data));
     return reponse;
   }
 
-  async findPending(): Promise<RequestToBeResearcherResponseDto[]> {
+  public async findPending(): Promise<RequestToBeResearcherResponseDto[]> {
     const dataResponse =
       await this.researcherRequestRepository.findPendingRequests();
     const reponse = dataResponse.map((data) => this.entityToResponseDto(data));
     return reponse;
   }
 
-  async approve(requestId: string): Promise<RequestToBeResearcherResponseDto> {
+  public async approve(
+    requestId: string
+  ): Promise<RequestToBeResearcherResponseDto> {
     const request =
       await this.researcherRequestRepository.findRequestById(requestId);
 

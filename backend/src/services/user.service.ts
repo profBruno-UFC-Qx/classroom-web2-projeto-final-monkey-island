@@ -6,6 +6,7 @@ import { User, UserRole } from "../entities/User";
 export interface IUserService {
   changeUserRole(userId: string, role: UserRole): Promise<void>;
   findUserById(id: string): Promise<User>;
+  userIsResearcher(userId: string): Promise<boolean>;
 }
 
 @injectable()
@@ -14,7 +15,7 @@ export class UserService implements IUserService {
     @inject(TYPES.UserRepositoryDB) private userRepository: UserRepositoryDB
   ) {}
 
-  async findUserById(id: string): Promise<User> {
+  public async findUserById(id: string): Promise<User> {
     const user = await this.userRepository.findById(id);
 
     if (!user) {
@@ -24,9 +25,13 @@ export class UserService implements IUserService {
     return user;
   }
 
-  async changeUserRole(userId: string, role: UserRole): Promise<void> {
+  public async changeUserRole(userId: string, role: UserRole): Promise<void> {
     const user = await this.findUserById(userId);
     user.role = role;
     await this.userRepository.save(user);
+  }
+
+  public async userIsResearcher(userId: string): Promise<boolean> {
+    return await this.userRepository.userIsResearcher(userId);
   }
 }

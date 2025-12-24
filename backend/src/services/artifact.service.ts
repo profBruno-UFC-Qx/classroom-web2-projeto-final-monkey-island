@@ -7,7 +7,7 @@ import { TYPES } from "../types/types";
 import { IArtifactRepository } from "../repositories/artifact.repositorie";
 import { Artifact } from "../entities/artifact";
 import path from "path";
-import { rename } from "node:fs/promises";
+import { rename, unlink } from "node:fs/promises";
 import { applyPartialUpdate } from "../util/merge-function";
 
 export interface IArtifactService {
@@ -80,13 +80,31 @@ export class ArtifactService implements IArtifactService {
     return this.entityToDto(responseData);
   }
 
+  async deleteArtifact(id: string): Promise<void> {
+    const artifact = await this.artifactRepository.getArtifactById(id);
+
+    if (!artifact) {
+      throw new Error("artifact not exists");
+    }
+
+    const filepath = path.resolve("public", artifact.image);
+    await this.artifactRepository.deleteArtifact(id);
+    try {
+      await unlink(filepath);
+    } catch (err: any) {
+      if (err.code !== "ENOENT") {
+        console.error("Failed to delete artifact file:", err);
+      }
+    }
+  }
+
   async getAllArtifacts(
     limit?: number,
     page?: number
   ): Promise<ArtifactsResponseDto> {
     const currentPage = Math.max(page ?? 1, 1);
     const currentLimit = Math.min(limit ?? 10, 20);
-    const skip = (currentPage - 1) * currentPage;
+    const skip = (currentPage - 1) * currentLimit;
     const [entities, totalItems] =
       await this.artifactRepository.getAllArtifacts(skip, currentLimit);
 
@@ -109,7 +127,7 @@ export class ArtifactService implements IArtifactService {
     artifact.description = req.description || "";
     artifact.rarity = req.rarity;
     artifact.name = req.name;
-    artifact.image = `images/artifacts/${filename}`;
+    artifact.image = `/artifacts/${filename}`;
     return artifact;
   }
 

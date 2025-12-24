@@ -82,7 +82,7 @@ export class ResearcherRequestService implements IResearcherRequestService {
   ): Promise<PendingRequestsResponseDto> {
     const currentPage = Math.max(page ?? 1, 1);
     const currentLimit = Math.min(limit ?? 10, 20);
-    const skip = (currentPage - 1) * currentPage;
+    const skip = (currentPage - 1) * currentLimit;
     const [entities, totalItems] =
       await this.researcherRequestRepository.findPendingRequests(
         skip,

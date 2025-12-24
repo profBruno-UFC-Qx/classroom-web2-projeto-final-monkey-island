@@ -3,6 +3,7 @@ import { TYPES } from "../types/types";
 import { Request, Response } from "express";
 import { IArtifactService } from "../services/artifact.service";
 import { ArtifactRequestDto } from "../dtos/artifact/request/artifact.request";
+import { ArtifactUpdateRequestDto } from "../dtos/artifact/request/artifact.update.request.dto";
 
 @injectable()
 export class ArtifactController {
@@ -32,8 +33,29 @@ export class ArtifactController {
   async deleteArtifact(req: Request, res: Response): Promise<void> {
     try {
       const id = req.params.id;
-      const response = await this.artifactService.deleteArtifact(id);
-      res.status(200).json(response);
+      await this.artifactService.deleteArtifact(id);
+      res.status(204);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  async getArtifactById(req: Request, res: Response): Promise<void> {
+    try {
+      const id = req.params.id;
+      const response = await this.artifactService.getArtifactById(id);
+      res.status(204).json(response);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  async updateArtifact(req: Request, res: Response): Promise<void> {
+    try {
+      const id = req.params.id;
+      const request: ArtifactUpdateRequestDto = req.body;
+      const response = await this.artifactService.updateArtifact(id, request);
+      res.status(204).json(response);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }

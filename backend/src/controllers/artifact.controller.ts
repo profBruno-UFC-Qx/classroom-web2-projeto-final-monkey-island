@@ -29,20 +29,10 @@ export class ArtifactController {
     }
   }
 
-  async registerAdmin(req: Request, res: Response): Promise<void> {
+  async deleteArtifact(req: Request, res: Response): Promise<void> {
     try {
-      const request: RegisterRequestDto = req.body;
-      await this.authService.registerAdmin(request);
-      res.status(201).json({ msg: "admin successfully registered" });
-    } catch (error: any) {
-      res.status(400).json({ message: error.message });
-    }
-  }
-
-  async login(req: Request, res: Response): Promise<void> {
-    try {
-      const request: LoginRequestDto = req.body;
-      const response = await this.authService.login(request);
+      const id = req.params.id;
+      const response = await this.artifactService.deleteArtifact(id);
       res.status(200).json(response);
     } catch (error: any) {
       res.status(400).json({ message: error.message });

@@ -8,6 +8,7 @@ import { IArtifactRepository } from "../repositories/artifact.repositorie";
 import { Artifact } from "../entities/artifact";
 import path from "path";
 import { rename } from "node:fs/promises";
+import { applyPartialUpdate } from "../util/merge-function";
 
 export interface IArtifactService {
   createArtifact(
@@ -64,6 +65,19 @@ export class ArtifactService implements IArtifactService {
     }
 
     return this.entityToDto(artifact);
+  }
+
+  async updateArtifact(
+    id: string,
+    updated: ArtifactUpdateRequestDto
+  ): Promise<ArtifactResponsetDto> {
+    const artifact = await this.artifactRepository.getArtifactById(id);
+    if (!artifact) {
+      throw new Error("artifact not exists");
+    }
+    applyPartialUpdate(artifact, updated);
+    const responseData = await this.artifactRepository.save(artifact);
+    return this.entityToDto(responseData);
   }
 
   async getAllArtifacts(

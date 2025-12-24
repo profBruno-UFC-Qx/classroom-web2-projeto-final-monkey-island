@@ -66,6 +66,25 @@ export class ArtifactService implements IArtifactService {
     return this.entityToDto(artifact);
   }
 
+  async getAllArtifacts(
+    limit?: number,
+    page?: number
+  ): Promise<ArtifactsResponseDto> {
+    const currentPage = Math.max(page ?? 1, 1);
+    const currentLimit = Math.min(limit ?? 10, 20);
+    const skip = (currentPage - 1) * currentPage;
+    const [entities, totalItems] =
+      await this.artifactRepository.getAllArtifacts(skip, currentLimit);
+
+    const data = entities.map((data) => this.entityToDto(data));
+
+    return {
+      data,
+      totalItems,
+      totalPages: Math.ceil(totalItems / currentLimit),
+    };
+  }
+
   private async moveTmpToFinal(filename: string, filepath: string) {
     const finalPath = path.resolve("public", "artifacts", filename);
     await rename(filepath, finalPath);

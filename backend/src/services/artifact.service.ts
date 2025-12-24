@@ -17,7 +17,7 @@ export interface IArtifactService {
     filepath: string
   ): Promise<ArtifactResponsetDto>;
 
-  choiceRandomArtifact(): Promise<ArtifactRequestDto>;
+  //   choiceRandomArtifact(): Promise<ArtifactRequestDto>;
 
   getAllArtifacts(limit?: number, page?: number): Promise<ArtifactsResponseDto>;
 

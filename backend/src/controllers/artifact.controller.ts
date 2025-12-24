@@ -18,6 +18,7 @@ export class ArtifactController {
 
       if (!file) {
         res.status(400).json({ msg: "file needs to be submitted" });
+        return;
       }
       const response = await this.artifactService.createArtifact(
         request,
@@ -45,7 +46,7 @@ export class ArtifactController {
     try {
       const id = req.params.id;
       await this.artifactService.deleteArtifact(id);
-      res.status(204);
+      res.status(204).end();
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }

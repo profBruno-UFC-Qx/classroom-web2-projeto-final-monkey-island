@@ -25,6 +25,7 @@ import {
   ArtifactService,
   IArtifactService,
 } from "../services/artifact.service";
+import { ArtifactController } from "../controllers/artifact.controller";
 
 export const container: Container = new Container();
 
@@ -55,3 +56,7 @@ container
   .to(ArtifactRepositoryDB);
 
 container.bind<IArtifactService>(TYPES.ArtifactService).to(ArtifactService);
+
+container
+  .bind<ArtifactController>(TYPES.ArtifactController)
+  .to(ArtifactController);

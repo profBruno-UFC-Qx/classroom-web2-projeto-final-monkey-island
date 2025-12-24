@@ -14,4 +14,4 @@ const multerConfig = multer.diskStorage({
   },
 });
 
-export default { storageArtifact: multerConfig };
+export default { storage: multerConfig };

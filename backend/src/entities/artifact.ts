@@ -16,8 +16,12 @@ export class Artifact {
   @Column({
     type: "varchar",
     length: 150,
+    unique: true,
   })
   name: string;
+
+  @Column({ type: "text" })
+  description: string;
 
   @Column({
     type: "simple-enum",

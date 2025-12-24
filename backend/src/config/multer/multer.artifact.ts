@@ -4,7 +4,7 @@ import path from "path";
 
 const multerConfig = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.resolve("public", "artifacts"));
+    cb(null, path.resolve("public", "tmp"));
   },
   filename: (req, file, cb) => {
     const randomName = crypto.randomBytes(16).toString("hex");

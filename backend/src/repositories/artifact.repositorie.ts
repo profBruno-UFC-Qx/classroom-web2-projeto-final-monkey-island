@@ -6,7 +6,7 @@ export interface IArtifactRepository {
   save(artifact: Artifact): Promise<Artifact>;
   getArtifactById(artifact_id: string): Promise<Artifact | null>;
   getAllArtifacts(skip: number, take: number): Promise<[Artifact[], number]>;
-  artifactExistsById(artifact_id: string): Promise<boolean>;
+  artifactExistsByName(name: string): Promise<boolean>;
   deleteArtifact(artifact_id: string): Promise<void>;
 }
 
@@ -31,8 +31,8 @@ export class ArtifactRepositoryDB implements IArtifactRepository {
     return await this.repo.findOne({ where: { id: artifact_id } });
   }
 
-  async artifactExistsById(artifact_id: string): Promise<boolean> {
-    return await this.repo.existsBy({ id: artifact_id });
+  async artifactExistsByName(name: string): Promise<boolean> {
+    return await this.repo.existsBy({ name });
   }
 
   async deleteArtifact(artifact_id: string): Promise<void> {

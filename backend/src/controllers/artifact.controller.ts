@@ -30,6 +30,17 @@ export class ArtifactController {
     }
   }
 
+  async getAllArtifacts(req: Request, res: Response): Promise<void> {
+    try {
+      const page = req.query.page ? Number(req.query.page) : undefined;
+      const limit = req.query.limit ? Number(req.query.limit) : undefined;
+      const response = await this.artifactService.getAllArtifacts(limit, page);
+      res.status(200).json(response);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+
   async deleteArtifact(req: Request, res: Response): Promise<void> {
     try {
       const id = req.params.id;
@@ -44,7 +55,7 @@ export class ArtifactController {
     try {
       const id = req.params.id;
       const response = await this.artifactService.getArtifactById(id);
-      res.status(204).json(response);
+      res.status(200).json(response);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }
@@ -55,7 +66,7 @@ export class ArtifactController {
       const id = req.params.id;
       const request: ArtifactUpdateRequestDto = req.body;
       const response = await this.artifactService.updateArtifact(id, request);
-      res.status(204).json(response);
+      res.status(200).json(response);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }

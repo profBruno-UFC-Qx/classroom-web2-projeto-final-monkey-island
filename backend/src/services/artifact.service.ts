@@ -127,7 +127,7 @@ export class ArtifactService implements IArtifactService {
     artifact.description = req.description || "";
     artifact.rarity = req.rarity;
     artifact.name = req.name;
-    artifact.image = `/artifacts/${filename}`;
+    artifact.image = `artifacts/${filename}`;
     return artifact;
   }
 

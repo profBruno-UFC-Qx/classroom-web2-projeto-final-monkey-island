@@ -4,6 +4,7 @@ import path from "path";
 
 const multerConfig = multer.diskStorage({
   destination: (req, file, cb) => {
+    console.log("esse daqui é do multer:" + path.resolve("public", "tmp"));
     cb(null, path.resolve("public", "tmp"));
   },
   filename: (req, file, cb) => {

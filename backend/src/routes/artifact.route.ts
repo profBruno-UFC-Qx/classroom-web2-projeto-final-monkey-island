@@ -16,16 +16,19 @@ artifactRoutes.post(
   "/artifacts",
   userAuthentication,
   userIsAdmin,
-  multer(multerConfig).single("file"),
+  multer(multerConfig).single("image"),
   (req, res) => artifactController.createArtifact(req, res)
 );
 
-artifactRoutes.put("/artifacts", userAuthentication, userIsAdmin, (req, res) =>
-  artifactController.updateArtifact(req, res)
+artifactRoutes.put(
+  "/artifacts/:id",
+  userAuthentication,
+  userIsAdmin,
+  (req, res) => artifactController.updateArtifact(req, res)
 );
 
 artifactRoutes.delete(
-  "/artifacts",
+  "/artifacts/:id",
   userAuthentication,
   userIsAdmin,
   (req, res) => artifactController.deleteArtifact(req, res)

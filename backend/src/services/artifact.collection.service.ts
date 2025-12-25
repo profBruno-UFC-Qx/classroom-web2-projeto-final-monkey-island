@@ -5,6 +5,7 @@ import { TYPES } from "../types/types";
 import { IArtifactCollectionRepository } from "../repositories/artifact.collection.repository";
 import { ArtifactResponsetDto } from "../dtos/artifact/response/artifact.response";
 import { ArtifactCollection } from "../entities/artifact.collection";
+import { User } from "../entities/User";
 
 export interface IArtifactCollectionService {
   addArtifactInCollection(user_id: string, artifact_id: string): Promise<void>;
@@ -18,6 +19,13 @@ export interface IArtifactCollectionService {
   getAllArtifactsByUserAndRarity(
     user_id: string,
     rarity: ArtifactRarity,
+    page: number,
+    limit: number
+  ): Promise<ArtifactCollectionResponseDto>;
+
+  getAllArtifactsByUserAndNameLike(
+    user_id: string,
+    name: string,
     page: number,
     limit: number
   ): Promise<ArtifactCollectionResponseDto>;
@@ -44,6 +52,9 @@ export class ArtifactCollectionService implements IArtifactCollectionService {
       artifactCollection.quantity += 1;
     } else {
       artifactCollection = new ArtifactCollection();
+      artifactCollection.user = { id: user_id } as User;
+      artifactCollection.artifact = { id: artifact_id } as Artifact;
+      artifactCollection.quantity = 1;
     }
 
     await this.artifactCollectionRepository.save(artifactCollection);
@@ -101,6 +112,34 @@ export class ArtifactCollectionService implements IArtifactCollectionService {
       })),
       totalItems: total,
       totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  async getAllArtifactsByUserAndNameLike(
+    user_id: string,
+    name: string,
+    page: number,
+    limit: number
+  ): Promise<ArtifactCollectionResponseDto> {
+    const currentPage = Math.max(page ?? 1, 1);
+    const currentLimit = Math.min(limit ?? 10, 20);
+    const skip = (currentPage - 1) * currentLimit;
+
+    const [items, total] =
+      await this.artifactCollectionRepository.findAllArtifactsByUserIdAndNameLike(
+        user_id,
+        name,
+        skip,
+        currentLimit
+      );
+
+    return {
+      data: items.map((item) => ({
+        artifact: this.mapArtifact(item.artifact),
+        quantity: item.quantity,
+      })),
+      totalItems: total,
+      totalPages: Math.ceil(total / currentLimit),
     };
   }
 

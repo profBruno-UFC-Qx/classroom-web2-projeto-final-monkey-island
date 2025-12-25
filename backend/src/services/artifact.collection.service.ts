@@ -4,6 +4,7 @@ import { injectable, inject } from "inversify";
 import { TYPES } from "../types/types";
 import { IArtifactCollectionRepository } from "../repositories/artifact.collection.repository";
 import { ArtifactResponsetDto } from "../dtos/artifact/response/artifact.response";
+import { ArtifactCollection } from "../entities/artifact.collection";
 
 export interface IArtifactCollectionService {
   addArtifactInCollection(user_id: string, artifact_id: string): Promise<void>;
@@ -32,7 +33,21 @@ export class ArtifactCollectionService implements IArtifactCollectionService {
   async addArtifactInCollection(
     user_id: string,
     artifact_id: string
-  ): Promise<void> {}
+  ): Promise<void> {
+    let artifactCollection =
+      await this.artifactCollectionRepository.FindByUserIdAndArtifactId(
+        user_id,
+        artifact_id
+      );
+
+    if (artifactCollection) {
+      artifactCollection.quantity += 1;
+    } else {
+      artifactCollection = new ArtifactCollection();
+    }
+
+    await this.artifactCollectionRepository.save(artifactCollection);
+  }
 
   async getAllArtifactsByUser(
     user_id: string,

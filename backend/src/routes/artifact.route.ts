@@ -34,6 +34,9 @@ artifactRoutes.delete(
   (req, res) => artifactController.deleteArtifact(req, res)
 );
 
+artifactRoutes.get("/artifacts/random-choice", (req, res) =>
+  artifactController.choiceRandomArtifact(req, res)
+);
 artifactRoutes.get("/artifacts/:id", (req, res) =>
   artifactController.getArtifactById(req, res)
 );

@@ -5,10 +5,11 @@ import { ArtifactResponsetDto } from "../dtos/artifact/response/artifact.respons
 import { ArtifactsResponseDto } from "../dtos/artifact/response/artifacts.response.dto";
 import { TYPES } from "../types/types";
 import { IArtifactRepository } from "../repositories/artifact.repositorie";
-import { Artifact } from "../entities/artifact";
+import { Artifact, ArtifactRarity } from "../entities/artifact";
 import path from "path";
 import { rename, unlink } from "node:fs/promises";
 import { applyPartialUpdate } from "../util/merge-function";
+import { record } from "zod";
 
 export interface IArtifactService {
   createArtifact(
@@ -17,7 +18,7 @@ export interface IArtifactService {
     filepath: string
   ): Promise<ArtifactResponsetDto>;
 
-  //   choiceRandomArtifact(): Promise<ArtifactRequestDto>;
+  choiceRandomArtifact(): Promise<ArtifactResponsetDto>;
 
   getAllArtifacts(limit?: number, page?: number): Promise<ArtifactsResponseDto>;
 
@@ -98,6 +99,49 @@ export class ArtifactService implements IArtifactService {
     }
   }
 
+  private getRandomInt(min: number = 1, max: number = 100): number {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+  }
+
+  private getSelectedRarity() {
+    const probabilities: Record<ArtifactRarity, number> = {
+      [ArtifactRarity.FRAGMENT]: 30,
+      [ArtifactRarity.PARTIAL_FOSSIL]: 30,
+      [ArtifactRarity.RARE_FOSSIL]: 25,
+      [ArtifactRarity.EXCEPTIONAL_SPECIMEN]: 10,
+      [ArtifactRarity.UNIQUE_SPECIMEN]: 5,
+    };
+
+    let randomNumber = this.getRandomInt();
+    let choice: ArtifactRarity | null = null;
+
+    for (const key in probabilities) {
+      randomNumber -= probabilities[key as ArtifactRarity];
+      if (randomNumber <= 0) {
+        choice = key as ArtifactRarity;
+        break;
+      }
+    }
+    if (!choice) {
+      throw new Error("rarity not selected");
+    }
+    return choice;
+  }
+
+  async choiceRandomArtifact(): Promise<ArtifactResponsetDto> {
+    const selectedRarity = this.getSelectedRarity();
+    const listOfArtifacts =
+      await this.artifactRepository.getArtifactsByRarity(selectedRarity);
+
+    if (listOfArtifacts.length === 0) {
+      throw new Error(`No artifacts found for rarity ${selectedRarity}`);
+    }
+
+    return this.entityToDto(
+      listOfArtifacts[this.getRandomInt(0, listOfArtifacts.length - 1)]
+    );
+  }
+
   async getAllArtifacts(
     limit?: number,
     page?: number
@@ -109,7 +153,6 @@ export class ArtifactService implements IArtifactService {
       await this.artifactRepository.getAllArtifacts(skip, currentLimit);
 
     const data = entities.map((data) => this.entityToDto(data));
-
     return {
       data,
       totalItems,

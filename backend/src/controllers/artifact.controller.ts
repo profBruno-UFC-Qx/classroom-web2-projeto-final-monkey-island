@@ -42,6 +42,15 @@ export class ArtifactController {
     }
   }
 
+  async choiceRandomArtifact(req: Request, res: Response): Promise<void> {
+    try {
+      const response = await this.artifactService.choiceRandomArtifact();
+      res.status(200).json(response);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+
   async deleteArtifact(req: Request, res: Response): Promise<void> {
     try {
       const id = req.params.id;

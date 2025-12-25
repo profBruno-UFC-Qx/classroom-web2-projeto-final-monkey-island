@@ -8,6 +8,7 @@ import {
 } from "typeorm";
 
 import { ResearcherRequest } from "./researcher.request";
+import { ArtifactCollection } from "./artifact.collection";
 
 export enum UserRole {
   ADMIN = "admin",
@@ -70,6 +71,9 @@ export class User {
 
   @OneToMany(() => ResearcherRequest, (request) => request.user)
   researcherRequests: ResearcherRequest[];
+
+  @OneToMany(() => ArtifactCollection, (ac) => ac.user)
+  artifactsColletions: ArtifactCollection[];
 
   @CreateDateColumn()
   createdAt: Date;

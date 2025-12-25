@@ -1,0 +1,46 @@
+import { AppDataSource } from "../config/db.connection";
+import { injectable } from "inversify";
+import { Artifact, ArtifactRarity } from "../entities/artifact";
+
+export interface IArtifactRepository {
+  save(artifact: Artifact): Promise<Artifact>;
+  getArtifactById(artifact_id: string): Promise<Artifact | null>;
+  getArtifactsByRarity(rarity: ArtifactRarity): Promise<Artifact[]>;
+  getAllArtifacts(skip: number, take: number): Promise<[Artifact[], number]>;
+  artifactExistsByName(name: string): Promise<boolean>;
+  deleteArtifact(artifact_id: string): Promise<void>;
+}
+
+@injectable()
+export class ArtifactRepositoryDB implements IArtifactRepository {
+  private get repo() {
+    return AppDataSource.getRepository(Artifact);
+  }
+
+  async save(artifact: Artifact): Promise<Artifact> {
+    return await this.repo.save(artifact);
+  }
+
+  async getAllArtifacts(
+    skip: number,
+    take: number
+  ): Promise<[Artifact[], number]> {
+    return await this.repo.findAndCount({ skip, take });
+  }
+
+  async getArtifactById(artifact_id: string): Promise<Artifact | null> {
+    return await this.repo.findOne({ where: { id: artifact_id } });
+  }
+
+  async getArtifactsByRarity(rarity: ArtifactRarity): Promise<Artifact[]> {
+    return await this.repo.find({ where: { rarity } });
+  }
+
+  async artifactExistsByName(name: string): Promise<boolean> {
+    return await this.repo.existsBy({ name });
+  }
+
+  async deleteArtifact(artifact_id: string): Promise<void> {
+    await this.repo.delete({ id: artifact_id });
+  }
+}

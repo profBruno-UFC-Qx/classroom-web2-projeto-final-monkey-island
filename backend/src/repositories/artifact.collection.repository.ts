@@ -14,6 +14,11 @@ export interface IArtifactCollectionRepository {
     take: number
   ): Promise<[{ artifact: Artifact; quantity: number }[], number]>;
 
+  ExistsByUserIdAndArtifactId(
+    user_id: string,
+    artifact_id: string
+  ): Promise<boolean>;
+
   findAllArtifactsByUserIdAndRarity(
     user_id: string,
     rarity: ArtifactRarity,
@@ -39,6 +44,15 @@ export class ArtifactCollectionRepositoryDB
 
   async save(artifactCollection: ArtifactCollection): Promise<void> {
     await this.repo.save(artifactCollection);
+  }
+
+  async ExistsByUserIdAndArtifactId(
+    user_id: string,
+    artifact_id: string
+  ): Promise<boolean> {
+    return await this.repo.exists({
+      where: { user: { id: user_id }, artifact: { id: artifact_id } },
+    });
   }
 
   private mapCollection(items: ArtifactCollection[]) {

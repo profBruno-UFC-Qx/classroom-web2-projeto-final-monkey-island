@@ -83,7 +83,7 @@ export class ArtifactCollectionService implements IArtifactCollectionService {
         quantity: item.quantity,
       })),
       totalItems: total,
-      totalPages: Math.ceil(total / limit),
+      totalPages: Math.ceil(total / currentLimit),
     };
   }
 
@@ -111,7 +111,7 @@ export class ArtifactCollectionService implements IArtifactCollectionService {
         quantity: item.quantity,
       })),
       totalItems: total,
-      totalPages: Math.ceil(total / limit),
+      totalPages: Math.ceil(total / currentLimit),
     };
   }
 

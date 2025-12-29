@@ -54,4 +54,12 @@ export class CommunityRepositoryDB implements ICommunityRepository {
     const total = await AppDataSource.getRepository(Community).count();
     return [communities, total];
   }
+
+  findAllCommunitiesByNameLike(
+    name: string,
+    skip: number,
+    take: number
+  ): Promise<[Community[], number]> {
+    return this.repo.findAndCount({ where: { name: Like(`%${name}%`) } });
+  }
 }

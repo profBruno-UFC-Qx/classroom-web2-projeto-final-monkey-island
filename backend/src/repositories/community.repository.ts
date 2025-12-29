@@ -4,12 +4,13 @@ import { Community } from "../entities/community";
 import { Like } from "typeorm";
 
 export interface CommunityWithCount extends Community {
-  memberCount: number;
+  memberCount?: number;
 }
 
 export interface ICommunityRepository {
   save(community: Community): Promise<Community>;
   deleteCommunity(communityId: string): Promise<void>;
+  findCommunityByName(name: string): Promise<Community | null>;
   findCommunitiesCreatedByUser(userId: string): Promise<Community[]>;
   findAllCommunitiesByNameLike(
     name: string,
@@ -34,6 +35,10 @@ export class CommunityRepositoryDB implements ICommunityRepository {
 
   async deleteCommunity(communityId: string): Promise<void> {
     await this.repo.delete({ id: communityId });
+  }
+
+  async findCommunityByName(name: string): Promise<Community | null> {
+    return await this.repo.findOne({ where: { name } });
   }
 
   async findCommunitiesCreatedByUser(userId: string): Promise<Community[]> {

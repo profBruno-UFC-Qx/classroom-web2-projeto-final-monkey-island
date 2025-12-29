@@ -17,3 +17,17 @@ export interface ICommunityRepository {
     take: number
   ): Promise<[Community[], number]>;
 }
+
+export class CommunityRepositoryDB implements ICommunityRepository {
+  private get repo() {
+    return AppDataSource.getRepository(Community);
+  }
+
+  async save(community: Community): Promise<Community> {
+    return this.repo.save(community);
+  }
+
+  async deleteCommunity(communityId: string): Promise<void> {
+    this.repo.delete({ id: communityId });
+  }
+}

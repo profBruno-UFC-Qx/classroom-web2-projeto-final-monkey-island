@@ -12,10 +12,11 @@ export class ArtifactCollectionController {
   ) {}
   async addArtifactInCollection(req: Request, res: Response) {
     try {
-      const { userId, artifactId } = req.params;
+      const { artifactId } = req.params;
+      const userId = req.user?.id;
 
       await this.artifactCollectionService.addArtifactInCollection(
-        userId,
+        userId as string,
         artifactId
       );
 
@@ -46,7 +47,7 @@ export class ArtifactCollectionController {
   async getAllArtifactsByUserAndRarity(req: Request, res: Response) {
     try {
       const userId = req.user?.id;
-      const { rarity } = req.params;
+      const { rarity } = req.query;
       const page = req.query.page ? Number(req.query.page) : undefined;
       const limit = req.query.limit ? Number(req.query.limit) : undefined;
 

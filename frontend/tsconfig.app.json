@@ -6,6 +6,10 @@
     "moduleResolution": "bundler",
     "skipLibCheck": true,
 
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,

@@ -10,6 +10,5 @@ export interface RegisterCredentials extends LoginCredentials {
 }
 
 export interface AuthResponse {
-  token: string;
-  user: User;
+  jwt: string; // O backend usa 'jwt', não 'token'
 }

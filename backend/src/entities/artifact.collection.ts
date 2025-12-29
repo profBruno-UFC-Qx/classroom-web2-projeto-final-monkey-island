@@ -17,6 +17,6 @@ export class ArtifactCollection {
   })
   artifact: Artifact;
 
-  @Column({ default: 1 })
+  @Column({ type: "int", default: 1 })
   quantity: number;
 }

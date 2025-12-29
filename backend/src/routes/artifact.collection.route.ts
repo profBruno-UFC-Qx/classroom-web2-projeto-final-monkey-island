@@ -34,4 +34,4 @@ artifactCollectionRoutes.get(
     artifactCollectionController.getAllArtifactsByUserAndNameLike(req, res)
 );
 
-export default artifactCollectionController;
+export default artifactCollectionRoutes;

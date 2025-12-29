@@ -8,8 +8,8 @@ const api = axios.create({
 
 export default {
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
-    // Rota correta baseada no seu authRoutes do Express
+
     const response = await api.post<AuthResponse>('/auth/login', credentials);
-    return response.data; // O backend já retorna { jwt: '...' }
+    return response.data; 
   }
 };

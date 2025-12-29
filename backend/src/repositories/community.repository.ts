@@ -37,4 +37,21 @@ export class CommunityRepositoryDB implements ICommunityRepository {
       order: { createdAt: "DESC" },
     });
   }
+
+  async findPopularCommunities(
+    skip: number,
+    take: number
+  ): Promise<[Community[], number]> {
+    const qb = this.repo
+      .createQueryBuilder("community")
+      .leftJoinAndSelect("community.members", "member")
+      .loadRelationCountAndMap("community.memberCount", "community.members")
+      .orderBy("community.memberCount", "DESC")
+      .skip(skip)
+      .take(take);
+
+    const communities = await qb.getMany();
+    const total = await AppDataSource.getRepository(Community).count();
+    return [communities, total];
+  }
 }

@@ -26,6 +26,15 @@ import {
   IArtifactService,
 } from "../services/artifact.service";
 import { ArtifactController } from "../controllers/artifact.controller";
+import {
+  ArtifactCollectionRepositoryDB,
+  IArtifactCollectionRepository,
+} from "../repositories/artifact.collection.repository";
+import {
+  ArtifactCollectionService,
+  IArtifactCollectionService,
+} from "../services/artifact.collection.service";
+import { ArtifactCollectionController } from "../controllers/artifact.collection.controller";
 
 export const container: Container = new Container();
 
@@ -60,3 +69,17 @@ container.bind<IArtifactService>(TYPES.ArtifactService).to(ArtifactService);
 container
   .bind<ArtifactController>(TYPES.ArtifactController)
   .to(ArtifactController);
+
+//aqui é pra collection
+
+container
+  .bind<IArtifactCollectionRepository>(TYPES.ArtifactCollectionRepositoryDB)
+  .to(ArtifactCollectionRepositoryDB);
+
+container
+  .bind<IArtifactCollectionService>(TYPES.ArtifactCollectionService)
+  .to(ArtifactCollectionService);
+
+container
+  .bind<ArtifactCollectionController>(TYPES.ArtifactCollectionController)
+  .to(ArtifactCollectionController);

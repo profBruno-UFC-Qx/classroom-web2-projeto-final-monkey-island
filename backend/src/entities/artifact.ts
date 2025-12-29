@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
+import { ArtifactCollection } from "./artifact.collection";
 
 export enum ArtifactRarity {
   FRAGMENT = "fragment",
@@ -35,4 +36,7 @@ export class Artifact {
     length: 150,
   })
   image: string;
+
+  @OneToMany(() => ArtifactCollection, (ac) => ac.artifact)
+  artifactsCollection: ArtifactCollection[];
 }

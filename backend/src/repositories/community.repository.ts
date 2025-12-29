@@ -3,6 +3,10 @@ import { injectable } from "inversify";
 import { Community } from "../entities/community";
 import { Like } from "typeorm";
 
+export interface CommunityWithCount extends Community {
+  memberCount: number;
+}
+
 export interface ICommunityRepository {
   save(community: Community): Promise<Community>;
   deleteCommunity(communityId: string): Promise<void>;
@@ -15,7 +19,7 @@ export interface ICommunityRepository {
   findPopularCommunities(
     skip: number,
     take: number
-  ): Promise<[Community[], number]>;
+  ): Promise<[CommunityWithCount[], number]>;
 }
 
 export class CommunityRepositoryDB implements ICommunityRepository {
@@ -24,15 +28,15 @@ export class CommunityRepositoryDB implements ICommunityRepository {
   }
 
   async save(community: Community): Promise<Community> {
-    return this.repo.save(community);
+    return await this.repo.save(community);
   }
 
   async deleteCommunity(communityId: string): Promise<void> {
-    this.repo.delete({ id: communityId });
+    await this.repo.delete({ id: communityId });
   }
 
   async findCommunitiesCreatedByUser(userId: string): Promise<Community[]> {
-    return this.repo.find({
+    return await this.repo.find({
       where: { createdBy: { id: userId } },
       order: { createdAt: "DESC" },
     });
@@ -41,7 +45,7 @@ export class CommunityRepositoryDB implements ICommunityRepository {
   async findPopularCommunities(
     skip: number,
     take: number
-  ): Promise<[Community[], number]> {
+  ): Promise<[CommunityWithCount[], number]> {
     const qb = this.repo
       .createQueryBuilder("community")
       .leftJoinAndSelect("community.members", "member")
@@ -51,15 +55,19 @@ export class CommunityRepositoryDB implements ICommunityRepository {
       .take(take);
 
     const communities = await qb.getMany();
-    const total = await AppDataSource.getRepository(Community).count();
-    return [communities, total];
+    const total = await this.repo.count();
+    return [communities as CommunityWithCount[], total];
   }
 
-  findAllCommunitiesByNameLike(
+  async findAllCommunitiesByNameLike(
     name: string,
     skip: number,
     take: number
   ): Promise<[Community[], number]> {
-    return this.repo.findAndCount({ where: { name: Like(`%${name}%`) } });
+    return await this.repo.findAndCount({
+      where: { name: Like(`%${name}%`) },
+      skip,
+      take,
+    });
   }
 }

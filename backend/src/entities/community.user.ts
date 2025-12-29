@@ -10,6 +10,13 @@ import {
 import { User } from "./User";
 import { Community } from "./community";
 
+export enum CommunityUserStatus {
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE",
+  BANNED = "BANNED",
+  SUSPENDED = "SUSPENDED",
+}
+
 @Entity()
 @Unique(["user", "community"])
 export class CommunityUser {
@@ -26,6 +33,28 @@ export class CommunityUser {
   })
   community: Community;
 
+  @Column({
+    type: "simple-enum",
+    enum: CommunityUserStatus,
+    default: CommunityUserStatus.ACTIVE,
+  })
+  status: CommunityUserStatus;
+
   @CreateDateColumn()
   joinedAt: Date;
+
+  @Column({ type: "datetime", nullable: true })
+  leftAt?: Date;
+
+  @Column({ type: "datetime", nullable: true })
+  suspendedAt?: Date;
+
+  @Column({ type: "datetime", nullable: true })
+  suspensionEndsAt?: Date;
+
+  @Column({ type: "datetime", nullable: true })
+  bannedAt?: Date;
+
+  @Column({ type: "text", nullable: true })
+  banReason?: string;
 }

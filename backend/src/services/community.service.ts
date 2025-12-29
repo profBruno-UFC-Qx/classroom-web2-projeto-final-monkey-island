@@ -84,6 +84,22 @@ export class CommunityService implements ICommunityService {
     return this.entityToResponseDto(responseData);
   }
 
+  async deleteCommunityById(
+    userId: string,
+    communityId: string
+  ): Promise<void> {
+    const community =
+      await this.communityRepository.findCommunityById(communityId);
+
+    if (!community) {
+      throw new Error("community not exists");
+    }
+    if (community.createdBy.id !== userId) {
+      throw new Error("You do not have permission to perform this action");
+    }
+    await this.communityRepository.deleteCommunity(communityId);
+  }
+
   private DtoToEntity(user: User, request: CommunityRequestDto): Community {
     const community = new Community();
     community.createdBy = user;

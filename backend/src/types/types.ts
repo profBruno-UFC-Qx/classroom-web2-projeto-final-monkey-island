@@ -12,4 +12,6 @@ export const TYPES = {
   ArtifactService: Symbol.for("ArtifactService"),
   ArtifactController: Symbol.for("ArtifactController"),
   ArtifactCollectionRepositoryDB: Symbol.for("ArtifactCollectionRepository"),
+  ArtifactCollectionService: Symbol.for("ArtifactCollectionService"),
+  ArtifactCollectionController: Symbol.for("ArtifactCollectionController"),
 };

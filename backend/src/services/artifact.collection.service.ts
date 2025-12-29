@@ -12,22 +12,22 @@ export interface IArtifactCollectionService {
 
   getAllArtifactsByUser(
     user_id: string,
-    page: number,
-    limit: number
+    page?: number,
+    limit?: number
   ): Promise<ArtifactCollectionResponseDto>;
 
   getAllArtifactsByUserAndRarity(
     user_id: string,
     rarity: ArtifactRarity,
-    page: number,
-    limit: number
+    page?: number,
+    limit?: number
   ): Promise<ArtifactCollectionResponseDto>;
 
   getAllArtifactsByUserAndNameLike(
     user_id: string,
     name: string,
-    page: number,
-    limit: number
+    page?: number,
+    limit?: number
   ): Promise<ArtifactCollectionResponseDto>;
 }
 
@@ -62,8 +62,8 @@ export class ArtifactCollectionService implements IArtifactCollectionService {
 
   async getAllArtifactsByUser(
     user_id: string,
-    page: number,
-    limit: number
+    page?: number,
+    limit?: number
   ): Promise<ArtifactCollectionResponseDto> {
     const currentPage = Math.max(page ?? 1, 1);
     const currentLimit = Math.min(limit ?? 10, 20);
@@ -90,8 +90,8 @@ export class ArtifactCollectionService implements IArtifactCollectionService {
   async getAllArtifactsByUserAndRarity(
     user_id: string,
     rarity: ArtifactRarity,
-    page: number,
-    limit: number
+    page?: number,
+    limit?: number
   ): Promise<ArtifactCollectionResponseDto> {
     const currentPage = Math.max(page ?? 1, 1);
     const currentLimit = Math.min(limit ?? 10, 20);
@@ -118,8 +118,8 @@ export class ArtifactCollectionService implements IArtifactCollectionService {
   async getAllArtifactsByUserAndNameLike(
     user_id: string,
     name: string,
-    page: number,
-    limit: number
+    page?: number,
+    limit?: number
   ): Promise<ArtifactCollectionResponseDto> {
     const currentPage = Math.max(page ?? 1, 1);
     const currentLimit = Math.min(limit ?? 10, 20);

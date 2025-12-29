@@ -6,13 +6,13 @@ import { Like } from "typeorm";
 export interface ICommunityRepository {
   save(community: Community): Promise<Community>;
   deleteCommunity(communityId: string): Promise<void>;
-  getCommunitiesCreatedByUser(userId: string): Promise<Community[]>;
+  findCommunitiesCreatedByUser(userId: string): Promise<Community[]>;
   findAllCommunitiesByNameLike(
     name: string,
     skip: number,
     take: number
   ): Promise<[Community[], number]>;
-  getPopularCommunities(
+  findPopularCommunities(
     skip: number,
     take: number
   ): Promise<[Community[], number]>;
@@ -29,5 +29,12 @@ export class CommunityRepositoryDB implements ICommunityRepository {
 
   async deleteCommunity(communityId: string): Promise<void> {
     this.repo.delete({ id: communityId });
+  }
+
+  async findCommunitiesCreatedByUser(userId: string): Promise<Community[]> {
+    return this.repo.find({
+      where: { createdBy: { id: userId } },
+      order: { createdAt: "DESC" },
+    });
   }
 }

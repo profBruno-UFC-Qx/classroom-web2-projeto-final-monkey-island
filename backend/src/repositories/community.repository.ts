@@ -22,6 +22,7 @@ export interface ICommunityRepository {
   ): Promise<[CommunityWithCount[], number]>;
 }
 
+@injectable()
 export class CommunityRepositoryDB implements ICommunityRepository {
   private get repo() {
     return AppDataSource.getRepository(Community);

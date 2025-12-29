@@ -11,6 +11,8 @@ import {
 import { Community } from "../entities/community";
 import { User } from "../entities/User";
 
+import { applyPartialUpdate } from "../util/merge-function";
+
 export interface ICommunityService {
   createCommunity(
     userId: string,
@@ -19,6 +21,7 @@ export interface ICommunityService {
 
   updateCommunityData(
     userId: string,
+    communityId: string,
     request: CommunityUpdateRequestDto
   ): Promise<CommunityResponseDto>;
 
@@ -55,6 +58,29 @@ export class CommunityService implements ICommunityService {
     }
     const community = this.DtoToEntity({ id: userId } as User, request);
     const responseData = await this.communityRepository.save(community);
+    return this.entityToResponseDto(responseData);
+  }
+
+  async updateCommunityData(
+    userId: string,
+    communityID: string,
+    request: CommunityUpdateRequestDto
+  ): Promise<CommunityResponseDto> {
+    const community =
+      await this.communityRepository.findCommunityById(communityID);
+
+    if (!community) {
+      throw new Error("community not exists");
+    }
+
+    if (community.createdBy.id !== userId) {
+      throw new Error("You do not have permission to perform this action");
+    }
+
+    const target = applyPartialUpdate(community, request);
+
+    const responseData = await this.communityRepository.save(target);
+
     return this.entityToResponseDto(responseData);
   }
 

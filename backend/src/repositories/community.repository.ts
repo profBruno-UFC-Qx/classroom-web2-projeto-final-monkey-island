@@ -11,6 +11,7 @@ export interface ICommunityRepository {
   save(community: Community): Promise<Community>;
   deleteCommunity(communityId: string): Promise<void>;
   findCommunityByName(name: string): Promise<Community | null>;
+  findCommunityById(id: string): Promise<Community | null>;
   findCommunitiesCreatedByUser(userId: string): Promise<Community[]>;
   findAllCommunitiesByNameLike(
     name: string,
@@ -39,6 +40,10 @@ export class CommunityRepositoryDB implements ICommunityRepository {
 
   async findCommunityByName(name: string): Promise<Community | null> {
     return await this.repo.findOne({ where: { name } });
+  }
+
+  async findCommunityById(id: string): Promise<Community | null> {
+    return await this.repo.findOne({ where: { id } });
   }
 
   async findCommunitiesCreatedByUser(userId: string): Promise<Community[]> {

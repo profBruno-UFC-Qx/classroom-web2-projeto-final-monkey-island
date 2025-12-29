@@ -124,6 +124,25 @@ export class CommunityService implements ICommunityService {
     };
   }
 
+  async findPopularCommunities(
+    page?: number,
+    limit?: number
+  ): Promise<CommunitySearchResponseDto> {
+    const currentPage = Math.max(page ?? 1, 1);
+    const currentLimit = Math.min(limit ?? 10, 20);
+
+    const skip = (currentPage - 1) * currentLimit;
+
+    const [items, total] =
+      await this.communityRepository.findPopularCommunities(skip, currentLimit);
+
+    return {
+      data: items.map((item) => this.entityToResponseDto(item)),
+      totalItems: total,
+      totalPages: Math.ceil(total / currentLimit),
+    };
+  }
+
   private DtoToEntity(user: User, request: CommunityRequestDto): Community {
     const community = new Community();
     community.createdBy = user;

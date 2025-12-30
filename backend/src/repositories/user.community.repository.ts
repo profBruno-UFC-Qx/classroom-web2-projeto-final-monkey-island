@@ -97,4 +97,23 @@ export class UserCommunityRepositoryDB implements IUserCommunityRepository {
     const mapped: UserWithCommunityData[] = this.mapCollection(items);
     return [mapped, total];
   }
+
+  async findUsersOfTheCommunityByStatus(
+    communityId: string,
+    status: CommunityUserStatus,
+    skip: number,
+    take: number
+  ): Promise<[UserWithCommunityData[], number]> {
+    const [items, total] = await this.repo.findAndCount({
+      where: {
+        community: { id: communityId },
+        status,
+      },
+      relations: ["user"],
+      skip,
+      take,
+    });
+    const mapped: UserWithCommunityData[] = this.mapCollection(items);
+    return [mapped, total];
+  }
 }

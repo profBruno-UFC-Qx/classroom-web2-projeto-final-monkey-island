@@ -50,6 +50,15 @@ export class UserCommunityRepositoryDB implements IUserCommunityRepository {
     return await this.repo.save(commityUser);
   }
 
+  async findByUserAndCommunity(
+    userId: string,
+    communityId: string
+  ): Promise<CommunityUser | null> {
+    return await this.repo.findOne({
+      where: { user: { id: userId }, community: { id: communityId } },
+    });
+  }
+
   private mapCollection(items: CommunityUser[]): UserWithCommunityData[] {
     return items.map((item) => {
       let communityData = { joinedAt: item.joinedAt };

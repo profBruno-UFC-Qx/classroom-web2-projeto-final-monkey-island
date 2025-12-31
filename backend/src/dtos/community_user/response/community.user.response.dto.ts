@@ -9,6 +9,7 @@ export interface CommunityUserResponseDto {
   communityData: {
     joinedAt: Date;
     bannedAt?: Date;
+    banReason?: string;
     leftAt?: Date;
     suspendedAt?: Date;
   };

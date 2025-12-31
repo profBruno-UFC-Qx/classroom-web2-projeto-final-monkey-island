@@ -11,6 +11,7 @@ import { CommunityUser, CommunityUserStatus } from "../entities/community.user";
 import { User } from "../entities/User";
 import { Community } from "../entities/community";
 import { CommunitiesOfUserResponseDto } from "../dtos/community_user/response/communies.of.user.response.dto";
+import { BanRequestDto } from "../dtos/community_user/request/ban.request.dto";
 
 export interface ICommunityUserService {
   joinInCommunity(
@@ -31,9 +32,19 @@ export interface ICommunityUserService {
     page?: number,
     limit?: number
   ): Promise<CommunityUserSearchResponseDto>;
-  banUser(userId: string): Promise<CommunityUserResponseDto>;
-  suspendUser(userId: string): Promise<CommunityUserResponseDto>;
-  unsuspendUser(userId: string): Promise<CommunityUserResponseDto>;
+  banUser(
+    targetUserId: string,
+    communityId: string,
+    banRequest: BanRequestDto
+  ): Promise<CommunityUserResponseDto>;
+  suspendUser(
+    targetUserId: string,
+    communityId: string
+  ): Promise<CommunityUserResponseDto>;
+  unsuspendUser(
+    targetUserId: string,
+    communityId: string
+  ): Promise<CommunityUserResponseDto>;
 }
 
 @injectable()
@@ -99,6 +110,33 @@ export class CommunityUserService implements ICommunityUserService {
 
     const response = await this.communityUserRepository.save(communityUser);
     return this.entityToResponseDto(response);
+  }
+
+  async banUser(
+    targetUserId: string,
+    communityId: string,
+    banRequest: BanRequestDto
+  ): Promise<CommunityUserResponseDto> {
+    const communityUser =
+      await this.communityUserRepository.findByUserAndCommunity(
+        targetUserId,
+        communityId
+      );
+
+    if (!communityUser) {
+      throw new Error("user does not exist in this community");
+    }
+
+    if (communityUser.status === CommunityUserStatus.BANNED) {
+      throw new Error("user already banned");
+    }
+
+    communityUser.bannedAt = new Date();
+    communityUser.banReason = banRequest.banReason;
+    communityUser.status = CommunityUserStatus.BANNED;
+
+    const responseData = await this.communityUserRepository.save(communityUser);
+    return this.entityToResponseDto(responseData);
   }
 
   async listCommunitiesOfUser(

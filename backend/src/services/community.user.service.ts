@@ -52,14 +52,13 @@ export class CommunityUserService implements ICommunityUserService {
     if (userInCommunity) {
       if (userInCommunity.status === CommunityUserStatus.ACTIVE) {
         throw new Error("user already in this community");
-      } else if (userInCommunity.status === CommunityUserStatus.INACTIVE) {
-        userInCommunity.status = CommunityUserStatus.ACTIVE;
-        userInCommunity.leftAt = null;
       } else if (userInCommunity.status === CommunityUserStatus.BANNED) {
         throw new Error("You are banned from this community");
-      } else {
+      } else if (userInCommunity.status === CommunityUserStatus.SUSPENDED) {
         throw new Error("You are temporarily suspended from this community");
       }
+      userInCommunity.status = CommunityUserStatus.ACTIVE;
+      userInCommunity.leftAt = null;
     } else {
       userInCommunity = new CommunityUser();
       userInCommunity.user = { id: userId } as User;
@@ -72,7 +71,37 @@ export class CommunityUserService implements ICommunityUserService {
   async leftOfCommunity(
     userId: string,
     communityId: string
-  ): Promise<CommunityUserResponseDto> {}
+  ): Promise<CommunityUserResponseDto> {
+    const communityUser =
+      await this.communityUserRepository.findByUserAndCommunity(
+        userId,
+        communityId
+      );
+
+    if (!communityUser) {
+      throw new Error("user is not part of this community");
+    }
+
+    if (communityUser.status === CommunityUserStatus.INACTIVE) {
+      throw new Error("user already left this community");
+    } else if (communityUser.status === CommunityUserStatus.BANNED) {
+      throw new Error("banned users cannot leave communities");
+    } else if (communityUser.status === CommunityUserStatus.SUSPENDED) {
+      throw new Error("suspended users cannot leave communities");
+    }
+
+    communityUser.status = CommunityUserStatus.INACTIVE;
+    communityUser.leftAt = new Date();
+
+    const response = await this.communityUserRepository.save(communityUser);
+    return this.entityToResponseDto(response);
+  }
+
+  async listCommunitiesOfUser(
+    user_id: string,
+    page?: number,
+    limit?: number
+  ): Promise<CommunityUserSearchResponseDto> {}
 
   private entityToResponseDto(
     communityUser: CommunityUser

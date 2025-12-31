@@ -3,10 +3,14 @@ import { CommunityUserResponseDto } from "../dtos/community_user/response/commun
 import { CommunityUserSearchResponseDto } from "../dtos/community_user/response/community.user.search.dto";
 import { TYPES } from "../types/types";
 import { ICommunityRepository } from "../repositories/community.repository";
-import { IUserCommunityRepository } from "../repositories/user.community.repository";
+import {
+  IUserCommunityRepository,
+  UserWithCommunityData,
+} from "../repositories/user.community.repository";
 import { CommunityUser, CommunityUserStatus } from "../entities/community.user";
 import { User } from "../entities/User";
 import { Community } from "../entities/community";
+import { CommunitiesOfUserResponseDto } from "../dtos/community_user/response/communies.of.user.response.dto";
 
 export interface ICommunityUserService {
   joinInCommunity(
@@ -21,7 +25,7 @@ export interface ICommunityUserService {
     user_id: string,
     page?: number,
     limit?: number
-  ): Promise<CommunityUserSearchResponseDto>;
+  ): Promise<CommunitiesOfUserResponseDto>;
   listUsersOfCommunity(
     communityId: string,
     page?: number,
@@ -101,10 +105,57 @@ export class CommunityUserService implements ICommunityUserService {
     user_id: string,
     page?: number,
     limit?: number
-  ): Promise<CommunityUserSearchResponseDto> {}
+  ): Promise<CommunitiesOfUserResponseDto> {
+    const currentPage = Math.max(page ?? 1, 1);
+    const currentLimit = Math.min(limit ?? 10, 20);
+
+    const skip = (currentPage - 1) * currentLimit;
+
+    const [items, total] =
+      await this.communityUserRepository.findCommunitiesByUserId(
+        user_id,
+        skip,
+        currentLimit
+      );
+
+    return {
+      data: items.map((item) => ({
+        id: item.id,
+        name: item.name,
+        description: item.description,
+        createdAt: item.createdAt,
+      })),
+      totalItems: total,
+      totalPages: Math.ceil(total / currentLimit),
+    };
+  }
+
+  async listUsersOfCommunity(
+    communityId: string,
+    page?: number,
+    limit?: number
+  ): Promise<CommunityUserSearchResponseDto> {
+    const currentPage = Math.max(page ?? 1, 1);
+    const currentLimit = Math.min(limit ?? 10, 20);
+
+    const skip = (currentPage - 1) * currentLimit;
+
+    const [items, total] =
+      await this.communityUserRepository.findUsersOfTheCommunity(
+        communityId,
+        skip,
+        currentLimit
+      );
+
+    return {
+      data: items.map((item) => this.entityToResponseDto(item)),
+      totalItems: total,
+      totalPages: Math.ceil(total / currentLimit),
+    };
+  }
 
   private entityToResponseDto(
-    communityUser: CommunityUser
+    communityUser: CommunityUser | UserWithCommunityData
   ): CommunityUserResponseDto {
     return {
       user: {

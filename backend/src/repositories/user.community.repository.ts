@@ -12,7 +12,10 @@ export interface UserCommunityData {
 
 export interface UserWithCommunityData {
   user: User;
-  communityData: UserCommunityData;
+  joinedAt: Date;
+  leftAt?: Date;
+  bannedAt?: Date;
+  suspendedAt?: Date;
 }
 
 export interface IUserCommunityRepository {
@@ -79,13 +82,13 @@ export class UserCommunityRepositoryDB implements IUserCommunityRepository {
 
       let response: UserWithCommunityData = {
         user: item.user,
-        communityData,
+        ...communityData,
       };
 
       if (item.status === CommunityUserStatus.BANNED && item.bannedAt) {
         response = {
           ...response,
-          communityData: { ...communityData, bannedAt: item.bannedAt },
+          bannedAt: item.bannedAt,
         };
       } else if (
         item.status === CommunityUserStatus.SUSPENDED &&
@@ -93,12 +96,12 @@ export class UserCommunityRepositoryDB implements IUserCommunityRepository {
       ) {
         response = {
           ...response,
-          communityData: { ...communityData, suspendedAt: item.suspendedAt },
+          suspendedAt: item.suspendedAt,
         };
       } else if (item.status === CommunityUserStatus.INACTIVE && item.leftAt) {
         response = {
           ...response,
-          communityData: { ...communityData, leftAt: item.leftAt },
+          leftAt: item.leftAt,
         };
       }
       return response;

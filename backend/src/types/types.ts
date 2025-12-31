@@ -17,4 +17,6 @@ export const TYPES = {
   ArtifactCollectionController: Symbol.for("ArtifactCollectionController"),
   CommunityRepositoryDB: Symbol.for("CommunityRepositoryDB"),
   CommunityService: Symbol.for("CommunityService"),
+  CommunityUserRepositoryDB: Symbol.for("CommunityUserRepositoryDB"),
+  CommunityUserService: Symbol.for("CommunityUserService"),
 };

@@ -44,17 +44,17 @@ export class CommunityUser {
   joinedAt: Date;
 
   @Column({ type: "datetime", nullable: true })
-  leftAt?: Date;
+  leftAt?: Date | null;
 
   @Column({ type: "datetime", nullable: true })
-  suspendedAt?: Date;
+  suspendedAt?: Date | null;
 
   @Column({ type: "datetime", nullable: true })
-  suspensionEndsAt?: Date;
+  suspensionEndsAt?: Date | null;
 
   @Column({ type: "datetime", nullable: true })
-  bannedAt?: Date;
+  bannedAt?: Date | null;
 
   @Column({ type: "text", nullable: true })
-  banReason?: string;
+  banReason?: string | null;
 }

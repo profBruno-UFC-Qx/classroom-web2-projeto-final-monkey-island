@@ -34,6 +34,11 @@ export interface IUserCommunityRepository {
     communityId: string
   ): Promise<CommunityUser | null>;
 
+  existsByUserAndCommunity(
+    userId: string,
+    communityId: string
+  ): Promise<boolean>;
+
   findCommunitiesByUserId(
     userId: string,
     skip: number,
@@ -59,6 +64,15 @@ export class UserCommunityRepositoryDB implements IUserCommunityRepository {
     });
   }
 
+  async existsByUserAndCommunity(
+    userId: string,
+    communityId: string
+  ): Promise<boolean> {
+    return await this.repo.exists({
+      where: { user: { id: userId }, community: { id: communityId } },
+    });
+  }
+
   private mapCollection(items: CommunityUser[]): UserWithCommunityData[] {
     return items.map((item) => {
       let communityData = { joinedAt: item.joinedAt };
@@ -68,17 +82,20 @@ export class UserCommunityRepositoryDB implements IUserCommunityRepository {
         communityData,
       };
 
-      if (item.status === CommunityUserStatus.BANNED) {
+      if (item.status === CommunityUserStatus.BANNED && item.bannedAt) {
         response = {
           ...response,
           communityData: { ...communityData, bannedAt: item.bannedAt },
         };
-      } else if (item.status === CommunityUserStatus.SUSPENDED) {
+      } else if (
+        item.status === CommunityUserStatus.SUSPENDED &&
+        item.suspendedAt
+      ) {
         response = {
           ...response,
           communityData: { ...communityData, suspendedAt: item.suspendedAt },
         };
-      } else if (item.status === CommunityUserStatus.INACTIVE) {
+      } else if (item.status === CommunityUserStatus.INACTIVE && item.leftAt) {
         response = {
           ...response,
           communityData: { ...communityData, leftAt: item.leftAt },

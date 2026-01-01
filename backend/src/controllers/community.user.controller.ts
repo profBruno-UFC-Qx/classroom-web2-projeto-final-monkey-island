@@ -54,4 +54,20 @@ export class CommunityUserController {
       res.status(400).json({ message: error.message });
     }
   }
+
+  async listUsersOfCommunity(req: Request, res: Response): Promise<void> {
+    try {
+      const communityId = req.params.id;
+      const page = req.query.page ? Number(req.query.page) : undefined;
+      const limit = req.query.limit ? Number(req.query.limit) : undefined;
+      const response = await this.communityUserService.listUsersOfCommunity(
+        communityId,
+        page,
+        limit
+      );
+      res.status(200).json(response);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
 }

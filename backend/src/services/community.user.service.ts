@@ -187,6 +187,36 @@ export class CommunityUserService implements ICommunityUserService {
     return this.entityToResponseDto(responseData);
   }
 
+  async unsuspendUser(
+    targetUserId: string,
+    communityId: string
+  ): Promise<CommunityUserResponseDto> {
+    const communityUser =
+      await this.communityUserRepository.findByUserAndCommunity(
+        targetUserId,
+        communityId
+      );
+
+    if (!communityUser) {
+      throw new Error("user does not exist in this community");
+    }
+
+    if (communityUser.community.createdBy.id === targetUserId) {
+      throw new Error("the community owner cannot unsuspend themselves");
+    }
+
+    if (communityUser.status !== CommunityUserStatus.SUSPENDED) {
+      throw new Error("user is not suspended");
+    }
+
+    communityUser.suspendedAt = null;
+    communityUser.suspensionEndsAt = null;
+    communityUser.status = CommunityUserStatus.ACTIVE;
+
+    const responseData = await this.communityUserRepository.save(communityUser);
+    return this.entityToResponseDto(responseData);
+  }
+
   async listCommunitiesOfUser(
     user_id: string,
     page?: number,

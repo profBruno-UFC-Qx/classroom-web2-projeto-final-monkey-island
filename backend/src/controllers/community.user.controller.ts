@@ -3,6 +3,7 @@ import { inject, injectable } from "inversify";
 import { TYPES } from "../types/types";
 
 import { ICommunityUserService } from "../services/community.user.service";
+import { BanRequestDto } from "../dtos/community_user/request/ban.request.dto";
 
 @injectable()
 export class CommunityUserController {
@@ -66,6 +67,22 @@ export class CommunityUserController {
         limit
       );
       res.status(200).json(response);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  async banUser(req: Request, res: Response): Promise<void> {
+    try {
+      const targetUserId = req.params.targetUserId;
+      const communityId = req.params.communityId;
+      const banRequest: BanRequestDto = req.body;
+
+      const response = await this.communityUserService.banUser(
+        targetUserId,
+        communityId,
+        banRequest
+      );
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }

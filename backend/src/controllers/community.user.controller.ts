@@ -4,6 +4,7 @@ import { TYPES } from "../types/types";
 
 import { ICommunityUserService } from "../services/community.user.service";
 import { BanRequestDto } from "../dtos/community_user/request/ban.request.dto";
+import { suspendRequestDto } from "../dtos/community_user/request/suspend.request.dto";
 
 @injectable()
 export class CommunityUserController {
@@ -82,6 +83,22 @@ export class CommunityUserController {
         targetUserId,
         communityId,
         banRequest
+      );
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  async suspendUser(req: Request, res: Response): Promise<void> {
+    try {
+      const targetUserId = req.params.targetUserId;
+      const communityId = req.params.communityId;
+      const suspendRequest: suspendRequestDto = req.body;
+
+      const response = await this.communityUserService.suspendUser(
+        targetUserId,
+        communityId,
+        suspendRequest
       );
     } catch (error: any) {
       res.status(400).json({ message: error.message });

@@ -46,10 +46,7 @@ export class CommunityController {
     try {
       const userId = req.user?.id as string;
       const communityId = req.params.id;
-      const response = await this.communityService.deleteCommunityById(
-        userId,
-        communityId
-      );
+      await this.communityService.deleteCommunityById(userId, communityId);
       res.status(204).end();
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -66,6 +63,21 @@ export class CommunityController {
         page,
         limit
       );
+      res.status(200).json(response);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  async findCommunitiesCreatedByUser(
+    req: Request,
+    res: Response
+  ): Promise<void> {
+    try {
+      const userId = req.user?.id as string;
+
+      const response =
+        await this.communityService.findCommunitiesCreatedByUser(userId);
       res.status(200).json(response);
     } catch (error: any) {
       res.status(400).json({ message: error.message });

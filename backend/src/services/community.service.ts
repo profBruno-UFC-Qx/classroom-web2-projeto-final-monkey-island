@@ -28,6 +28,8 @@ export interface ICommunityService {
 
   deleteCommunityById(userId: string, communityId: string): Promise<void>;
 
+  findCommunitiesCreatedByUser(userId: string): Promise<CommunityResponseDto[]>;
+
   findCommunityByNameLike(
     name: string,
     page?: number,
@@ -102,6 +104,14 @@ export class CommunityService implements ICommunityService {
       throw new Error("You do not have permission to perform this action");
     }
     await this.communityRepository.deleteCommunity(communityId);
+  }
+
+  async findCommunitiesCreatedByUser(
+    userId: string
+  ): Promise<CommunityResponseDto[]> {
+    const responseData =
+      await this.communityRepository.findCommunitiesCreatedByUser(userId);
+    return responseData.map((value) => this.entityToResponseDto(value));
   }
 
   async findCommunityByNameLike(

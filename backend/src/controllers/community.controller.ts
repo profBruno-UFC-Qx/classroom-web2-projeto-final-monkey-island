@@ -52,4 +52,20 @@ export class CommunityController {
       res.status(400).json({ message: error.message });
     }
   }
+
+  async findCommunityByNameLike(req: Request, res: Response): Promise<void> {
+    try {
+      const { name } = req.query;
+      const page = req.query.page ? Number(req.query.page) : undefined;
+      const limit = req.query.limit ? Number(req.query.limit) : undefined;
+      const response = this.communityService.findCommunityByNameLike(
+        name as string,
+        page,
+        limit
+      );
+      res.status(200).json(response);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
 }

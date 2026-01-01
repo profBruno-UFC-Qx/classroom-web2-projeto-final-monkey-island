@@ -16,7 +16,10 @@ export class CommunityController {
     try {
       const userId = req.user?.id as string;
       const request: CommunityRequestDto = req.body;
-      const response = this.communityService.createCommunity(userId, request);
+      const response = await this.communityService.createCommunity(
+        userId,
+        request
+      );
       res.status(201).json(response);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -28,7 +31,7 @@ export class CommunityController {
       const userId = req.user?.id as string;
       const communityId = req.params.id;
       const request: CommunityUpdateRequestDto = req.body;
-      const response = this.communityService.updateCommunityData(
+      const response = await this.communityService.updateCommunityData(
         userId,
         communityId,
         request
@@ -43,7 +46,7 @@ export class CommunityController {
     try {
       const userId = req.user?.id as string;
       const communityId = req.params.id;
-      const response = this.communityService.deleteCommunityById(
+      const response = await this.communityService.deleteCommunityById(
         userId,
         communityId
       );
@@ -58,7 +61,7 @@ export class CommunityController {
       const { name } = req.query;
       const page = req.query.page ? Number(req.query.page) : undefined;
       const limit = req.query.limit ? Number(req.query.limit) : undefined;
-      const response = this.communityService.findCommunityByNameLike(
+      const response = await this.communityService.findCommunityByNameLike(
         name as string,
         page,
         limit
@@ -73,7 +76,7 @@ export class CommunityController {
     try {
       const page = req.query.page ? Number(req.query.page) : undefined;
       const limit = req.query.limit ? Number(req.query.limit) : undefined;
-      const response = this.communityService.findPopularCommunities(
+      const response = await this.communityService.findPopularCommunities(
         page,
         limit
       );

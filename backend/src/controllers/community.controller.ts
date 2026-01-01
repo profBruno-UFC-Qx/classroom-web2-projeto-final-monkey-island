@@ -38,4 +38,18 @@ export class CommunityController {
       res.status(400).json({ message: error.message });
     }
   }
+
+  async deleteCommunity(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = req.user?.id as string;
+      const communityId = req.params.id;
+      const response = this.communityService.deleteCommunityById(
+        userId,
+        communityId
+      );
+      res.status(204).end();
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
 }

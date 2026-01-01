@@ -53,6 +53,17 @@ export class CommunityController {
     }
   }
 
+  async findCommunityById(req: Request, res: Response): Promise<void> {
+    try {
+      const communityId = req.params.id;
+      const response =
+        await this.communityService.findCommunityById(communityId);
+      res.status(200).json(response);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+
   async findCommunityByNameLike(req: Request, res: Response): Promise<void> {
     try {
       const { name } = req.query;

@@ -26,6 +26,10 @@ communityRoutes.put("/community/:id", userAuthentication, (req, res) =>
   communityController.updateCommunityData(req, res)
 );
 
+communityRoutes.get("/community/:id", (req, res) =>
+  communityController.findCommunityById(req, res)
+);
+
 communityRoutes.get(
   "/community/created-for-me",
   userAuthentication,

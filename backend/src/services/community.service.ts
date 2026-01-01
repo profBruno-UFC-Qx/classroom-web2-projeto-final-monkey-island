@@ -26,6 +26,8 @@ export interface ICommunityService {
     request: CommunityUpdateRequestDto
   ): Promise<CommunityResponseDto>;
 
+  findCommunityById(communityId: string): Promise<CommunityResponseDto>;
+
   deleteCommunityById(userId: string, communityId: string): Promise<void>;
 
   findCommunitiesCreatedByUser(userId: string): Promise<CommunityResponseDto[]>;
@@ -104,6 +106,16 @@ export class CommunityService implements ICommunityService {
       throw new Error("You do not have permission to perform this action");
     }
     await this.communityRepository.deleteCommunity(communityId);
+  }
+
+  async findCommunityById(communityId: string): Promise<CommunityResponseDto> {
+    const community =
+      await this.communityRepository.findCommunityById(communityId);
+
+    if (!community) {
+      throw new Error("community not exists");
+    }
+    return this.entityToResponseDto(community);
   }
 
   async findCommunitiesCreatedByUser(

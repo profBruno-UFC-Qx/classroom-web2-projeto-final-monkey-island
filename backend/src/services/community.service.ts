@@ -12,6 +12,7 @@ import { Community } from "../entities/community";
 import { User } from "../entities/User";
 
 import { applyPartialUpdate } from "../util/merge-function";
+import { ICommunityUserService } from "./community.user.service";
 
 export interface ICommunityService {
   createCommunity(
@@ -43,7 +44,9 @@ export interface ICommunityService {
 export class CommunityService implements ICommunityService {
   constructor(
     @inject(TYPES.CommunityRepositoryDB)
-    private communityRepository: ICommunityRepository
+    private communityRepository: ICommunityRepository,
+    @inject(TYPES.CommunityUserService)
+    private communityUserService: ICommunityUserService
   ) {}
 
   async createCommunity(
@@ -58,6 +61,7 @@ export class CommunityService implements ICommunityService {
     }
     const community = this.DtoToEntity({ id: userId } as User, request);
     const responseData = await this.communityRepository.save(community);
+    await this.communityUserService.joinInCommunity(userId, responseData.id);
     return this.entityToResponseDto(responseData);
   }
 

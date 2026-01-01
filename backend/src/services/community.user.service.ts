@@ -2,7 +2,6 @@ import { injectable, inject } from "inversify";
 import { CommunityUserResponseDto } from "../dtos/community_user/response/community.user.response.dto";
 import { CommunityUserSearchResponseDto } from "../dtos/community_user/response/community.user.search.dto";
 import { TYPES } from "../types/types";
-import { ICommunityRepository } from "../repositories/community.repository";
 import {
   IUserCommunityRepository,
   UserWithCommunityData,
@@ -97,6 +96,10 @@ export class CommunityUserService implements ICommunityUserService {
 
     if (!communityUser) {
       throw new Error("user is not part of this community");
+    }
+
+    if (communityUser.community.createdBy.id === userId) {
+      throw new Error("the community owner cannot leave");
     }
 
     if (communityUser.status === CommunityUserStatus.INACTIVE) {

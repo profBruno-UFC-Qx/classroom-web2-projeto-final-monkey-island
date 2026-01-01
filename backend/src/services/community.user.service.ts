@@ -12,6 +12,7 @@ import { User } from "../entities/User";
 import { Community } from "../entities/community";
 import { CommunitiesOfUserResponseDto } from "../dtos/community_user/response/communies.of.user.response.dto";
 import { BanRequestDto } from "../dtos/community_user/request/ban.request.dto";
+import { suspendRequestDto } from "../dtos/community_user/request/suspend.request.dto";
 
 export interface ICommunityUserService {
   joinInCommunity(
@@ -39,7 +40,8 @@ export interface ICommunityUserService {
   ): Promise<CommunityUserResponseDto>;
   suspendUser(
     targetUserId: string,
-    communityId: string
+    communityId: string,
+    suspendRequestDto: suspendRequestDto
   ): Promise<CommunityUserResponseDto>;
   unsuspendUser(
     targetUserId: string,
@@ -127,6 +129,10 @@ export class CommunityUserService implements ICommunityUserService {
       throw new Error("user does not exist in this community");
     }
 
+    if (communityUser.community.createdBy.id === targetUserId) {
+      throw new Error("the community owner cannot ban themselves");
+    }
+
     if (communityUser.status === CommunityUserStatus.BANNED) {
       throw new Error("user already banned");
     }
@@ -134,6 +140,48 @@ export class CommunityUserService implements ICommunityUserService {
     communityUser.bannedAt = new Date();
     communityUser.banReason = banRequest.banReason;
     communityUser.status = CommunityUserStatus.BANNED;
+
+    const responseData = await this.communityUserRepository.save(communityUser);
+    return this.entityToResponseDto(responseData);
+  }
+
+  async suspendUser(
+    targetUserId: string,
+    communityId: string,
+    suspendRequestDto: suspendRequestDto
+  ): Promise<CommunityUserResponseDto> {
+    const communityUser =
+      await this.communityUserRepository.findByUserAndCommunity(
+        targetUserId,
+        communityId
+      );
+
+    if (!communityUser) {
+      throw new Error("user does not exist in this community");
+    }
+
+    if (communityUser.community.createdBy.id === targetUserId) {
+      throw new Error("the community owner cannot suspend themselves");
+    }
+
+    if (communityUser.status === CommunityUserStatus.SUSPENDED) {
+      throw new Error("user already suspended");
+    }
+
+    if (communityUser.status === CommunityUserStatus.BANNED) {
+      throw new Error("user is banned");
+    }
+
+    const minDate = new Date();
+    minDate.setDate(minDate.getDate() + 1);
+
+    if (suspendRequestDto.suspensionEndsAt.getTime() < minDate.getTime()) {
+      throw new Error("suspension must be at least 1 day long");
+    }
+
+    communityUser.suspendedAt = new Date();
+    communityUser.suspensionEndsAt = suspendRequestDto.suspensionEndsAt;
+    communityUser.status = CommunityUserStatus.SUSPENDED;
 
     const responseData = await this.communityUserRepository.save(communityUser);
     return this.entityToResponseDto(responseData);

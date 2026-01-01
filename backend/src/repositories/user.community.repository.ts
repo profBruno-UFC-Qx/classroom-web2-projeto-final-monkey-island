@@ -64,6 +64,7 @@ export class UserCommunityRepositoryDB implements IUserCommunityRepository {
   ): Promise<CommunityUser | null> {
     return await this.repo.findOne({
       where: { user: { id: userId }, community: { id: communityId } },
+      relations: ["community", "community.createdBy"],
     });
   }
 

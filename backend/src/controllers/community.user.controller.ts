@@ -84,6 +84,7 @@ export class CommunityUserController {
         communityId,
         banRequest
       );
+      res.status(200).json(response);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }
@@ -100,6 +101,22 @@ export class CommunityUserController {
         communityId,
         suspendRequest
       );
+      res.status(200).json(response);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  async unsuspendUser(req: Request, res: Response): Promise<void> {
+    try {
+      const targetUserId = req.params.targetUserId;
+      const communityId = req.params.communityId;
+
+      const response = await this.communityUserService.unsuspendUser(
+        targetUserId,
+        communityId
+      );
+      res.status(200).json(response);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }

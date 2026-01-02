@@ -35,6 +35,24 @@ import {
   IArtifactCollectionService,
 } from "../services/artifact.collection.service";
 import { ArtifactCollectionController } from "../controllers/artifact.collection.controller";
+import {
+  CommunityRepositoryDB,
+  ICommunityRepository,
+} from "../repositories/community.repository";
+import {
+  CommunityService,
+  ICommunityService,
+} from "../services/community.service";
+import { CommunityController } from "../controllers/community.controller";
+import {
+  IUserCommunityRepository,
+  UserCommunityRepositoryDB,
+} from "../repositories/user.community.repository";
+import {
+  CommunityUserService,
+  ICommunityUserService,
+} from "../services/community.user.service";
+import { CommunityUserController } from "../controllers/community.user.controller";
 
 export const container: Container = new Container();
 
@@ -83,3 +101,27 @@ container
 container
   .bind<ArtifactCollectionController>(TYPES.ArtifactCollectionController)
   .to(ArtifactCollectionController);
+
+// aqui é pro fluxo de community
+
+container
+  .bind<ICommunityRepository>(TYPES.CommunityRepositoryDB)
+  .to(CommunityRepositoryDB);
+
+container.bind<ICommunityService>(TYPES.CommunityService).to(CommunityService);
+
+container
+  .bind<CommunityController>(TYPES.CommunityController)
+  .to(CommunityController);
+
+container
+  .bind<IUserCommunityRepository>(TYPES.CommunityUserRepositoryDB)
+  .to(UserCommunityRepositoryDB);
+
+container
+  .bind<ICommunityUserService>(TYPES.CommunityUserService)
+  .to(CommunityUserService);
+
+container
+  .bind<CommunityUserController>(TYPES.CommunityUserController)
+  .to(CommunityUserController);

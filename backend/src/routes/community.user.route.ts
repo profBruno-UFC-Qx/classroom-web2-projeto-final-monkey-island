@@ -38,7 +38,7 @@ communityUserRoutes.get("/community/:communityId/users", (req, res) =>
 );
 
 communityUserRoutes.get(
-  "/community/my-communities",
+  "/community/profile/my-communities",
   userAuthentication,
   (req, res) => communityUserController.listCommunitiesOfUser(req, res)
 );

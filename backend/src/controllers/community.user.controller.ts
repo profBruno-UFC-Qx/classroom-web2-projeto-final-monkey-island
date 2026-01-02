@@ -17,6 +17,8 @@ export class CommunityUserController {
     try {
       const userId = req.user?.id as string;
       const communityId = req.params.communityId;
+      // res.status(200).json({ communityId, userId });
+      // return;
       const response = await this.communityUserService.joinInCommunity(
         userId,
         communityId
@@ -31,6 +33,7 @@ export class CommunityUserController {
     try {
       const userId = req.user?.id as string;
       const communityId = req.params.communityId;
+      console.log(communityId);
       const response = await this.communityUserService.leftOfCommunity(
         userId,
         communityId

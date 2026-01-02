@@ -81,7 +81,8 @@ export class CommunityUserService implements ICommunityUserService {
       userInCommunity.community = { id: communityId } as Community;
     }
     userInCommunity = await this.communityUserRepository.save(userInCommunity);
-    return this.entityToResponseDto(userInCommunity);
+    console.log(userInCommunity);
+    return this.entityToResponseDto(userInCommunity as CommunityUser);
   }
 
   async leftOfCommunity(
@@ -178,7 +179,8 @@ export class CommunityUserService implements ICommunityUserService {
     const minDate = new Date();
     minDate.setDate(minDate.getDate() + 1);
 
-    if (suspendRequestDto.suspensionEndsAt.getTime() < minDate.getTime()) {
+    const maxDate = new Date(suspendRequestDto.suspensionEndsAt);
+    if (maxDate.getTime() < minDate.getTime()) {
       throw new Error("suspension must be at least 1 day long");
     }
 
@@ -276,6 +278,7 @@ export class CommunityUserService implements ICommunityUserService {
   private entityToResponseDto(
     communityUser: CommunityUser | UserWithCommunityData
   ): CommunityUserResponseDto {
+    console.log();
     return {
       user: {
         id: communityUser.user.id,

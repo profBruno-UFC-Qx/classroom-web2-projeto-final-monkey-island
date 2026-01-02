@@ -59,15 +59,27 @@ export class CommunityRepositoryDB implements ICommunityRepository {
   ): Promise<[CommunityWithCount[], number]> {
     const qb = this.repo
       .createQueryBuilder("community")
-      .leftJoinAndSelect("community.members", "member")
-      .loadRelationCountAndMap("community.memberCount", "community.members")
-      .orderBy("community.memberCount", "DESC")
+      .addSelect((subQuery) => {
+        return subQuery
+          .select("COUNT(cu.id)", "memberCount")
+          .from("community_user", "cu")
+          .where("cu.communityId = community.id")
+          .andWhere("cu.status = :status", { status: "ACTIVE" });
+      }, "memberCount")
+      .orderBy("memberCount", "DESC")
       .skip(skip)
       .take(take);
 
-    const communities = await qb.getMany();
+    const communities = await qb.getRawAndEntities();
+
     const total = await this.repo.count();
-    return [communities as CommunityWithCount[], total];
+
+    const result = communities.entities.map((community, index) => ({
+      ...community,
+      memberCount: Number(communities.raw[index].memberCount),
+    }));
+
+    return [result as CommunityWithCount[], total];
   }
 
   async findAllCommunitiesByNameLike(

@@ -16,7 +16,7 @@ export class CommunityUserController {
   async joinInCommunity(req: Request, res: Response): Promise<void> {
     try {
       const userId = req.user?.id as string;
-      const communityId = req.params.id;
+      const communityId = req.params.communityId;
       const response = await this.communityUserService.joinInCommunity(
         userId,
         communityId
@@ -30,7 +30,7 @@ export class CommunityUserController {
   async leftOfCommunity(req: Request, res: Response): Promise<void> {
     try {
       const userId = req.user?.id as string;
-      const communityId = req.params.id;
+      const communityId = req.params.communityId;
       const response = await this.communityUserService.leftOfCommunity(
         userId,
         communityId
@@ -59,7 +59,7 @@ export class CommunityUserController {
 
   async listUsersOfCommunity(req: Request, res: Response): Promise<void> {
     try {
-      const communityId = req.params.id;
+      const communityId = req.params.communityId;
       const page = req.query.page ? Number(req.query.page) : undefined;
       const limit = req.query.limit ? Number(req.query.limit) : undefined;
       const response = await this.communityUserService.listUsersOfCommunity(

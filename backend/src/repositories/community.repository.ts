@@ -43,7 +43,7 @@ export class CommunityRepositoryDB implements ICommunityRepository {
   }
 
   async findCommunityById(id: string): Promise<Community | null> {
-    return await this.repo.findOne({ where: { id } });
+    return await this.repo.findOne({ where: { id }, relations: ["createdBy"] });
   }
 
   async findCommunitiesCreatedByUser(userId: string): Promise<Community[]> {

@@ -278,7 +278,6 @@ export class CommunityUserService implements ICommunityUserService {
   private entityToResponseDto(
     communityUser: CommunityUser | UserWithCommunityData
   ): CommunityUserResponseDto {
-    console.log();
     return {
       user: {
         id: communityUser.user.id,

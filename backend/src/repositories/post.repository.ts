@@ -1,8 +1,10 @@
+import { injectable } from "inversify";
 import { Post } from "../entities/post";
+import { AppDataSource } from "../config/db.connection";
 
 export interface IPostRepository {
   save(post: Post): Promise<Post>;
-  findRecentPostsInAllCommunities(skip: number, take: number): Promise<Post[]>;
+
   findRecentPostsInCommunity(
     communityId: string,
     skip: number,
@@ -25,4 +27,15 @@ export interface IPostRepository {
 
   findPublicFeed(skip: number, take: number): Promise<Post[]>;
   findFeedForUser(userId: string, skip: number, take: number): Promise<Post[]>;
+}
+
+@injectable()
+export class PostRepositoryDB implements IPostRepository {
+  private get repo() {
+    return AppDataSource.getRepository(Post);
+  }
+
+  async save(post: Post): Promise<Post> {
+    return await this.repo.save(post);
+  }
 }

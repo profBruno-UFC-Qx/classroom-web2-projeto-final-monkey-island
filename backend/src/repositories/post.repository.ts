@@ -52,4 +52,8 @@ export class PostRepositoryDB implements IPostRepository {
       order: { createdAt: "DESC" },
     });
   }
+
+  async findPostById(postId: string): Promise<Post | null> {
+    return await this.repo.findOne({ where: { id: postId } });
+  }
 }

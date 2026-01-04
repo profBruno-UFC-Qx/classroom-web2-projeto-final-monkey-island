@@ -102,4 +102,8 @@ export class PostRepositoryDB implements IPostRepository {
       .take(take)
       .getMany();
   }
+
+  async incrementLikeCount(postId: string): Promise<void> {
+    await this.repo.increment({ id: postId }, "likeCount", 1);
+  }
 }

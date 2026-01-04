@@ -38,4 +38,18 @@ export class PostRepositoryDB implements IPostRepository {
   async save(post: Post): Promise<Post> {
     return await this.repo.save(post);
   }
+
+  async findRecentPostsInCommunity(
+    communityId: string,
+    skip: number,
+    take: number
+  ): Promise<Post[]> {
+    return this.repo.find({
+      where: { community: { id: communityId } },
+      relations: ["community"],
+      skip,
+      take,
+      order: { createdAt: "DESC" },
+    });
+  }
 }

@@ -44,19 +44,62 @@ export class PostRepositoryDB implements IPostRepository {
     skip: number,
     take: number
   ): Promise<Post[]> {
-    return this.repo.find({
-      where: { community: { id: communityId } },
-      relations: ["community"],
-      skip,
-      take,
-      order: { createdAt: "DESC" },
-    });
+    return await this.repo
+      .createQueryBuilder("post")
+      .innerJoin("post.author", "author")
+      .innerJoin("post.community", "community")
+      .select([
+        "post",
+        "community.id",
+        "community.name",
+        "author.id",
+        "author.name",
+      ])
+      .where("community.id = :communityId", { communityId })
+      .orderBy("post.createdAt", "DESC")
+      .skip(skip)
+      .take(take)
+      .getMany();
   }
 
   async findPostById(postId: string): Promise<Post | null> {
-    return await this.repo.findOne({
-      where: { id: postId },
-      relations: ["community", "author"],
-    });
+    return await this.repo
+      .createQueryBuilder("post")
+      .innerJoin("post.author", "author")
+      .innerJoin("post.community", "community")
+      .select([
+        "post",
+        "community.id",
+        "community.name",
+        "author.id",
+        "author.name",
+      ])
+      .where("post.id = :postId", { postId })
+      .getOne();
+  }
+
+  async findPostsByAuthorInCommunity(
+    authorId: string,
+    communityId: string,
+    skip: number,
+    take: number
+  ): Promise<Post[]> {
+    return await this.repo
+      .createQueryBuilder("post")
+      .innerJoin("post.author", "author")
+      .innerJoin("post.community", "community")
+      .select([
+        "post",
+        "community.id",
+        "community.name",
+        "author.id",
+        "author.name",
+      ])
+      .where("author.id = :authorId", { authorId })
+      .andWhere("community.id = :communityId", { communityId })
+      .orderBy("post.createdAt", "DESC")
+      .skip(skip)
+      .take(take)
+      .getMany();
   }
 }

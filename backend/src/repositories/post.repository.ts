@@ -54,6 +54,9 @@ export class PostRepositoryDB implements IPostRepository {
   }
 
   async findPostById(postId: string): Promise<Post | null> {
-    return await this.repo.findOne({ where: { id: postId } });
+    return await this.repo.findOne({
+      where: { id: postId },
+      relations: ["community", "author"],
+    });
   }
 }

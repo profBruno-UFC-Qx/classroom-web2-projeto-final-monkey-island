@@ -106,4 +106,15 @@ export class PostRepositoryDB implements IPostRepository {
   async incrementLikeCount(postId: string): Promise<void> {
     await this.repo.increment({ id: postId }, "likeCount", 1);
   }
+
+  async decrementLikeCount(postId: string): Promise<void> {
+    await this.repo
+      .createQueryBuilder()
+      .update()
+      .set({
+        likeCount: () => "GREATEST(likeCount - 1, 0)",
+      })
+      .where("id = :postId", { postId })
+      .execute();
+  }
 }

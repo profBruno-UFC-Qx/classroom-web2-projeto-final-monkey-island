@@ -42,6 +42,8 @@ export class Post {
     enum: PostStatus,
     default: PostStatus.PUBLISHED,
   })
+  status: PostStatus;
+
   @Column({ type: "text" })
   content: string;
 

@@ -150,4 +150,28 @@ export class PostRepositoryDB implements IPostRepository {
       .take(take)
       .getMany();
   }
+
+  async findFeedForUser(
+    userId: string,
+    skip: number,
+    take: number
+  ): Promise<Post[]> {
+    return await this.repo
+      .createQueryBuilder("post")
+      .innerJoin("post.author", "author")
+      .innerJoin("post.community", "community")
+      .innerJoin("community.members", "member")
+      .select([
+        "post",
+        "community.id",
+        "community.name",
+        "author.id",
+        "author.name",
+      ])
+      .where("member.user.id = :userId", { userId })
+      .orderBy("post.createdAt", "DESC")
+      .skip(skip)
+      .take(take)
+      .getMany();
+  }
 }

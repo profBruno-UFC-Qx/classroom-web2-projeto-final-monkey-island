@@ -132,4 +132,22 @@ export class PostRepositoryDB implements IPostRepository {
       .where("id = :postId", { postId })
       .execute();
   }
+
+  async findPublicFeed(skip: number, take: number): Promise<Post[]> {
+    return await this.repo
+      .createQueryBuilder("post")
+      .innerJoin("post.author", "author")
+      .innerJoin("post.community", "community")
+      .select([
+        "post",
+        "community.id",
+        "community.name",
+        "author.id",
+        "author.name",
+      ])
+      .orderBy("post.createdAt", "DESC")
+      .skip(skip)
+      .take(take)
+      .getMany();
+  }
 }

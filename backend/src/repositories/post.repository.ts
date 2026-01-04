@@ -117,4 +117,19 @@ export class PostRepositoryDB implements IPostRepository {
       .where("id = :postId", { postId })
       .execute();
   }
+
+  async incrementCommentCount(postId: string): Promise<void> {
+    await this.repo.increment({ id: postId }, "commentCount", 1);
+  }
+
+  async decrementCommentCount(postId: string): Promise<void> {
+    await this.repo
+      .createQueryBuilder()
+      .update()
+      .set({
+        commentCount: () => "GREATEST(commentCount - 1, 0)",
+      })
+      .where("id = :postId", { postId })
+      .execute();
+  }
 }

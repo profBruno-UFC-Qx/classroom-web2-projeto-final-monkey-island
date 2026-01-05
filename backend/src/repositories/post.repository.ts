@@ -50,17 +50,14 @@ export class PostRepositoryDB implements IPostRepository {
   ): Promise<[Post[], number]> {
     return await this.repo
       .createQueryBuilder("post")
-      .distinct(true)
       .innerJoin("post.author", "author")
       .innerJoin("post.community", "community")
-      .leftJoin("post.medias", "medias")
       .select([
         "post",
         "community.id",
         "community.name",
         "author.id",
         "author.name",
-        "medias",
       ])
       .where("community.id = :communityId", { communityId })
       .orderBy("post.createdAt", "DESC")
@@ -72,17 +69,14 @@ export class PostRepositoryDB implements IPostRepository {
   async findPostById(postId: string): Promise<Post | null> {
     return await this.repo
       .createQueryBuilder("post")
-      .distinct(true)
       .innerJoin("post.author", "author")
       .innerJoin("post.community", "community")
-      .leftJoin("post.medias", "medias")
       .select([
         "post",
         "community.id",
         "community.name",
         "author.id",
         "author.name",
-        "medias",
       ])
       .where("post.id = :postId", { postId })
       .getOne();
@@ -96,17 +90,14 @@ export class PostRepositoryDB implements IPostRepository {
   ): Promise<[Post[], number]> {
     return await this.repo
       .createQueryBuilder("post")
-      .distinct(true)
       .innerJoin("post.author", "author")
       .innerJoin("post.community", "community")
-      .leftJoin("post.medias", "medias")
       .select([
         "post",
         "community.id",
         "community.name",
         "author.id",
         "author.name",
-        "medias",
       ])
       .where("author.id = :authorId", { authorId })
       .andWhere("community.id = :communityId", { communityId })
@@ -149,17 +140,14 @@ export class PostRepositoryDB implements IPostRepository {
   async findPublicFeed(skip: number, take: number): Promise<[Post[], number]> {
     return await this.repo
       .createQueryBuilder("post")
-      .distinct(true)
       .innerJoin("post.author", "author")
       .innerJoin("post.community", "community")
-      .leftJoin("post.medias", "medias")
       .select([
         "post",
         "community.id",
         "community.name",
         "author.id",
         "author.name",
-        "medias",
       ])
       .orderBy("post.createdAt", "DESC")
       .skip(skip)
@@ -174,18 +162,15 @@ export class PostRepositoryDB implements IPostRepository {
   ): Promise<[Post[], number]> {
     return await this.repo
       .createQueryBuilder("post")
-      .distinct(true)
       .innerJoin("post.author", "author")
       .innerJoin("post.community", "community")
       .innerJoin("community.members", "member")
-      .leftJoin("post.medias", "medias")
       .select([
         "post",
         "community.id",
         "community.name",
         "author.id",
         "author.name",
-        "medias",
       ])
       .where("member.user.id = :userId", { userId })
       .orderBy("post.createdAt", "DESC")

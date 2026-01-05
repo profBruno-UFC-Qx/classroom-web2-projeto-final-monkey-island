@@ -8,5 +8,6 @@ export interface PostResponseDto {
   post: {
     title: string;
     content: string;
+    createdAt: Date;
   };
 }

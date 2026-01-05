@@ -5,8 +5,12 @@ export interface LoginCredentials {
   password: string;
 }
 
-export interface RegisterCredentials extends LoginCredentials {
+export interface RegisterCredentials {
   name: string;
+  email: string;
+  password: string;
+  institution: string; // Campo importante no seu User.ts
+  bio?: string;       // Opcional no backend
 }
 
 export interface AuthResponse {

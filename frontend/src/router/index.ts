@@ -18,8 +18,8 @@ const routes = [
     component: LoginView,
   },
   {
-    path: "/registro",
-    name: "registro",
+    path: "/register",
+    name: "register",
     component: RegisterView,
   },
   {

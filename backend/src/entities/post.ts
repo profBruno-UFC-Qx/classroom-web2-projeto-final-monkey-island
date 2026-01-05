@@ -1,6 +1,5 @@
 import {
   Entity,
-  JoinColumn,
   OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
@@ -40,7 +39,7 @@ export class Post {
   @Column({
     type: "simple-enum",
     enum: PostStatus,
-    default: PostStatus.PUBLISHED,
+    default: PostStatus.DRAFT,
   })
   status: PostStatus;
 

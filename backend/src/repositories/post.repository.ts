@@ -9,7 +9,7 @@ export interface IPostRepository {
     communityId: string,
     skip: number,
     take: number
-  ): Promise<Post[]>;
+  ): Promise<[Post[], number]>;
   findPostById(postId: string): Promise<Post | null>;
 
   findPostsByAuthorInCommunity(
@@ -17,7 +17,7 @@ export interface IPostRepository {
     communityId: string,
     skip: number,
     take: number
-  ): Promise<Post[]>;
+  ): Promise<[Post[], number]>;
 
   incrementLikeCount(postId: string): Promise<void>;
   incrementCommentCount(postId: string): Promise<void>;
@@ -25,8 +25,12 @@ export interface IPostRepository {
   decrementLikeCount(postId: string): Promise<void>;
   decrementCommentCount(postId: string): Promise<void>;
 
-  findPublicFeed(skip: number, take: number): Promise<Post[]>;
-  findFeedForUser(userId: string, skip: number, take: number): Promise<Post[]>;
+  findPublicFeed(skip: number, take: number): Promise<[Post[], number]>;
+  findFeedForUser(
+    userId: string,
+    skip: number,
+    take: number
+  ): Promise<[Post[], number]>;
 }
 
 @injectable()
@@ -43,7 +47,7 @@ export class PostRepositoryDB implements IPostRepository {
     communityId: string,
     skip: number,
     take: number
-  ): Promise<Post[]> {
+  ): Promise<[Post[], number]> {
     return await this.repo
       .createQueryBuilder("post")
       .innerJoin("post.author", "author")
@@ -59,7 +63,7 @@ export class PostRepositoryDB implements IPostRepository {
       .orderBy("post.createdAt", "DESC")
       .skip(skip)
       .take(take)
-      .getMany();
+      .getManyAndCount();
   }
 
   async findPostById(postId: string): Promise<Post | null> {
@@ -83,7 +87,7 @@ export class PostRepositoryDB implements IPostRepository {
     communityId: string,
     skip: number,
     take: number
-  ): Promise<Post[]> {
+  ): Promise<[Post[], number]> {
     return await this.repo
       .createQueryBuilder("post")
       .innerJoin("post.author", "author")
@@ -100,7 +104,7 @@ export class PostRepositoryDB implements IPostRepository {
       .orderBy("post.createdAt", "DESC")
       .skip(skip)
       .take(take)
-      .getMany();
+      .getManyAndCount();
   }
 
   async incrementLikeCount(postId: string): Promise<void> {
@@ -133,7 +137,7 @@ export class PostRepositoryDB implements IPostRepository {
       .execute();
   }
 
-  async findPublicFeed(skip: number, take: number): Promise<Post[]> {
+  async findPublicFeed(skip: number, take: number): Promise<[Post[], number]> {
     return await this.repo
       .createQueryBuilder("post")
       .innerJoin("post.author", "author")
@@ -148,14 +152,14 @@ export class PostRepositoryDB implements IPostRepository {
       .orderBy("post.createdAt", "DESC")
       .skip(skip)
       .take(take)
-      .getMany();
+      .getManyAndCount();
   }
 
   async findFeedForUser(
     userId: string,
     skip: number,
     take: number
-  ): Promise<Post[]> {
+  ): Promise<[Post[], number]> {
     return await this.repo
       .createQueryBuilder("post")
       .innerJoin("post.author", "author")
@@ -172,6 +176,6 @@ export class PostRepositoryDB implements IPostRepository {
       .orderBy("post.createdAt", "DESC")
       .skip(skip)
       .take(take)
-      .getMany();
+      .getManyAndCount();
   }
 }

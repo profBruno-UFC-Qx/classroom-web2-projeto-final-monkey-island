@@ -1,8 +1,9 @@
 export interface User {
-  id: number; 
+  id: string; // UUID é string
   name: string;
   email: string;
-  avatarUrl?: string; 
-  createdAt: string;
-  updatedAt?: string;
+  role: 'admin' | 'user' | 'researcher'; // Adicionado para bater com o backend
+  institution?: string;
+  bio?: string;
+  status: 'active' | 'inactive' | 'banned';
 }

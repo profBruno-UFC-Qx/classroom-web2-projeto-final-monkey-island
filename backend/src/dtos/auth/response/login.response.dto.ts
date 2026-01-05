@@ -1,0 +1,3 @@
+interface LoginResponseDto {
+  jwt: string;
+}

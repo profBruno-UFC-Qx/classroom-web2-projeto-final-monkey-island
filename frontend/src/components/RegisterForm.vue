@@ -92,7 +92,7 @@ import type { RegisterCredentials } from '../types/auth';
 const router = useRouter();
 const authStore = useAuthStore();
 
-
+// Estado do formulário combinando com os campos do Backend (User.ts)
 const form = reactive<RegisterCredentials>({
   name: '',
   email: '',
@@ -113,7 +113,7 @@ const handleRegister = async () => {
   try {
     await authStore.register(form);
     
-
+    // Sucesso visual antes de redirecionar
     successMessage.value = 'Cadastro realizado com sucesso! Redirecionando para login...';
     
     setTimeout(() => {
@@ -121,7 +121,7 @@ const handleRegister = async () => {
     }, 2000);
 
   } catch (error: any) {
-
+    // O backend retorna msg: "user already exists!" em caso de duplicata
     errorMessage.value = error.response?.data?.message || 'Erro ao processar cadastro.';
   } finally {
     isLoading.value = false;

@@ -1,6 +1,7 @@
 import axios from 'axios';
 import type { LoginCredentials, AuthResponse } from '../types/auth';
 import type { RegisterCredentials } from '../types/auth';
+
 const api = axios.create({
   baseURL: 'http://localhost:3000',
   headers: { 'Content-Type': 'application/json' }

@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import type { User } from '../types/user'; 
+// CORREÇÃO AQUI: Adicionei RegisterCredentials na importação
 import type { LoginCredentials, RegisterCredentials } from '../types/auth'; 
 import authService from '../services/authService';
 
@@ -25,6 +26,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  // Agora o TypeScript reconhece o tipo vindo do import acima
   async function register(credentials: RegisterCredentials) {
     try {
       await authService.register(credentials);

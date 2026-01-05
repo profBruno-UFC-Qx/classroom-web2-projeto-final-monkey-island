@@ -9,6 +9,10 @@ const CommunitiesView = () => import("../views/CommunitiesView.vue");
 const routes = [
   {
     path: "/",
+    redirect: "/login",
+  },
+  {
+    path: "/home", 
     name: "home",
     component: HomeView,
   },

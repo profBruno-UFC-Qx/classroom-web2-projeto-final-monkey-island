@@ -52,7 +52,7 @@
         </div>
 
         <div class="text-center mt-4 border-top border-secondary pt-3">
-          <router-link to="/registro" class="text-warning text-decoration-none small fw-bold">
+          <router-link to="/register" class="text-warning text-decoration-none small fw-bold">
             SOLICITAR NOVO ACESSO (REGISTRO)
           </router-link>
         </div>
@@ -67,21 +67,21 @@ import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/authStore';
 import type { LoginCredentials } from '../types/auth';
 
-
+// Inicialização das ferramentas
 const router = useRouter();
 const authStore = useAuthStore();
 
-
+// Estado Reativo (Essencial para o v-model funcionar)
 const credentials = reactive<LoginCredentials>({
   email: '',
   password: ''
 });
 
-
+// Variáveis de Controle de UI
 const isLoading = ref(false);
 const errorMessage = ref('');
 
-
+// Função de Login
 const handleLogin = async () => {
   isLoading.value = true;
   errorMessage.value = '';
@@ -89,9 +89,11 @@ const handleLogin = async () => {
   try {
     const success = await authStore.login(credentials);
     if (success) {
+      // Redireciona para a home após o sucesso
       router.push('/home'); 
     }
   } catch (error: any) {
+    // Captura a mensagem de erro vinda do backend ou define uma padrão
     errorMessage.value = error.response?.data?.message || 'Falha na autenticação. Verifique suas credenciais.';
   } finally {
     isLoading.value = false;

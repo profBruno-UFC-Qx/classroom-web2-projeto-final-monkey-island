@@ -5,8 +5,8 @@ import { AppDataSource } from "../config/db.connection";
 export interface IPostMediaRepository {
   save(postMedia: PostMedia): Promise<PostMedia>;
   delete(postMediaId: string): Promise<void>;
-  getMediaById(mediaId: string): Promise<PostMedia>;
-  getAllMediasByPost(postId: string): Promise<PostMedia[]>;
+  findMediaById(mediaId: string): Promise<PostMedia | null>;
+  findAllMediasByPost(postId: string): Promise<PostMedia[]>;
 }
 
 @injectable()
@@ -21,5 +21,12 @@ export class PostMediaRepositoryDB implements IPostMediaRepository {
 
   async delete(postMediaId: string): Promise<void> {
     await this.repo.delete({ id: postMediaId });
+  }
+
+  async findMediaById(mediaId: string): Promise<PostMedia | null> {
+    return await this.repo.findOne({
+      where: { id: mediaId },
+      relations: ["post", "post.author"],
+    });
   }
 }

@@ -6,7 +6,7 @@ export interface IPostMediaRepository {
   save(postMedia: PostMedia): Promise<PostMedia>;
   delete(postMediaId: string): Promise<void>;
   findMediaById(mediaId: string): Promise<PostMedia | null>;
-  findAllMediasByPost(postId: string): Promise<PostMedia[]>;
+  findAllMediasByPostId(postId: string): Promise<PostMedia[]>;
 }
 
 @injectable()
@@ -27,6 +27,13 @@ export class PostMediaRepositoryDB implements IPostMediaRepository {
     return await this.repo.findOne({
       where: { id: mediaId },
       relations: ["post", "post.author"],
+    });
+  }
+
+  async findAllMediasByPostId(postId: string): Promise<PostMedia[]> {
+    return await this.repo.find({
+      where: { post: { id: postId } },
+      order: { order: "ASC" },
     });
   }
 }

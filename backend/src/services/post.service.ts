@@ -31,21 +31,21 @@ export interface IPostService {
   findPostsByAuthorInCommunity(
     authorId: string,
     communityId: string,
-    skip: number,
-    take: number
+    page?: number,
+    limit?: number
   ): Promise<postsResponseDto>;
 
   findRecentPostsInCommunity(
     communityId: string,
-    skip: number,
-    take: number
+    page?: number,
+    limit?: number
   ): Promise<postsResponseDto>;
 
-  findPublicFeed(skip: number, take: number): Promise<postsResponseDto>;
+  findPublicFeed(page?: number, limit?: number): Promise<postsResponseDto>;
   findFeedForUser(
     userId: string,
-    skip: number,
-    take: number
+    page?: number,
+    limit?: number
   ): Promise<postsResponseDto>;
 
   incrementLikeCount(postId: string): Promise<void>;
@@ -143,21 +143,6 @@ export class PostService implements IPostService {
     return this.entityToResponse(updatedPost);
   }
 
-  private entityToResponse(post: Post): PostResponseDto {
-    return {
-      post: {
-        title: post.title,
-        content: post.content,
-        createdAt: post.createdAt,
-        status: post.status,
-      },
-      communityId: post.community.id,
-      communityName: post.community.name ?? undefined,
-      authorId: post.author.id,
-      authorName: post.author.name ?? undefined,
-    };
-  }
-
   async incrementLikeCount(postId: string): Promise<void> {
     const post = await this.postRepository.findPostById(postId);
 
@@ -166,6 +151,7 @@ export class PostService implements IPostService {
     }
     await this.postRepository.incrementLikeCount(postId);
   }
+
   async incrementCommentCount(postId: string): Promise<void> {
     const post = await this.postRepository.findPostById(postId);
 
@@ -185,6 +171,7 @@ export class PostService implements IPostService {
 
     await this.postRepository.decrementLikeCount(postId);
   }
+
   async decrementCommentCount(postId: string): Promise<void> {
     const post = await this.postRepository.findPostById(postId);
 
@@ -193,5 +180,46 @@ export class PostService implements IPostService {
     }
 
     await this.postRepository.decrementCommentCount(postId);
+  }
+
+  async findPostsByAuthorInCommunity(
+    authorId: string,
+    communityId: string,
+    page?: number,
+    limit?: number
+  ): Promise<postsResponseDto> {
+    const currentPage = Math.max(page ?? 1, 1);
+    const currentLimit = Math.min(limit ?? 10, 20);
+
+    const skip = (currentPage - 1) * currentLimit;
+
+    const [items, total] =
+      await this.postRepository.findPostsByAuthorInCommunity(
+        authorId,
+        communityId,
+        skip,
+        currentLimit
+      );
+
+    return {
+      data: items.map((item) => this.entityToResponse(item)),
+      totalItems: total,
+      totalPages: Math.ceil(total / currentLimit),
+    };
+  }
+
+  private entityToResponse(post: Post): PostResponseDto {
+    return {
+      post: {
+        title: post.title,
+        content: post.content,
+        createdAt: post.createdAt,
+        status: post.status,
+      },
+      communityId: post.community.id,
+      communityName: post.community.name ?? undefined,
+      authorId: post.author.id,
+      authorName: post.author.name ?? undefined,
+    };
   }
 }

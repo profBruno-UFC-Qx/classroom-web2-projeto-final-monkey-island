@@ -1,6 +1,7 @@
 import { injectable } from "inversify";
-import { Post } from "../entities/post";
+import { Post, PostStatus } from "../entities/post";
 import { AppDataSource } from "../config/db.connection";
+import { CommunityUserStatus } from "../entities/community.user";
 
 export interface IPostRepository {
   save(post: Post): Promise<Post>;
@@ -60,6 +61,9 @@ export class PostRepositoryDB implements IPostRepository {
         "author.name",
       ])
       .where("community.id = :communityId", { communityId })
+      .andWhere("post.status = :postStatus", {
+        postStatus: PostStatus.PUBLISHED,
+      })
       .orderBy("post.createdAt", "DESC")
       .skip(skip)
       .take(take)
@@ -79,6 +83,9 @@ export class PostRepositoryDB implements IPostRepository {
         "author.name",
       ])
       .where("post.id = :postId", { postId })
+      .andWhere("post.status = :postStatus", {
+        postStatus: PostStatus.PUBLISHED,
+      })
       .getOne();
   }
 
@@ -101,6 +108,9 @@ export class PostRepositoryDB implements IPostRepository {
       ])
       .where("author.id = :authorId", { authorId })
       .andWhere("community.id = :communityId", { communityId })
+      .andWhere("post.status = :postStatus", {
+        postStatus: PostStatus.PUBLISHED,
+      })
       .orderBy("post.createdAt", "DESC")
       .skip(skip)
       .take(take)
@@ -116,7 +126,8 @@ export class PostRepositoryDB implements IPostRepository {
       .createQueryBuilder()
       .update()
       .set({
-        likeCount: () => "GREATEST(likeCount - 1, 0)",
+        likeCount: () =>
+          "CASE WHEN likeCount > 0 THEN likeCount - 1 ELSE 0 END",
       })
       .where("id = :postId", { postId })
       .execute();
@@ -131,7 +142,8 @@ export class PostRepositoryDB implements IPostRepository {
       .createQueryBuilder()
       .update()
       .set({
-        commentCount: () => "GREATEST(commentCount - 1, 0)",
+        commentCount: () =>
+          "CASE WHEN commentCount > 0 THEN commentCount - 1 ELSE 0 END",
       })
       .where("id = :postId", { postId })
       .execute();
@@ -149,6 +161,7 @@ export class PostRepositoryDB implements IPostRepository {
         "author.id",
         "author.name",
       ])
+      .where("post.status = :postStatus", { postStatus: PostStatus.PUBLISHED })
       .orderBy("post.createdAt", "DESC")
       .skip(skip)
       .take(take)
@@ -173,6 +186,12 @@ export class PostRepositoryDB implements IPostRepository {
         "author.name",
       ])
       .where("member.user.id = :userId", { userId })
+      .andWhere("member.status = :memberStatus", {
+        memberStatus: CommunityUserStatus.ACTIVE,
+      })
+      .andWhere("post.status = :postStatus", {
+        postStatus: PostStatus.PUBLISHED,
+      })
       .orderBy("post.createdAt", "DESC")
       .skip(skip)
       .take(take)

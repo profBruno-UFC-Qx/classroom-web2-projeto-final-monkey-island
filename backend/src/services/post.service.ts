@@ -8,7 +8,6 @@ import { IPostRepository } from "../repositories/post.repository";
 import { Post, PostStatus } from "../entities/post";
 import { User } from "../entities/User";
 import { Community } from "../entities/community";
-import { th } from "zod/locales";
 
 export interface IPostService {
   createDraftPost(
@@ -17,7 +16,7 @@ export interface IPostService {
     postRequest: PostRequestDto
   ): Promise<PostResponseDto>;
 
-  publishPost(authorId: string, postid: string): Promise<PostResponseDto>;
+  publishPost(postid: string, authorId: string): Promise<PostResponseDto>;
 
   findPostById(postId: string): Promise<PostResponseDto>;
 
@@ -77,8 +76,8 @@ export class PostService implements IPostService {
   }
 
   async publishPost(
-    authorId: string,
-    postid: string
+      postid: string,
+      authorId: string
   ): Promise<PostResponseDto> {
     const post = await this.postRepository.findPostById(postid);
 
@@ -96,6 +95,27 @@ export class PostService implements IPostService {
     const updatedPost = await this.postRepository.save(post);
     return this.entityToResponse(updatedPost);
   }
+
+    async deletePost(
+    postid: string,
+    authorId: string
+  ): Promise<void> {
+    const post = await this.postRepository.findPostById(postid);
+
+    if (!post) {
+      throw new Error("post not exists");
+    }
+
+    if (post.author.id !== authorId) {
+      throw new Error(
+        "the action can only be carried out by the owner of the post"
+      );
+    }
+
+    post.
+    const updatedPost = await this.postRepository.save(post);
+  }
+
 
   private entityToResponse(post: Post): PostResponseDto {
     return {

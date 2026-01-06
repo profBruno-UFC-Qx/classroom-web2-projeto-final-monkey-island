@@ -15,6 +15,7 @@ import { PostMedia } from "./post.media";
 export enum PostStatus {
   DRAFT = "DRAFT",
   PUBLISHED = "PUBLISHED",
+  DELETED = "DELETED",
 }
 
 @Entity()

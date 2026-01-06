@@ -98,12 +98,10 @@ export class PostService implements IPostService {
   }
 
   async findPostById(postId: string): Promise<PostResponseDto> {
-    const post = await this.postRepository.findPostById(postid);
-
+    const post = await this.postRepository.findPostById(postId);
     if (!post) {
       throw new Error("post not exists");
     }
-
     return this.entityToResponse(post);
   }
 
@@ -158,5 +156,42 @@ export class PostService implements IPostService {
       authorId: post.author.id,
       authorName: post.author.name ?? undefined,
     };
+  }
+
+  async incrementLikeCount(postId: string): Promise<void> {
+    const post = await this.postRepository.findPostById(postId);
+
+    if (!post) {
+      throw new Error("post not exists");
+    }
+    await this.postRepository.incrementLikeCount(postId);
+  }
+  async incrementCommentCount(postId: string): Promise<void> {
+    const post = await this.postRepository.findPostById(postId);
+
+    if (!post) {
+      throw new Error("post not exists");
+    }
+
+    await this.postRepository.incrementCommentCount(postId);
+  }
+
+  async decrementLikeCount(postId: string): Promise<void> {
+    const post = await this.postRepository.findPostById(postId);
+
+    if (!post) {
+      throw new Error("post not exists");
+    }
+
+    await this.postRepository.decrementLikeCount(postId);
+  }
+  async decrementCommentCount(postId: string): Promise<void> {
+    const post = await this.postRepository.findPostById(postId);
+
+    if (!post) {
+      throw new Error("post not exists");
+    }
+
+    await this.postRepository.decrementCommentCount(postId);
   }
 }

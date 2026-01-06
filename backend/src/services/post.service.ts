@@ -8,6 +8,7 @@ import { IPostRepository } from "../repositories/post.repository";
 import { Post, PostStatus } from "../entities/post";
 import { User } from "../entities/User";
 import { Community } from "../entities/community";
+import { th } from "zod/locales";
 
 export interface IPostService {
   createDraftPost(
@@ -73,6 +74,27 @@ export class PostService implements IPostService {
     post.content = postRequest.content;
     const savedPost = await this.postRepository.save(post);
     return this.entityToResponse(savedPost);
+  }
+
+  async publishPost(
+    authorId: string,
+    postid: string
+  ): Promise<PostResponseDto> {
+    const post = await this.postRepository.findPostById(postid);
+
+    if (!post) {
+      throw new Error("post not exists");
+    }
+
+    if (post.author.id !== authorId) {
+      throw new Error(
+        "the action can only be carried out by the owner of the post"
+      );
+    }
+
+    post.status = PostStatus.PUBLISHED;
+    const updatedPost = await this.postRepository.save(post);
+    return this.entityToResponse(updatedPost);
   }
 
   private entityToResponse(post: Post): PostResponseDto {

@@ -208,6 +208,29 @@ export class PostService implements IPostService {
     };
   }
 
+  async findRecentPostsInCommunity(
+    communityId: string,
+    page?: number,
+    limit?: number
+  ): Promise<postsResponseDto> {
+    const currentPage = Math.max(page ?? 1, 1);
+    const currentLimit = Math.min(limit ?? 10, 20);
+
+    const skip = (currentPage - 1) * currentLimit;
+
+    const [items, total] = await this.postRepository.findRecentPostsInCommunity(
+      communityId,
+      skip,
+      currentLimit
+    );
+
+    return {
+      data: items.map((item) => this.entityToResponse(item)),
+      totalItems: total,
+      totalPages: Math.ceil(total / currentLimit),
+    };
+  }
+
   private entityToResponse(post: Post): PostResponseDto {
     return {
       post: {

@@ -143,6 +143,8 @@ export class PostService implements IPostService {
     return this.entityToResponse(updatedPost);
   }
 
+
+
   async incrementLikeCount(postId: string): Promise<void> {
     const post = await this.postRepository.findPostById(postId);
 
@@ -151,6 +153,8 @@ export class PostService implements IPostService {
     }
     await this.postRepository.incrementLikeCount(postId);
   }
+
+
 
   async incrementCommentCount(postId: string): Promise<void> {
     const post = await this.postRepository.findPostById(postId);
@@ -162,6 +166,8 @@ export class PostService implements IPostService {
     await this.postRepository.incrementCommentCount(postId);
   }
 
+
+
   async decrementLikeCount(postId: string): Promise<void> {
     const post = await this.postRepository.findPostById(postId);
 
@@ -172,6 +178,8 @@ export class PostService implements IPostService {
     await this.postRepository.decrementLikeCount(postId);
   }
 
+
+
   async decrementCommentCount(postId: string): Promise<void> {
     const post = await this.postRepository.findPostById(postId);
 
@@ -181,6 +189,8 @@ export class PostService implements IPostService {
 
     await this.postRepository.decrementCommentCount(postId);
   }
+
+
 
   async findPostsByAuthorInCommunity(
     authorId: string,
@@ -208,6 +218,8 @@ export class PostService implements IPostService {
     };
   }
 
+
+
   async findRecentPostsInCommunity(
     communityId: string,
     page?: number,
@@ -231,6 +243,24 @@ export class PostService implements IPostService {
     };
   }
 
+  
+  async findPublicFeed(page?: number, limit?: number): Promise<postsResponseDto>{
+        const currentPage = Math.max(page ?? 1, 1);
+    const currentLimit = Math.min(limit ?? 10, 20);
+
+    const skip = (currentPage - 1) * currentLimit;
+
+    const [items, total] = await this.postRepository.findPublicFeed(skip, currentLimit));
+
+    return {
+      data: items.map((item) => this.entityToResponse(item)),
+      totalItems: total,
+      totalPages: Math.ceil(total / currentLimit),
+    };
+  }
+
+  
+
   private entityToResponse(post: Post): PostResponseDto {
     return {
       post: {
@@ -245,4 +275,6 @@ export class PostService implements IPostService {
       authorName: post.author.name ?? undefined,
     };
   }
+
+
 }

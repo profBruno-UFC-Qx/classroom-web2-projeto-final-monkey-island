@@ -97,6 +97,16 @@ export class PostService implements IPostService {
     return this.entityToResponse(updatedPost);
   }
 
+  async findPostById(postId: string): Promise<PostResponseDto> {
+    const post = await this.postRepository.findPostById(postid);
+
+    if (!post) {
+      throw new Error("post not exists");
+    }
+
+    return this.entityToResponse(post);
+  }
+
   async deletePost(postid: string, authorId: string): Promise<void> {
     const post = await this.postRepository.findPostById(postid);
 

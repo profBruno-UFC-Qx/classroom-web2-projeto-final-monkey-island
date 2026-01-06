@@ -76,8 +76,8 @@ export class PostService implements IPostService {
   }
 
   async publishPost(
-      postid: string,
-      authorId: string
+    postid: string,
+    authorId: string
   ): Promise<PostResponseDto> {
     const post = await this.postRepository.findPostById(postid);
 
@@ -96,10 +96,7 @@ export class PostService implements IPostService {
     return this.entityToResponse(updatedPost);
   }
 
-    async deletePost(
-    postid: string,
-    authorId: string
-  ): Promise<void> {
+  async deletePost(postid: string, authorId: string): Promise<void> {
     const post = await this.postRepository.findPostById(postid);
 
     if (!post) {
@@ -112,10 +109,9 @@ export class PostService implements IPostService {
       );
     }
 
-    post.
-    const updatedPost = await this.postRepository.save(post);
+    post.status = PostStatus.DELETED;
+    await this.postRepository.save(post);
   }
-
 
   private entityToResponse(post: Post): PostResponseDto {
     return {

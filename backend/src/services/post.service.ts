@@ -8,6 +8,7 @@ import { IPostRepository } from "../repositories/post.repository";
 import { Post, PostStatus } from "../entities/post";
 import { User } from "../entities/User";
 import { Community } from "../entities/community";
+import { applyPartialUpdate } from "../util/merge-function";
 
 export interface IPostService {
   createDraftPost(
@@ -111,6 +112,27 @@ export class PostService implements IPostService {
 
     post.status = PostStatus.DELETED;
     await this.postRepository.save(post);
+  }
+
+  async updatePostData(
+    postId: string,
+    authorId: string,
+    request: PostUpdateRequestDto
+  ): Promise<PostResponseDto> {
+    const post = await this.postRepository.findPostById(postId);
+
+    if (!post) {
+      throw new Error("post not exists");
+    }
+
+    if (post.author.id !== authorId) {
+      throw new Error(
+        "the action can only be carried out by the owner of the post"
+      );
+    }
+    const target = applyPartialUpdate(post, request);
+    const updatedPost = await this.postRepository.save(target);
+    return this.entityToResponse(updatedPost);
   }
 
   private entityToResponse(post: Post): PostResponseDto {

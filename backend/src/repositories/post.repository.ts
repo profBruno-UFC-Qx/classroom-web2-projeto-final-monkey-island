@@ -12,6 +12,7 @@ export interface IPostRepository {
     take: number
   ): Promise<[Post[], number]>;
   findPostById(postId: string): Promise<Post | null>;
+  postExistsById(postId: string): Promise<boolean>;
 
   findPostsByAuthorInCommunity(
     authorId: string,
@@ -42,6 +43,10 @@ export class PostRepositoryDB implements IPostRepository {
 
   async save(post: Post): Promise<Post> {
     return await this.repo.save(post);
+  }
+
+  async postExistsById(postId: string): Promise<boolean> {
+    return await this.repo.existsBy({ id: postId });
   }
 
   async findRecentPostsInCommunity(

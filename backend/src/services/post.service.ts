@@ -143,10 +143,8 @@ export class PostService implements IPostService {
     return this.entityToResponse(updatedPost);
   }
 
-
-
   async incrementLikeCount(postId: string): Promise<void> {
-    const post = await this.postRepository.findPostById(postId);
+    const post = await this.postRepository.postExistsById(postId);
 
     if (!post) {
       throw new Error("post not exists");
@@ -154,10 +152,8 @@ export class PostService implements IPostService {
     await this.postRepository.incrementLikeCount(postId);
   }
 
-
-
   async incrementCommentCount(postId: string): Promise<void> {
-    const post = await this.postRepository.findPostById(postId);
+    const post = await this.postRepository.postExistsById(postId);
 
     if (!post) {
       throw new Error("post not exists");
@@ -166,10 +162,8 @@ export class PostService implements IPostService {
     await this.postRepository.incrementCommentCount(postId);
   }
 
-
-
   async decrementLikeCount(postId: string): Promise<void> {
-    const post = await this.postRepository.findPostById(postId);
+    const post = await this.postRepository.postExistsById(postId);
 
     if (!post) {
       throw new Error("post not exists");
@@ -178,10 +172,8 @@ export class PostService implements IPostService {
     await this.postRepository.decrementLikeCount(postId);
   }
 
-
-
   async decrementCommentCount(postId: string): Promise<void> {
-    const post = await this.postRepository.findPostById(postId);
+    const post = await this.postRepository.postExistsById(postId);
 
     if (!post) {
       throw new Error("post not exists");
@@ -189,8 +181,6 @@ export class PostService implements IPostService {
 
     await this.postRepository.decrementCommentCount(postId);
   }
-
-
 
   async findPostsByAuthorInCommunity(
     authorId: string,
@@ -218,8 +208,6 @@ export class PostService implements IPostService {
     };
   }
 
-
-
   async findRecentPostsInCommunity(
     communityId: string,
     page?: number,
@@ -243,14 +231,19 @@ export class PostService implements IPostService {
     };
   }
 
-  
-  async findPublicFeed(page?: number, limit?: number): Promise<postsResponseDto>{
-        const currentPage = Math.max(page ?? 1, 1);
+  async findPublicFeed(
+    page?: number,
+    limit?: number
+  ): Promise<postsResponseDto> {
+    const currentPage = Math.max(page ?? 1, 1);
     const currentLimit = Math.min(limit ?? 10, 20);
 
     const skip = (currentPage - 1) * currentLimit;
 
-    const [items, total] = await this.postRepository.findPublicFeed(skip, currentLimit));
+    const [items, total] = await this.postRepository.findPublicFeed(
+      skip,
+      currentLimit
+    );
 
     return {
       data: items.map((item) => this.entityToResponse(item)),
@@ -259,7 +252,31 @@ export class PostService implements IPostService {
     };
   }
 
-  
+  async findFeedForUser(
+    userId: string,
+    page?: number,
+    limit?: number
+  ): Promise<postsResponseDto> {
+    const currentPage = Math.max(page ?? 1, 1);
+    const currentLimit = Math.min(limit ?? 10, 20);
+    const skip = (currentPage - 1) * currentLimit;
+
+    let [items, total] = await this.postRepository.findFeedForUser(
+      userId,
+      skip,
+      currentLimit
+    );
+
+    if (items.length === 0 && currentPage === 1) {
+      return this.findPublicFeed(page, limit);
+    }
+
+    return {
+      data: items.map((item) => this.entityToResponse(item)),
+      totalItems: total,
+      totalPages: Math.ceil(total / currentLimit),
+    };
+  }
 
   private entityToResponse(post: Post): PostResponseDto {
     return {
@@ -275,6 +292,4 @@ export class PostService implements IPostService {
       authorName: post.author.name ?? undefined,
     };
   }
-
-
 }

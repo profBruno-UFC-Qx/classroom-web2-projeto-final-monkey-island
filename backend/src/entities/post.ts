@@ -12,7 +12,7 @@ import { User } from "./User";
 import { Community } from "./community";
 import { PostMedia } from "./post.media";
 
-enum PostStatus {
+export enum PostStatus {
   DRAFT = "DRAFT",
   PUBLISHED = "PUBLISHED",
 }

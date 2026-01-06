@@ -21,4 +21,7 @@ export const TYPES = {
   CommunityUserRepositoryDB: Symbol.for("CommunityUserRepositoryDB"),
   CommunityUserService: Symbol.for("CommunityUserService"),
   CommunityUserController: Symbol.for("CommunityUserController"),
+  PostRepositoryDB: Symbol.for("PostRepositoryDB"),
+  PostService: Symbol.for(" PostService"),
+  PostController: Symbol.for(" PostController"),
 };

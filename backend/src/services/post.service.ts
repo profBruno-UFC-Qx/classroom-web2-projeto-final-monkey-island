@@ -71,8 +71,8 @@ export class PostService implements IPostService {
     post.status = PostStatus.DRAFT;
     post.title = postRequest.title;
     post.content = postRequest.content;
-    const resonseData = await this.postRepository.save(post);
-    return this.entityToResponse(post);
+    const savedPost = await this.postRepository.save(post);
+    return this.entityToResponse(savedPost);
   }
 
   private entityToResponse(post: Post): PostResponseDto {

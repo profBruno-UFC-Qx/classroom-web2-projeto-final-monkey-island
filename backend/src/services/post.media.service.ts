@@ -62,6 +62,18 @@ export class PostMediaService implements IPostMediaService {
     return response;
   }
 
+  async findMediasInPost(postId: string): Promise<PostMediaResponseDto> {
+    const alreadyPosts =
+      await this.postMediaRepository.findAllMediasByPostId(postId);
+
+    const response: PostMediaResponseDto = { medias: [] };
+
+    alreadyPosts.forEach((postMedia) =>
+      response.medias.push(this.entityToDto(postMedia))
+    );
+    return response;
+  }
+
   private entityToDto(postMedia: PostMedia) {
     return {
       mediaId: postMedia.id,

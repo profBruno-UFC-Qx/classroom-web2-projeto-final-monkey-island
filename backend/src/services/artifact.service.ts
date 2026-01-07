@@ -9,7 +9,6 @@ import { Artifact, ArtifactRarity } from "../entities/artifact";
 import path from "path";
 import { rename, unlink } from "node:fs/promises";
 import { applyPartialUpdate } from "../util/merge-function";
-import { record } from "zod";
 
 export interface IArtifactService {
   createArtifact(

@@ -3,6 +3,7 @@ export const TYPES = {
   AuthService: Symbol.for("AuthService"),
   AuthController: Symbol.for("AuthController"),
   UserService: Symbol.for("UserService"),
+  UserController: Symbol.for("UserController"),
   ResearcherRequestRepositoryDB: Symbol.for("ResearcherRequestRepositoryDB"),
   ResearcherRequestService: Symbol.for("ResearcherRequestService"),
   ResearcherRequestController: Symbol.for("ResearcherRequestController"),

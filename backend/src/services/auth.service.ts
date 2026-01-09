@@ -86,6 +86,9 @@ export class AuthService implements IAuthService {
       throw new Error("JWT_SECRET not configured");
     }
 
+    user.lastLoginAt = new Date();
+    await this.userRepository.save(user);
+
     const token = jsonwebtoken.sign({ sub: user.id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
       algorithm: "HS256",

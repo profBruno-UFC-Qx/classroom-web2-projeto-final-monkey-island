@@ -17,6 +17,11 @@ export async function userIsOwnerOfPost(
     return;
   }
 
+  if (!postId) {
+    res.status(400).json({ message: "postId is required" });
+    return;
+  }
+
   const postRepositoryDB: PostRepositoryDB = container.get(
     TYPES.PostRepositoryDB
   );

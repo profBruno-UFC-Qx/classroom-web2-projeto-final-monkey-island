@@ -37,9 +37,7 @@ export class PostMediaService implements IPostMediaService {
 
     const response: PostMediaResponseDto = { medias: [] };
     const lastOrder =
-      alreadyPosts.length > 0
-        ? (alreadyPosts[alreadyPosts.length - 1].order as number)
-        : 0;
+      alreadyPosts.length > 0 ? alreadyPosts[alreadyPosts.length - 1].order : 0;
 
     for (const [index, file] of files.entries()) {
       const mappedFile = {
@@ -106,7 +104,7 @@ export class PostMediaService implements IPostMediaService {
     return {
       mediaId: postMedia.id,
       image: postMedia.url,
-      order: postMedia.order as number,
+      order: postMedia.order,
     };
   }
 

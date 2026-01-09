@@ -27,12 +27,13 @@ export class PostMedia {
   @Column({
     type: "simple-enum",
     enum: PostMediaType,
+    default: PostMediaType.IMAGE,
   })
   type: PostMediaType;
 
-  @Column({ type: "varchar", length: 150 })
+  @Column({ type: "varchar", length: 400 })
   url: string;
 
-  @Column({ type: "int", nullable: true })
-  order?: number;
+  @Column({ type: "int" })
+  order: number;
 }

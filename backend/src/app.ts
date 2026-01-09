@@ -8,6 +8,7 @@ import communityUserRoutes from "./routes/community.user.route";
 import postRoutes from "./routes/post.route";
 import postMediaRoutes from "./routes/post.media.routes";
 import path from "node:path";
+import userRoutes from "./routes/user.routes";
 
 const app = express();
 app.use(express.json());
@@ -15,7 +16,7 @@ app.use("/images", express.static(path.resolve(__dirname, "..", "public")));
 
 app.use(
   authRoutes,
-
+  userRoutes,
   researcherRequestRoutes,
   artifactRoutes,
   artifactCollectionRoutes,

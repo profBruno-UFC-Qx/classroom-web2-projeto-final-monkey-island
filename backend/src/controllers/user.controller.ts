@@ -14,9 +14,12 @@ export class UserController {
 
   async getMyProfile(req: Request, res: Response): Promise<void> {
     try {
-      const userId = req.params.userId;
+      const userId = req.user?.id;
+      console.log(userId);
 
-      const response = await this.userService.getUserProfileInfo(userId);
+      const response = await this.userService.getUserProfileInfo(
+        userId as string
+      );
 
       res.status(200).json(response);
     } catch (error: any) {

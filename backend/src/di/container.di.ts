@@ -53,6 +53,21 @@ import {
   ICommunityUserService,
 } from "../services/community.user.service";
 import { CommunityUserController } from "../controllers/community.user.controller";
+import {
+  IPostRepository,
+  PostRepositoryDB,
+} from "../repositories/post.repository";
+import { IPostService, PostService } from "../services/post.service";
+import { PostController } from "../controllers/post.controller";
+import {
+  IPostMediaRepository,
+  PostMediaRepositoryDB,
+} from "../repositories/post.media.repository";
+import {
+  IPostMediaService,
+  PostMediaService,
+} from "../services/post.media.service";
+import { PostMediaController } from "../controllers/post.media.controller";
 
 export const container: Container = new Container();
 
@@ -125,3 +140,17 @@ container
 container
   .bind<CommunityUserController>(TYPES.CommunityUserController)
   .to(CommunityUserController);
+
+container.bind<IPostRepository>(TYPES.PostRepositoryDB).to(PostRepositoryDB);
+container.bind<IPostService>(TYPES.PostService).to(PostService);
+container.bind<PostController>(TYPES.PostController).to(PostController);
+
+container
+  .bind<IPostMediaRepository>(TYPES.PostMediaRepositoryDB)
+  .to(PostMediaRepositoryDB);
+
+container.bind<IPostMediaService>(TYPES.PostMediaService).to(PostMediaService);
+
+container
+  .bind<PostMediaController>(TYPES.PostMediaController)
+  .to(PostMediaController);

@@ -1,6 +1,3 @@
-import { ResearcherRequestRepositorieDB } from "../repositories/researcher.request.repositorie";
-import { CommunityService } from "../services/community.service";
-
 export const TYPES = {
   UserRepositoryDB: Symbol.for("UserRepositoryDB"),
   AuthService: Symbol.for("AuthService"),
@@ -21,4 +18,10 @@ export const TYPES = {
   CommunityUserRepositoryDB: Symbol.for("CommunityUserRepositoryDB"),
   CommunityUserService: Symbol.for("CommunityUserService"),
   CommunityUserController: Symbol.for("CommunityUserController"),
+  PostRepositoryDB: Symbol.for("PostRepositoryDB"),
+  PostService: Symbol.for("PostService"),
+  PostController: Symbol.for("PostController"),
+  PostMediaRepositoryDB: Symbol.for("PostMediaRepositoryDB"),
+  PostMediaService: Symbol.for("PostMediaService"),
+  PostMediaController: Symbol.for(" PostMediaController"),
 };

@@ -5,6 +5,8 @@ import artifactRoutes from "./routes/artifact.route";
 import artifactCollectionRoutes from "./routes/artifact.collection.route";
 import communityRoutes from "./routes/community.route";
 import communityUserRoutes from "./routes/community.user.route";
+import postRoutes from "./routes/post.route";
+import postMediaRoutes from "./routes/post.media.routes";
 import path from "node:path";
 
 const app = express();
@@ -18,7 +20,9 @@ app.use(
   artifactRoutes,
   artifactCollectionRoutes,
   communityRoutes,
-  communityUserRoutes
+  communityUserRoutes,
+  postRoutes,
+  postMediaRoutes
 );
 
 export default app;

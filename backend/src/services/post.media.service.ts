@@ -74,6 +74,34 @@ export class PostMediaService implements IPostMediaService {
     return response;
   }
 
+  async deleteMediaInPost(postId: string, postMediaId: string): Promise<void> {
+    const medias = await this.postMediaRepository.findAllMediasByPostId(postId);
+
+    const targetIndex = medias.findIndex((media) => media.id === postMediaId);
+
+    if (targetIndex === -1) {
+      throw new Error("media not exists");
+    }
+
+    const targetMedia = medias[targetIndex];
+    const filepath = path.resolve("public", targetMedia.url);
+
+    await this.postMediaRepository.delete(targetMedia.id);
+
+    try {
+      await unlink(filepath);
+    } catch (err: any) {
+      if (err.code !== "ENOENT") {
+        console.error("Failed to delete post media file:", err);
+      }
+    }
+
+    for (let i = targetIndex + 1; i < medias.length; i++) {
+      medias[i].order = (medias[i].order as number) - 1;
+      await this.postMediaRepository.save(medias[i]);
+    }
+  }
+
   private entityToDto(postMedia: PostMedia) {
     return {
       mediaId: postMedia.id,

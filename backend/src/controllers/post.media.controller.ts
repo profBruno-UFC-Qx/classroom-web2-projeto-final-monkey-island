@@ -16,6 +16,11 @@ export class PostMediaController {
       const postId = req.params.postId;
       const files = req.files as Express.Multer.File[];
 
+      if (files.length === 0) {
+        res.status(400).send({ message: "no file uploaded" });
+        return;
+      }
+
       const response = await this.postMediaService.addMediasInPost(
         postId,
         files

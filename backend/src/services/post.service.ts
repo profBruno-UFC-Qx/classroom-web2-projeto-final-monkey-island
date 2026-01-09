@@ -17,17 +17,16 @@ export interface IPostService {
     postRequest: PostRequestDto
   ): Promise<PostResponseDto>;
 
-  publishPost(postid: string, authorId: string): Promise<PostResponseDto>;
+  publishPost(postid: string): Promise<PostResponseDto>;
 
   findPostById(postId: string): Promise<PostResponseDto>;
 
   updatePostData(
     postId: string,
-    authorId: string,
     request: PostUpdateRequestDto
   ): Promise<PostResponseDto>;
 
-  deletePost(postId: string, authorId: string): Promise<void>;
+  deletePost(postId: string): Promise<void>;
   findPostsByAuthorInCommunity(
     authorId: string,
     communityId: string,
@@ -76,20 +75,11 @@ export class PostService implements IPostService {
     return this.entityToResponse(savedPost);
   }
 
-  async publishPost(
-    postid: string,
-    authorId: string
-  ): Promise<PostResponseDto> {
+  async publishPost(postid: string): Promise<PostResponseDto> {
     const post = await this.postRepository.findPostById(postid);
 
     if (!post) {
       throw new Error("post not exists");
-    }
-
-    if (post.author.id !== authorId) {
-      throw new Error(
-        "the action can only be carried out by the owner of the post"
-      );
     }
 
     post.status = PostStatus.PUBLISHED;
@@ -105,17 +95,11 @@ export class PostService implements IPostService {
     return this.entityToResponse(post);
   }
 
-  async deletePost(postid: string, authorId: string): Promise<void> {
+  async deletePost(postid: string): Promise<void> {
     const post = await this.postRepository.findPostById(postid);
 
     if (!post) {
       throw new Error("post not exists");
-    }
-
-    if (post.author.id !== authorId) {
-      throw new Error(
-        "the action can only be carried out by the owner of the post"
-      );
     }
 
     post.status = PostStatus.DELETED;
@@ -124,7 +108,6 @@ export class PostService implements IPostService {
 
   async updatePostData(
     postId: string,
-    authorId: string,
     request: PostUpdateRequestDto
   ): Promise<PostResponseDto> {
     const post = await this.postRepository.findPostById(postId);
@@ -133,11 +116,6 @@ export class PostService implements IPostService {
       throw new Error("post not exists");
     }
 
-    if (post.author.id !== authorId) {
-      throw new Error(
-        "the action can only be carried out by the owner of the post"
-      );
-    }
     const target = applyPartialUpdate(post, request);
     const updatedPost = await this.postRepository.save(target);
     return this.entityToResponse(updatedPost);
@@ -281,6 +259,7 @@ export class PostService implements IPostService {
   private entityToResponse(post: Post): PostResponseDto {
     return {
       post: {
+        id: post.id,
         title: post.title,
         content: post.content,
         createdAt: post.createdAt,

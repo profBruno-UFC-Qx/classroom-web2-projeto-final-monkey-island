@@ -88,9 +88,6 @@ export class PostRepositoryDB implements IPostRepository {
         "author.name",
       ])
       .where("post.id = :postId", { postId })
-      .andWhere("post.status = :postStatus", {
-        postStatus: PostStatus.PUBLISHED,
-      })
       .getOne();
   }
 

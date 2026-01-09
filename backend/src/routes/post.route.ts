@@ -3,6 +3,8 @@ import { container } from "../di/container.di";
 import { TYPES } from "../types/types";
 import { PostController } from "../controllers/post.controller";
 import { userAuthentication } from "../middlewares/user.autentication";
+import { userIsResearcher } from "../middlewares/user.is.researcher";
+import { userIsOwnerOfPost } from "../middlewares/user.is.owner.of.post";
 
 const postController: PostController = container.get(TYPES.PostController);
 
@@ -11,22 +13,32 @@ const postRoutes = Router();
 postRoutes.post(
   "/community/:communityId/posts",
   userAuthentication,
+  userIsResearcher,
   (req, res) => postController.createDraftPost(req, res)
 );
 
-postRoutes.patch("/posts/:id/publish", userAuthentication, (req, res) =>
-  postController.publishPost(req, res)
+postRoutes.patch(
+  "/posts/:postId/publish",
+  userAuthentication,
+  userIsOwnerOfPost,
+  (req, res) => postController.publishPost(req, res)
 );
 
-postRoutes.put("/posts/:id", userAuthentication, (req, res) =>
-  postController.updatePostData(req, res)
+postRoutes.put(
+  "/posts/:postId",
+  userAuthentication,
+  userIsOwnerOfPost,
+  (req, res) => postController.updatePostData(req, res)
 );
 
-postRoutes.delete("/posts/:id", userAuthentication, (req, res) =>
-  postController.deletePost(req, res)
+postRoutes.delete(
+  "/posts/:postId",
+  userAuthentication,
+  userIsOwnerOfPost,
+  (req, res) => postController.deletePost(req, res)
 );
 
-postRoutes.get("/posts/:id", (req, res) =>
+postRoutes.get("/posts/:postId", (req, res) =>
   postController.findPostById(req, res)
 );
 

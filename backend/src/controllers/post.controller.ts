@@ -33,10 +33,9 @@ export class PostController {
 
   async publishPost(req: Request, res: Response): Promise<void> {
     try {
-      const authorId = req.user?.id as string;
-      const postId = req.params.id;
+      const postId = req.params.postId;
 
-      const response = await this.postService.publishPost(postId, authorId);
+      const response = await this.postService.publishPost(postId);
 
       res.status(200).json(response);
     } catch (error: any) {
@@ -46,7 +45,7 @@ export class PostController {
 
   async findPostById(req: Request, res: Response): Promise<void> {
     try {
-      const postId = req.params.id;
+      const postId = req.params.postId;
 
       const response = await this.postService.findPostById(postId);
 
@@ -58,15 +57,10 @@ export class PostController {
 
   async updatePostData(req: Request, res: Response): Promise<void> {
     try {
-      const authorId = req.user?.id as string;
-      const postId = req.params.id;
+      const postId = req.params.postId;
       const request: PostUpdateRequestDto = req.body;
 
-      const response = await this.postService.updatePostData(
-        postId,
-        authorId,
-        request
-      );
+      const response = await this.postService.updatePostData(postId, request);
 
       res.status(200).json(response);
     } catch (error: any) {
@@ -76,10 +70,9 @@ export class PostController {
 
   async deletePost(req: Request, res: Response): Promise<void> {
     try {
-      const authorId = req.user?.id as string;
-      const postId = req.params.id;
+      const postId = req.params.postId;
 
-      await this.postService.deletePost(postId, authorId);
+      await this.postService.deletePost(postId);
 
       res.status(204).end();
     } catch (error: any) {

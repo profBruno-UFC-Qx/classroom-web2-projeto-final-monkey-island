@@ -4,6 +4,8 @@ import { TYPES } from "../types/types";
 import { userAuthentication } from "../middlewares/user.autentication";
 import { userIsAdmin } from "../middlewares/user.is.admin";
 import { Router } from "express";
+import { validateSchema } from "../middlewares/validate.schema";
+import { researcherRequestSchema } from "../schemas/researcher_request/researcher.request.schema";
 
 const researcherRequestRoutes = Router();
 
@@ -14,6 +16,7 @@ const researcherRequestController: ResearcherRequestController = container.get(
 researcherRequestRoutes.post(
   "/researcher-request",
   userAuthentication,
+  validateSchema(researcherRequestSchema),
   (req, res) => researcherRequestController.create(req, res)
 );
 

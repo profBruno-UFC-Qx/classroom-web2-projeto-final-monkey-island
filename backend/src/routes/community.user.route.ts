@@ -5,6 +5,9 @@ import { TYPES } from "../types/types";
 import { CommunityUserController } from "../controllers/community.user.controller";
 import { userAuthentication } from "../middlewares/user.autentication";
 import { userIsOwnerOfCommunity } from "../middlewares/user.is.owner.of.community";
+import { validateSchema } from "../middlewares/validate.schema";
+import { banSchema } from "../schemas/community_user/ban.reason";
+import { suspendSchema } from "../schemas/community_user/suspend";
 
 const communityUserController: CommunityUserController = container.get(
   TYPES.CommunityUserController
@@ -16,6 +19,7 @@ communityUserRoutes.put(
   "/community/:communityId/users/ban/:targetUserId",
   userAuthentication,
   userIsOwnerOfCommunity,
+  validateSchema(banSchema),
   (req, res) => communityUserController.banUser(req, res)
 );
 
@@ -23,6 +27,7 @@ communityUserRoutes.put(
   "/community/:communityId/users/suspend/:targetUserId",
   userAuthentication,
   userIsOwnerOfCommunity,
+  validateSchema(suspendSchema),
   (req, res) => communityUserController.suspendUser(req, res)
 );
 

@@ -5,6 +5,9 @@ import { PostController } from "../controllers/post.controller";
 import { userAuthentication } from "../middlewares/user.autentication";
 import { userIsResearcher } from "../middlewares/user.is.researcher";
 import { userIsOwnerOfPost } from "../middlewares/user.is.owner.of.post";
+import { validateSchema } from "../middlewares/validate.schema";
+import { postSchema } from "../schemas/post/post";
+import { postUpdateSchema } from "../schemas/post/post.update";
 
 const postController: PostController = container.get(TYPES.PostController);
 
@@ -14,6 +17,7 @@ postRoutes.post(
   "/community/:communityId/posts",
   userAuthentication,
   userIsResearcher,
+  validateSchema(postSchema),
   (req, res) => postController.createDraftPost(req, res)
 );
 
@@ -28,6 +32,7 @@ postRoutes.put(
   "/posts/:postId",
   userAuthentication,
   userIsOwnerOfPost,
+  validateSchema(postUpdateSchema),
   (req, res) => postController.updatePostData(req, res)
 );
 

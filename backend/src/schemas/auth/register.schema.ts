@@ -1,4 +1,4 @@
-import { email, z } from "zod";
+import { z } from "zod";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const nameRegex = /^[A-Za-z0-9]+$/;
@@ -18,7 +18,7 @@ export const registerSchema = z.object({
     .regex(/[a-z]/, "must contain at least one lowercase letter")
     .regex(/[0-9]/, "must contain at least one number"),
 
-  institution: z
+  instituition: z
     .string()
     .min(2, "The institution must have at least 2 characters"),
 

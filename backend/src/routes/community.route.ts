@@ -4,6 +4,9 @@ import { TYPES } from "../types/types";
 import { CommunityController } from "../controllers/community.controller";
 import { userIsResearcher } from "../middlewares/user.is.researcher";
 import { userAuthentication } from "../middlewares/user.autentication";
+import { validateSchema } from "../middlewares/validate.schema";
+import { communitySchema } from "../schemas/community/community.schema";
+import { communityUpdateSchema } from "../schemas/community/community.update.schema";
 
 const communityController: CommunityController = container.get(
   TYPES.CommunityController
@@ -15,11 +18,15 @@ communityRoutes.post(
   "/community",
   userAuthentication,
   userIsResearcher,
+  validateSchema(communitySchema),
   (req, res) => communityController.createCommunity(req, res)
 );
 
-communityRoutes.delete("/community/:id", userAuthentication, (req, res) =>
-  communityController.deleteCommunity(req, res)
+communityRoutes.delete(
+  "/community/:id",
+  userAuthentication,
+  validateSchema(communityUpdateSchema),
+  (req, res) => communityController.deleteCommunity(req, res)
 );
 
 communityRoutes.put("/community/:id", userAuthentication, (req, res) =>

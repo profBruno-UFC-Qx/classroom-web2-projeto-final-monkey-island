@@ -22,15 +22,15 @@ communityRoutes.post(
   (req, res) => communityController.createCommunity(req, res)
 );
 
-communityRoutes.delete(
+communityRoutes.delete("/community/:id", userAuthentication, (req, res) =>
+  communityController.deleteCommunity(req, res)
+);
+
+communityRoutes.put(
   "/community/:id",
   userAuthentication,
   validateSchema(communityUpdateSchema),
-  (req, res) => communityController.deleteCommunity(req, res)
-);
-
-communityRoutes.put("/community/:id", userAuthentication, (req, res) =>
-  communityController.updateCommunityData(req, res)
+  (req, res) => communityController.updateCommunityData(req, res)
 );
 
 communityRoutes.get(

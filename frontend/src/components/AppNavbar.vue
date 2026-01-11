@@ -16,6 +16,11 @@
         <router-link to="/comunidades" class="nav-lab-link">
           <i class="bi bi-shield-shaded"></i> Setores
         </router-link>
+
+        <router-link v-if="authStore.isAuthenticated" to="/perfil" class="nav-lab-link">
+          <i class="bi bi-person-bounding-box"></i> Perfil
+        </router-link>
+
         <router-link v-if="authStore.user?.role === 'researcher' || authStore.user?.role === 'admin'" 
           to="/area-pesquisador" class="nav-lab-link text-warning">
           <i class="bi bi-microscope"></i> Laboratório
@@ -25,7 +30,7 @@
       <div class="d-flex align-items-center gap-3">
         <template v-if="!authStore.isAuthenticated">
           <router-link to="/login" class="btn btn-link text-light text-decoration-none fw-bold">Entrar</router-link>
-          <router-link to="/registro" class="btn btn-warning px-4 fw-bold rounded-0 shadow-sm">
+          <router-link to="/register" class="btn btn-warning px-4 fw-bold rounded-0 shadow-sm">
             INGRESSAR NO PARQUE
           </router-link>
         </template>

@@ -52,7 +52,7 @@
         </div>
 
         <div class="text-center mt-4 border-top border-secondary pt-3">
-          <router-link to="/registro" class="text-warning text-decoration-none small fw-bold">
+          <router-link to="/register" class="text-warning text-decoration-none small fw-bold">
             SOLICITAR NOVO ACESSO (REGISTRO)
           </router-link>
         </div>

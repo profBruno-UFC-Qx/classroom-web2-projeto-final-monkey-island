@@ -30,6 +30,8 @@
             @requestResearcher="handleRequestResearcher"
           />
 
+          <ProfileFeed v-if="user" />
+
         </div>
       </div>
     </div>
@@ -45,9 +47,10 @@
 import { ref, onMounted } from 'vue';
 import AppNavbar from '../components/AppNavbar.vue';
 import ProfileCard from '../components/profile/ProfileCard.vue';
+import ProfileFeed from '../components/profile/ProfileFeed.vue'; // Importação nova
 import RelicsVaultModal from '../components/modals/RelicsVaultModal.vue';
 import MyCommunitiesModal from '../components/modals/MyCommunitiesModal.vue';
-import ResearcherRequestModal from '../components/modals/ResearcherRequestModal.vue'; // Novo import
+import ResearcherRequestModal from '../components/modals/ResearcherRequestModal.vue';
 import userService from '../services/userService';
 import type { User } from '../types/user';
 
@@ -55,10 +58,9 @@ const user = ref<User | null>(null);
 const loading = ref(true);
 const error = ref('');
 
-// Referências para os Modais
 const vaultModal = ref();
 const communitiesModal = ref();
-const requestModal = ref(); // Nova ref
+const requestModal = ref();
 
 const fetchProfile = async () => {
   loading.value = true;
@@ -72,18 +74,9 @@ const fetchProfile = async () => {
   }
 };
 
-const handleOpenVault = () => {
-  if (vaultModal.value) vaultModal.value.open();
-};
-
-const handleOpenCommunities = () => {
-  if (communitiesModal.value) communitiesModal.value.open();
-};
-
-// Nova função para abrir modal de solicitação
-const handleRequestResearcher = () => {
-  if (requestModal.value) requestModal.value.open();
-};
+const handleOpenVault = () => { if (vaultModal.value) vaultModal.value.open(); };
+const handleOpenCommunities = () => { if (communitiesModal.value) communitiesModal.value.open(); };
+const handleRequestResearcher = () => { if (requestModal.value) requestModal.value.open(); };
 
 onMounted(() => {
   fetchProfile();

@@ -5,7 +5,7 @@
 
     <div class="danger-stripe shadow-sm">
       <div class="container-fluid d-flex justify-content-center align-items-center overflow-hidden py-1">
-        </div>
+      </div>
     </div>
 
     <header class="hero-section py-5 mb-5 shadow-lg position-relative">
@@ -68,17 +68,15 @@
             </div>
           </div>
 
-          <PostCard 
-            v-for="post in mockPosts" 
-            :key="post.id"
-            :title="post.title"
-            :author="post.author"
-            :date="post.date"
-            :content="post.content"
-            :comments="post.comments"
-            :likes="post.likes"
-            class="mb-4"
-          />
+          <div class="text-center py-5 border border-secondary border-dashed rounded-1 opacity-50 bg-light-industrial">
+            <i class="bi bi-dns fs-1 text-secondary mb-3"></i>
+            <p class="font-monospace text-uppercase fw-bold text-secondary m-0">
+              Sincronizando com o servidor principal...
+            </p>
+            <p class="x-small text-muted font-monospace mt-1">
+              [STATUS: AGUARDANDO_DADOS_DE_CAMPO]
+            </p>
+          </div>
 
         </div>
 
@@ -122,35 +120,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
 import { useAuthStore } from '../stores/authStore';
 import AppNavbar from '../components/AppNavbar.vue';
-import PostCard from '../components/feed/PostCard.vue';
 import GameWidget from '../components/widgets/GameWidget.vue';
 import AuthAlertModal from '../components/modals/AuthAlertModal.vue';
 
 const authStore = useAuthStore();
-
-const mockPosts = ref([
-  {
-    id: 1,
-    title: "Relatório de Incidente: Espécime TR-09",
-    author: "Dr. Paleon",
-    date: "23/10/2025",
-    content: "Observamos comportamento agressivo não padronizado na zona norte do cercado. Recomendo reforço nas cercas elétricas secundárias imediatamente.",
-    comments: 12,
-    likes: 45
-  },
-  {
-    id: 2,
-    title: "Guia de Identificação: Dentes de Megalodon",
-    author: "Ranger007",
-    date: "22/10/2025",
-    content: "Análise comparativa de serrilhado em espécimes encontrados na escavação subaquática do Setor 3. Documento anexado para revisão.",
-    comments: 2,
-    likes: 8
-  }
-]);
+// mockPosts removido para evitar conflitos com a integração real
 </script>
 
 <style scoped>
@@ -159,6 +135,8 @@ const mockPosts = ref([
 .text-light-fossil { color: #e8e2d9; }
 .bg-concrete { background-color: #dcdcdc; background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%239C92AC' fill-opacity='0.1' fill-rule='evenodd'%3E%3Cpath d='M0 38.59l2.83-2.83 1.41 1.41L1.41 40H0v-1.41zM0 1.4l2.83 2.83 1.41-1.41L1.41 0H0v1.41zM38.59 40l-2.83-2.83 1.41-1.41L40 38.59V40h-1.41zM40 1.41l-2.83 2.83-1.41-1.41L38.59 0H40v1.41zM20 18.6l2.83-2.83 1.41 1.41L21.41 20l2.83 2.83-1.41 1.41L20 21.41l-2.83 2.83-1.41-1.41L18.59 20l-2.83-2.83 1.41-1.41L20 18.59z'/%3E%3C/g%3E%3C/svg%3E"); }
 .bg-light-industrial { background-color: #f0f0f0; }
+
+.border-dashed { border-style: dashed !important; }
 
 /* TIPOGRAFIA */
 .fw-black { font-weight: 900; }

@@ -28,7 +28,7 @@
       <div class="d-flex align-items-center gap-3">
         <template v-if="!authStore.isAuthenticated">
           <router-link to="/login" class="btn btn-link text-light text-decoration-none fw-bold">Entrar</router-link>
-          <router-link to="/registro" class="btn btn-warning px-4 fw-bold rounded-0 shadow-sm">
+          <router-link to="/register" class="btn btn-warning px-4 fw-bold rounded-0 shadow-sm">
             INGRESSAR NO PARQUE
           </router-link>
         </template>

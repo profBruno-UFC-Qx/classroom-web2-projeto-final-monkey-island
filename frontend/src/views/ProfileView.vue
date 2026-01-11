@@ -27,6 +27,7 @@
             :user="user" 
             @openVault="handleOpenVault"
             @openCommunities="handleOpenCommunities"
+            @requestResearcher="handleRequestResearcher"
           />
 
         </div>
@@ -35,6 +36,7 @@
 
     <RelicsVaultModal ref="vaultModal" />
     <MyCommunitiesModal ref="communitiesModal" />
+    <ResearcherRequestModal ref="requestModal" />
 
   </div>
 </template>
@@ -44,7 +46,8 @@ import { ref, onMounted } from 'vue';
 import AppNavbar from '../components/AppNavbar.vue';
 import ProfileCard from '../components/profile/ProfileCard.vue';
 import RelicsVaultModal from '../components/modals/RelicsVaultModal.vue';
-import MyCommunitiesModal from '../components/modals/MyCommunitiesModal.vue'; // Novo Import
+import MyCommunitiesModal from '../components/modals/MyCommunitiesModal.vue';
+import ResearcherRequestModal from '../components/modals/ResearcherRequestModal.vue'; // Novo import
 import userService from '../services/userService';
 import type { User } from '../types/user';
 
@@ -55,6 +58,7 @@ const error = ref('');
 // Referências para os Modais
 const vaultModal = ref();
 const communitiesModal = ref();
+const requestModal = ref(); // Nova ref
 
 const fetchProfile = async () => {
   loading.value = true;
@@ -62,25 +66,23 @@ const fetchProfile = async () => {
   try {
     user.value = await userService.getMyProfile();
   } catch (err: any) {
-    error.value = 'Falha ao carregar credenciais. Sessão expirada ou erro no servidor.';
-    console.error(err);
+    error.value = 'Falha ao carregar credenciais.';
   } finally {
     loading.value = false;
   }
 };
 
-// Abrir Cofre
 const handleOpenVault = () => {
-  if (vaultModal.value) {
-    vaultModal.value.open();
-  }
+  if (vaultModal.value) vaultModal.value.open();
 };
 
-// Abrir Comunidades
 const handleOpenCommunities = () => {
-  if (communitiesModal.value) {
-    communitiesModal.value.open();
-  }
+  if (communitiesModal.value) communitiesModal.value.open();
+};
+
+// Nova função para abrir modal de solicitação
+const handleRequestResearcher = () => {
+  if (requestModal.value) requestModal.value.open();
 };
 
 onMounted(() => {

@@ -30,7 +30,7 @@ export default {
       role: backendData.role,
       status: backendData.status,
       bio: backendData.bio,
-      institution: backendData.instituition 
+      institution: backendData.instituition || backendData.institution
     } as User;
   },
 

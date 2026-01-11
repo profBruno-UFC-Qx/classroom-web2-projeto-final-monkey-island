@@ -1,12 +1,10 @@
 import { createRouter, createWebHistory } from "vue-router";
 
-// Importações Lazy Loading
 const HomeView = () => import("../views/HomeView.vue");
 const LoginView = () => import("../views/LoginView.vue");
 const RegisterView = () => import("../views/RegisterView.vue");
 const PublishPostView = () => import("../views/PublishPostView.vue");
 const CommunitiesView = () => import("../views/CommunitiesView.vue");
-// Adicionada a view de Perfil
 const ProfileView = () => import("../views/ProfileView.vue");
 
 const routes = [
@@ -39,7 +37,6 @@ const routes = [
     name: "comunidades",
     component: CommunitiesView,
   },
-  // --- NOVA ROTA ADICIONADA ---
   {
     path: "/perfil",
     name: "perfil",

@@ -2,17 +2,16 @@
   <div class="card fossil-card shadow-lg border-0 overflow-hidden mb-4">
     <div class="card-header bg-dark text-white p-4 border-bottom border-warning border-3 position-relative overflow-hidden">
       <div class="watermark-logo"><i class="bi bi-fingerprint"></i></div>
-      
       <div class="d-flex align-items-center gap-4 position-relative z-1">
         <div class="avatar-box bg-warning text-dark rounded-circle d-flex align-items-center justify-content-center shadow border border-white border-2">
           <i class="bi bi-person-fill display-4"></i>
         </div>
-        
         <div>
           <h2 class="fw-black text-uppercase m-0 tracking-wide">{{ user.name }}</h2>
           <div class="d-flex align-items-center gap-2 mt-1">
             <span class="badge bg-secondary text-uppercase x-small">
-              <i class="bi bi-pass-fill me-1"></i> {{ user.role === 'admin' ? 'Administrador' : (user.role === 'researcher' ? 'Pesquisador' : 'Visitante') }}
+              <i class="bi bi-pass-fill me-1"></i> 
+              {{ user.role === 'admin' ? 'Administrador' : (user.role === 'researcher' ? 'Pesquisador' : 'Visitante') }}
             </span>
             <span class="text-white-50 small font-monospace">ID: {{ user.id.slice(0,8).toUpperCase() }}</span>
           </div>
@@ -32,7 +31,6 @@
             </span>
           </div>
         </div>
-        
         <div class="col-md-6">
           <label class="text-muted x-small fw-bold text-uppercase">Status da Credencial</label>
           <div class="d-flex align-items-center gap-2 mt-1">
@@ -49,9 +47,21 @@
         </div>
       </div>
 
-      <button class="btn btn-dark w-100 py-3 fw-black text-uppercase border-warning btn-relics shadow-sm">
-        <i class="bi bi-box-seam-fill me-2 text-warning"></i> Acessar Cofre de Relíquias (Em Breve)
-      </button>
+      <div class="d-flex flex-column gap-2">
+        <button 
+          @click="$emit('openVault')" 
+          class="btn btn-dark w-100 py-3 fw-black text-uppercase border-warning btn-relics shadow-sm"
+        >
+          <i class="bi bi-box-seam-fill me-2 text-warning"></i> Acessar Cofre de Relíquias
+        </button>
+
+        <button 
+          @click="$emit('openCommunities')" 
+          class="btn btn-dark w-100 py-3 fw-black text-uppercase border-info btn-communities shadow-sm"
+        >
+          <i class="bi bi-hdd-network-fill me-2 text-info"></i> Meus Setores e Comunidades
+        </button>
+      </div>
 
     </div>
   </div>
@@ -65,6 +75,9 @@ const props = defineProps<{
   user: User
 }>();
 
+// Emitimos dois eventos agora
+defineEmits(['openVault', 'openCommunities']);
+
 const statusIcon = computed(() => {
   return props.user.status === 'active' 
     ? 'bi bi-check-circle-fill text-success' 
@@ -73,7 +86,6 @@ const statusIcon = computed(() => {
 </script>
 
 <style scoped>
-/* Estilo Industrial */
 .bg-light-industrial { background-color: #e8e2d9; }
 .text-dark-jungle { color: #1a2f2b; }
 .fw-black { font-weight: 900; }
@@ -81,7 +93,7 @@ const statusIcon = computed(() => {
 .tracking-wide { letter-spacing: 1px; }
 
 .fossil-card {
-  border-left: 6px solid #ffb400 !important; /* Faixa lateral amarela */
+  border-left: 6px solid #ffb400 !important; 
 }
 
 .avatar-box {
@@ -100,9 +112,22 @@ const statusIcon = computed(() => {
   pointer-events: none;
 }
 
+/* Estilo Relíquias (Amarelo) */
 .btn-relics:hover {
   background-color: #1a1a1a;
-  border-color: #fff;
+  border-color: #fff !important;
+  transform: translateY(-2px);
+  transition: all 0.2s;
+}
+
+/* Estilo Comunidades (Azul Ciano) */
+.btn-communities {
+  border-width: 1px;
+}
+.btn-communities:hover {
+  background-color: #1a1a1a;
+  border-color: #0dcaf0 !important; /* Cyan */
+  color: #0dcaf0;
   transform: translateY(-2px);
   transition: all 0.2s;
 }

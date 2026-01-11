@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import type { User } from '../types/user'; 
-// CORREÇÃO AQUI: Adicionei RegisterCredentials na importação
 import type { LoginCredentials, RegisterCredentials } from '../types/auth'; 
 import authService from '../services/authService';
 

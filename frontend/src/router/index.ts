@@ -9,6 +9,10 @@ const CommunitiesView = () => import("../views/CommunitiesView.vue");
 const routes = [
   {
     path: "/",
+    redirect: "/login",
+  },
+  {
+    path: "/home", 
     name: "home",
     component: HomeView,
   },
@@ -18,8 +22,8 @@ const routes = [
     component: LoginView,
   },
   {
-    path: "/registro",
-    name: "registro",
+    path: "/register",
+    name: "register",
     component: RegisterView,
   },
   {

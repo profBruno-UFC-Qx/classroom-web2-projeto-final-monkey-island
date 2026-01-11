@@ -1,15 +1,16 @@
-import type { User } from './user';
-
 export interface LoginCredentials {
   email: string;
   password: string;
 }
 
-export interface RegisterCredentials extends LoginCredentials {
+export interface RegisterCredentials {
   name: string;
+  email: string;
+  password: string;
+  institution: string; 
+  bio?: string;       
 }
 
 export interface AuthResponse {
-  token: string;
-  user: User;
+  jwt: string; 
 }

@@ -28,6 +28,7 @@
             @openVault="handleOpenVault"
             @openCommunities="handleOpenCommunities"
             @requestResearcher="handleRequestResearcher"
+            @openAdminRequests="handleOpenAdminRequests"
           />
 
           <ProfileFeed v-if="user" />
@@ -39,6 +40,8 @@
     <RelicsVaultModal ref="vaultModal" />
     <MyCommunitiesModal ref="communitiesModal" />
     <ResearcherRequestModal ref="requestModal" />
+    
+    <ResearcherRequestsAdminModal ref="adminRequestsModal" />
 
   </div>
 </template>
@@ -47,10 +50,11 @@
 import { ref, onMounted } from 'vue';
 import AppNavbar from '../components/AppNavbar.vue';
 import ProfileCard from '../components/profile/ProfileCard.vue';
-import ProfileFeed from '../components/profile/ProfileFeed.vue'; // Importação nova
+import ProfileFeed from '../components/profile/ProfileFeed.vue';
 import RelicsVaultModal from '../components/modals/RelicsVaultModal.vue';
 import MyCommunitiesModal from '../components/modals/MyCommunitiesModal.vue';
 import ResearcherRequestModal from '../components/modals/ResearcherRequestModal.vue';
+import ResearcherRequestsAdminModal from '../components/modals/ResearcherRequestsAdminModal.vue'; // Importação do modal admin
 import userService from '../services/userService';
 import type { User } from '../types/user';
 
@@ -58,25 +62,48 @@ const user = ref<User | null>(null);
 const loading = ref(true);
 const error = ref('');
 
+// Referências para os componentes de Modal
 const vaultModal = ref();
 const communitiesModal = ref();
 const requestModal = ref();
+const adminRequestsModal = ref();
 
+/**
+ * Busca os dados do perfil do usuário logado
+ */
 const fetchProfile = async () => {
   loading.value = true;
   error.value = '';
   try {
     user.value = await userService.getMyProfile();
   } catch (err: any) {
-    error.value = 'Falha ao carregar credenciais.';
+    error.value = 'Falha ao carregar credenciais. Sessão expirada ou erro no servidor.';
+    console.error(err);
   } finally {
     loading.value = false;
   }
 };
 
-const handleOpenVault = () => { if (vaultModal.value) vaultModal.value.open(); };
-const handleOpenCommunities = () => { if (communitiesModal.value) communitiesModal.value.open(); };
-const handleRequestResearcher = () => { if (requestModal.value) requestModal.value.open(); };
+/**
+ * Handlers para abertura dos Modais
+ */
+const handleOpenVault = () => { 
+  if (vaultModal.value) vaultModal.value.open(); 
+};
+
+const handleOpenCommunities = () => { 
+  if (communitiesModal.value) communitiesModal.value.open(); 
+};
+
+const handleRequestResearcher = () => { 
+  if (requestModal.value) requestModal.value.open(); 
+};
+
+const handleOpenAdminRequests = () => {
+  if (adminRequestsModal.value) {
+    adminRequestsModal.value.open();
+  }
+};
 
 onMounted(() => {
   fetchProfile();
@@ -84,6 +111,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* Estética InGen Industrial */
 .bg-concrete { 
   background-color: #dcdcdc;
   background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%239C92AC' fill-opacity='0.1' fill-rule='evenodd'%3E%3Cpath d='M0 38.59l2.83-2.83 1.41 1.41L1.41 40H0v-1.41zM0 1.4l2.83 2.83 1.41-1.41L1.41 0H0v1.41zM38.59 40l-2.83-2.83 1.41-1.41L40 38.59V40h-1.41zM40 1.41l-2.83 2.83-1.41-1.41L38.59 0H40v1.41zM20 18.6l2.83-2.83 1.41 1.41L21.41 20l2.83 2.83-1.41 1.41L20 21.41l-2.83 2.83-1.41-1.41L18.59 20l-2.83-2.83 1.41-1.41L20 18.59z'/%3E%3C/g%3E%3C/svg%3E");

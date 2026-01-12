@@ -24,11 +24,16 @@
                 rows="4" 
                 required
                 placeholder="Ex: Sou paleontólogo especializado em..."
+                :disabled="loading"
               ></textarea>
             </div>
 
-            <div v-if="errorMessage" class="alert alert-danger small py-2">{{ errorMessage }}</div>
-            <div v-if="successMessage" class="alert alert-success small py-2">{{ successMessage }}</div>
+            <div v-if="errorMessage" class="alert alert-danger small py-2 d-flex align-items-center">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ errorMessage }}
+            </div>
+            <div v-if="successMessage" class="alert alert-success small py-2 d-flex align-items-center">
+              <i class="bi bi-check-circle-fill me-2"></i> {{ successMessage }}
+            </div>
 
             <div class="d-grid">
               <button type="submit" class="btn btn-primary fw-bold text-uppercase" :disabled="loading">
@@ -54,10 +59,13 @@ const loading = ref(false);
 const errorMessage = ref('');
 const successMessage = ref('');
 
+// Função para abrir o modal e resetar estados
 const open = () => {
   motivation.value = '';
   errorMessage.value = '';
   successMessage.value = '';
+  loading.value = false;
+  
   const modalEl = document.getElementById('researcherRequestModal');
   if (modalEl) {
     const modal = new bootstrap.Modal(modalEl);
@@ -72,14 +80,13 @@ const handleSubmit = async () => {
 
   try {
     await researcherRequestService.createRequest(motivation.value);
-    successMessage.value = 'Solicitação enviada com sucesso! Aguarde aprovação.';
-    setTimeout(() => {
-      const modalEl = document.getElementById('researcherRequestModal');
-      const modal = bootstrap.Modal.getInstance(modalEl!);
-      modal?.hide();
-    }, 2000);
+    successMessage.value = 'Solicitação enviada com sucesso!';
+    // ... lógica de fechar
   } catch (error: any) {
-    errorMessage.value = error.response?.data?.message || 'Falha ao enviar solicitação.';
+    // CAPTURA A MENSAGEM REAL DO BACK-END
+    // O seu back-end envia mensagens como "pending request already exists!"
+    errorMessage.value = error.response?.data?.message || 'Falha na operação técnica.';
+    console.error("Erro 400 detalhado:", error.response?.data);
   } finally {
     loading.value = false;
   }
@@ -101,5 +108,10 @@ defineExpose({ open });
 .btn-primary { 
   background-color: #0d6efd; 
   border-color: #0d6efd;
+  transition: all 0.2s;
+}
+.btn-primary:hover {
+  background-color: #0b5ed7;
+  transform: translateY(-2px);
 }
 </style>

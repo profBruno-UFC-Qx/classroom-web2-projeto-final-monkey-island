@@ -12,12 +12,12 @@
         <div class="ps-2">
           <h5 class="card-title fw-black text-uppercase mb-0 tracking-wide">
             <a href="#" class="text-dark-jungle text-decoration-none hover-warning title-glitch">
-              {{ post.title }}
+              {{ postData.title }}
             </a>
           </h5>
           <div class="d-flex gap-3 mt-1 align-items-center">
             <span class="badge bg-dark rounded-0 font-monospace text-warning x-small">
-              ID: {{ post.id.slice(0, 8).toUpperCase() }}
+              ID: {{ postData.id?.slice(0, 8).toUpperCase() || 'S/ID' }}
             </span>
             <span class="font-monospace x-small text-muted">
               <i class="bi bi-calendar-event me-1"></i> {{ formattedDate }}
@@ -29,8 +29,8 @@
         </div>
         
         <div class="text-end">
-          <small class="text-muted x-small d-block text-uppercase fw-bold">Pesquisador</small>
-          <span class="fw-bold text-dark-jungle">{{ post.authorName }}</span>
+          <small class="text-muted x-small d-block text-uppercase fw-bold">Autorizado por</small>
+          <span class="fw-bold text-dark-jungle">{{ post.authorName || 'Ranger Desconhecido' }}</span>
         </div>
       </div>
 
@@ -45,32 +45,32 @@
         </div>
 
         <template v-if="medias.length > 1">
-          <button @click.stop="prevImage" class="slider-control start-0">
+          <button @click.stop="prevImage" class="slider-control start-0" aria-label="Anterior">
             <i class="bi bi-chevron-left display-6"></i>
           </button>
           
-          <button @click.stop="nextImage" class="slider-control end-0">
+          <button @click.stop="nextImage" class="slider-control end-0" aria-label="Próxima">
             <i class="bi bi-chevron-right display-6"></i>
           </button>
 
-          <div class="position-absolute bottom-0 end-0 m-3 badge bg-dark-transparent font-monospace border border-secondary">
-            CAM {{ currentImageIndex + 1 }} / {{ medias.length }}
+          <div class="position-absolute bottom-0 end-0 m-3 badge bg-dark-transparent font-monospace border border-secondary shadow">
+            CAM_DATA: {{ currentImageIndex + 1 }} / {{ medias.length }}
           </div>
         </template>
       </div>
 
       <div class="p-4 ps-5">
         <p class="card-text text-secondary mb-4 fst-italic position-relative z-1 line-clamp-content">
-          {{ post.content }}
+          "{{ postData.content }}"
         </p>
 
         <div class="d-flex gap-2 flex-wrap pt-2 border-top border-secondary-subtle">
           <button @click="handleAction('comment')" class="btn btn-action btn-sm px-3">
-            <i class="bi bi-chat-left-text-fill me-2"></i> {{ post.commentCount }}
+            <i class="bi bi-chat-left-text-fill me-2"></i> {{ postData.commentCount || 0 }}
           </button>
           
           <button @click="handleAction('like')" class="btn btn-action-danger btn-sm px-3">
-            <i class="bi bi-heart-fill me-2"></i> {{ post.likeCount }}
+            <i class="bi bi-heart-fill me-2"></i> {{ postData.likeCount || 0 }}
           </button>
           
           <button @click="handleAction('collect')" class="btn btn-action-warning btn-sm px-3 ms-auto">
@@ -87,66 +87,65 @@
 import { ref, computed, onMounted } from 'vue';
 import { useAuthStore } from '../../stores/authStore';
 import postService from '../../services/postService';
-import type { Post, PostMedia } from '../../types/post';
+import type { PostMedia } from '../../types/post';
 import * as bootstrap from 'bootstrap';
 
+// Usamos 'any' para lidar com a estrutura aninhada do DTO { post: {...}, authorName: ... }
 const props = defineProps<{
-  post: Post
+  post: any
 }>();
 
 const authStore = useAuthStore();
 const medias = ref<PostMedia[]>([]);
 const currentImageIndex = ref(0);
 
-// Formatação de data
+// Computed para normalizar o acesso aos dados do post (corrige o erro de slice/undefined)
+const postData = computed(() => {
+  return props.post?.post || props.post || {};
+});
+
+// Formatação de data robusta
 const formattedDate = computed(() => {
-  return new Date(props.post.createdAt).toLocaleDateString('pt-BR', {
-    day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+  const rawDate = postData.value?.createdAt;
+  if (!rawDate) return '--/--/--';
+  return new Date(rawDate).toLocaleDateString('pt-BR', {
+    day: '2-digit', month: 'short', year: 'numeric'
   });
 });
 
-// Buscar Imagens ao montar o componente
+// Busca as mídias ao carregar o card
 onMounted(async () => {
+  const postId = postData.value?.id;
+  if (!postId) return;
+
   try {
-    // Se o objeto post já vier com medias (futuro), usa elas. Senão, busca.
-    if (props.post.medias && props.post.medias.length > 0) {
-      medias.value = props.post.medias;
-    } else {
-      const fetchedMedias = await postService.getPostMedias(props.post.id);
-      // Ordenar por 'order' para garantir a sequência correta
-      medias.value = fetchedMedias.sort((a, b) => a.order - b.order);
-    }
+    const fetchedMedias = await postService.getPostMedias(postId);
+    medias.value = fetchedMedias.sort((a, b) => a.order - b.order);
   } catch (error) {
-    console.error(`Erro ao carregar mídia do post ${props.post.id}`, error);
+    console.error(`Erro ao carregar evidências do post ${postId}`, error);
   }
 });
 
-// URL da imagem (Backend salva em public/media_posts, precisamos da URL completa)
-const getImageUrl = (relativePath: string) => {
-  // Ajuste a URL base conforme sua configuração do Vite/Backend
-  // O backend salva como "media_posts/arquivo.png"
-  // O express serve estático na raiz ou /images? 
-  // No seu app.ts (enviado antes) estava: app.use("/images", express.static(...));
-  // Então o caminho deve ser http://localhost:3000/images/nome_do_arquivo (se o relativePath for so nome)
-  // Mas o seu service salva "media_posts/filename".
-  // Vamos assumir que http://localhost:3000/images aponta para a pasta public.
-  return `http://localhost:3000/images/${relativePath.replace('media_posts/', '')}`; 
-  // Nota: Ajuste esse replace dependendo de como o static está configurado no Express
+// Tratamento de URL (ajusta o caminho do backend para a rota estática)
+const getImageUrl = (imagePath: string) => {
+  if (!imagePath) return '';
+  // Remove o prefixo da pasta física se necessário e aponta para o servidor de arquivos
+  const fileName = imagePath.replace('media_posts/', '');
+  return `http://localhost:3000/images/${fileName}`;
 };
 
-// Lógica do Slider (Loop Infinito)
+// Lógica de Slider (Loop Infinito)
 const nextImage = () => {
   if (medias.value.length === 0) return;
-  // Módulo (%) faz voltar ao 0 quando atinge o tamanho do array
   currentImageIndex.value = (currentImageIndex.value + 1) % medias.value.length;
 };
 
 const prevImage = () => {
   if (medias.value.length === 0) return;
-  // Lógica para voltar do 0 para o último
   currentImageIndex.value = (currentImageIndex.value - 1 + medias.value.length) % medias.value.length;
 };
 
+// Ações do usuário
 const handleAction = (actionType: string) => {
   if (!authStore.isAuthenticated) {
     const modalElement = document.getElementById('authAlertModal');
@@ -155,14 +154,16 @@ const handleAction = (actionType: string) => {
       modal.show();
     }
   } else {
-    if(actionType === 'collect') window.alert("Item adicionado à coleção!");
-    // Futuro: chamar postService.likePost(props.post.id)
+    if (actionType === 'collect') window.alert("Espécime adicionado ao seu cofre!");
+    if (actionType === 'like') {
+        // Futura integração: await postService.likePost(postData.value.id)
+    }
   }
 };
 </script>
 
 <style scoped>
-/* Tema e Cores */
+/* Tema InGen Industrial */
 .text-dark-jungle { color: #1a2f2b; }
 .bg-light-industrial { background-color: #f4f4f4; }
 .bg-dark-transparent { background-color: rgba(0,0,0,0.7); }
@@ -171,7 +172,7 @@ const handleAction = (actionType: string) => {
 .tracking-wide { letter-spacing: 1px; }
 .tracking-widest { letter-spacing: 3px; }
 
-/* Estrutura do Card */
+/* Estrutura Industrial */
 .post-card {
   border-left: 0;
   border-radius: 4px;
@@ -179,12 +180,13 @@ const handleAction = (actionType: string) => {
   clip-path: polygon(0 0, 100% 0, 100% 100%, 10px 100%, 0 calc(100% - 10px));
 }
 
-/* Slider Controls */
+/* Container de Imagens */
 .post-image-container {
   min-height: 200px;
   border-bottom: 2px solid #ffc107;
 }
 
+/* Controles de Navegação (Aparecem no hover) */
 .slider-control {
   position: absolute;
   top: 0;
@@ -194,27 +196,31 @@ const handleAction = (actionType: string) => {
   border: none;
   color: white;
   opacity: 0;
-  transition: opacity 0.2s;
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  z-index: 10;
+}
+
+.post-image-container:hover .slider-control {
+  opacity: 1;
 }
 
 .slider-control:hover {
-  opacity: 1;
-  background: linear-gradient(90deg, rgba(0,0,0,0.5), transparent);
-}
-.slider-control.end-0:hover {
-  background: linear-gradient(-90deg, rgba(0,0,0,0.5), transparent);
+  background: rgba(0,0,0,0.4);
+  color: #ffc107;
 }
 
 .object-fit-contain {
   object-fit: contain;
   background-color: #000;
+  width: 100%;
+  height: 100%;
 }
 
-/* Marca d'água */
+/* Marcas d'água */
 .watermark {
   position: absolute;
   top: 50%;
@@ -228,20 +234,13 @@ const handleAction = (actionType: string) => {
   text-transform: uppercase;
 }
 
-/* Faixa Lateral */
 .classification-strip {
   position: absolute;
   left: 0;
   top: 0;
   bottom: 0;
   width: 30px;
-  background: repeating-linear-gradient(
-    45deg,
-    #1a2f2b,
-    #1a2f2b 10px,
-    #142421 10px,
-    #142421 20px
-  );
+  background: repeating-linear-gradient(45deg, #1a2f2b, #1a2f2b 10px, #142421 10px, #142421 20px);
   border-right: 2px solid #ffc107;
   color: rgba(255, 255, 255, 0.5);
   font-size: 0.6rem;
@@ -255,11 +254,7 @@ const handleAction = (actionType: string) => {
   transform: rotate(180deg);
 }
 
-.hover-warning:hover { 
-  color: #ffb400 !important; 
-  text-shadow: 0 0 5px rgba(255, 180, 0, 0.3);
-}
-
+/* Botões de Ação */
 .btn-action, .btn-action-danger, .btn-action-warning {
   border: 1px solid #ced4da;
   background-color: white;
@@ -273,4 +268,8 @@ const handleAction = (actionType: string) => {
 .btn-action:hover { background-color: #e9ecef; color: #212529; }
 .btn-action-danger:hover { background-color: #fff5f5; color: #dc3545; border-color: #dc3545; }
 .btn-action-warning:hover { background-color: #fff9e6; color: #b48900; border-color: #ffc107; }
+
+.title-glitch:hover {
+  text-shadow: 2px 0 #ffc107, -2px 0 #dc3545;
+}
 </style>

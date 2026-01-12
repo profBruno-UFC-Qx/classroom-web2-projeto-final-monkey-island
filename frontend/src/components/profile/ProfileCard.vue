@@ -3,14 +3,24 @@
     <div class="card-header bg-dark text-white p-4 border-bottom border-warning border-3 position-relative overflow-hidden">
       <div class="watermark-logo"><i class="bi bi-fingerprint"></i></div>
       
-      <div v-if="user.role === 'user'" class="position-absolute top-0 end-0 p-3 z-2">
+      <div class="position-absolute top-0 end-0 p-3 z-2">
         <button 
+          v-if="user.role === 'user'"
           @click="$emit('requestResearcher')"
           class="btn btn-sm btn-outline-primary fw-bold text-uppercase shadow-sm d-flex align-items-center gap-2"
           title="Solicitar acesso de Pesquisador"
         >
           <i class="bi bi-person-up"></i>
           <span class="d-none d-md-inline">Virar Pesquisador</span>
+        </button>
+
+        <button 
+          v-else-if="user.role === 'admin'"
+          @click="$emit('openAdminRequests')"
+          class="btn btn-sm btn-danger fw-bold text-uppercase shadow-sm d-flex align-items-center gap-2 border-white"
+        >
+          <i class="bi bi-shield-lock-fill"></i>
+          <span>Gerenciar Pedidos</span>
         </button>
       </div>
 
@@ -33,7 +43,6 @@
     </div>
 
     <div class="card-body p-4 bg-light-industrial">
-      
       <div class="row g-4 mb-4">
         <div class="col-md-6">
           <label class="text-muted x-small fw-bold text-uppercase">Instituição / Afiliação</label>
@@ -76,7 +85,6 @@
           <i class="bi bi-hdd-network-fill me-2 text-info"></i> Meus Setores e Comunidades
         </button>
       </div>
-
     </div>
   </div>
 </template>
@@ -89,8 +97,12 @@ const props = defineProps<{
   user: User
 }>();
 
-// Adicionei 'requestResearcher' aos emissores
-defineEmits(['openVault', 'openCommunities', 'requestResearcher']);
+defineEmits([
+  'openVault', 
+  'openCommunities', 
+  'requestResearcher', 
+  'openAdminRequests'
+]);
 
 const statusIcon = computed(() => {
   return props.user.status === 'active' 
@@ -100,7 +112,6 @@ const statusIcon = computed(() => {
 </script>
 
 <style scoped>
-/* Estilos anteriores mantidos */
 .bg-light-industrial { background-color: #e8e2d9; }
 .text-dark-jungle { color: #1a2f2b; }
 .fw-black { font-weight: 900; }
@@ -129,17 +140,14 @@ const statusIcon = computed(() => {
 
 .btn-relics:hover {
   background-color: #1a1a1a;
-  border-color: #fff !important;
+  border-color: #fff;
   transform: translateY(-2px);
   transition: all 0.2s;
 }
 
-.btn-communities {
-  border-width: 1px;
-}
 .btn-communities:hover {
   background-color: #1a1a1a;
-  border-color: #0dcaf0 !important;
+  border-color: #0dcaf0;
   color: #0dcaf0;
   transform: translateY(-2px);
   transition: all 0.2s;

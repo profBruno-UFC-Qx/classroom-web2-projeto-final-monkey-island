@@ -7,6 +7,7 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' }
 });
 
+// Este interceptor é CRUCIAL. Ele pega o token que acabamos de salvar na store.
 api.interceptors.request.use((config) => {
   const authStore = useAuthStore();
   if (authStore.token) {
@@ -17,6 +18,7 @@ api.interceptors.request.use((config) => {
 
 export default {
   async getMyProfile(): Promise<User> {
+    // Chama a rota que já existe no backend
     const response = await api.get('/users/me');
     const data = response.data;
 
@@ -24,14 +26,14 @@ export default {
       id: data.id,
       name: data.name,
       email: data.email,
-      role: data.role,
+      role: data.role, // Aqui virá 'researcher', 'admin' ou 'user'
       status: data.status,
       bio: data.bio,
+      // Garante compatibilidade com erro de digitação comum no backend ou frontend
       institution: data.instituition || data.institution 
     } as User;
   },
 
-  // --- ADICIONE ESTE MÉTODO ---
   async getUserById(userId: string): Promise<User> {
     const response = await api.get(`/users/${userId}`);
     const data = response.data;

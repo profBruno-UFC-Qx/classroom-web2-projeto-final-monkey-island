@@ -17,10 +17,6 @@
           <i class="bi bi-shield-shaded"></i> Setores
         </router-link>
 
-        <router-link v-if="authStore.isAuthenticated" to="/perfil" class="nav-lab-link">
-          <i class="bi bi-person-bounding-box"></i> Perfil
-        </router-link>
-
         <router-link v-if="authStore.user?.role === 'researcher' || authStore.user?.role === 'admin'" 
           to="/area-pesquisador" class="nav-lab-link text-warning">
           <i class="bi bi-microscope"></i> Laboratório
@@ -43,10 +39,17 @@
               <span class="small fw-bold">{{ authStore.user?.name || 'Explorador' }}</span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark bg-dark border-secondary">
-              <li><router-link class="dropdown-item" to="/perfil"><i class="bi bi-person me-2"></i>Perfil</router-link></li>
-              <li><router-link class="dropdown-item" to="/colecao"><i class="bi bi-archive me-2"></i>Minha Coleção</router-link></li>
+              <li>
+                <router-link class="dropdown-item" to="/perfil">
+                  <i class="bi bi-person me-2"></i>Perfil
+                </router-link>
+              </li>
               <li><hr class="dropdown-divider border-secondary"></li>
-              <li><button @click="handleLogout" class="dropdown-item text-danger"><i class="bi bi-box-arrow-right me-2"></i>Sair</button></li>
+              <li>
+                <button @click="handleLogout" class="dropdown-item text-danger">
+                  <i class="bi bi-box-arrow-right me-2"></i>Sair
+                </button>
+              </li>
             </ul>
           </div>
         </template>
@@ -105,7 +108,6 @@ const handleLogout = () => {
   transform: translateY(-2px);
 }
 
-/* Estilos da Bolinha de Status */
 .status-indicator {
   width: 12px;
   height: 12px;

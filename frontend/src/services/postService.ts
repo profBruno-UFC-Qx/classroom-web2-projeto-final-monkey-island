@@ -7,6 +7,7 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' }
 });
 
+// Interceptor para adicionar o token JWT em todas as requisições
 api.interceptors.request.use((config) => {
   const authStore = useAuthStore();
   if (authStore.token) {
@@ -52,38 +53,28 @@ export default {
 
   /**
    * Busca os posts criados pelo próprio usuário para exibição no perfil.
-   * Nota: Como no backend atual a rota de autor exige um communityId, 
-   * usamos o /feed filtrado ou preparamos para uma futura rota /posts/me.
+   * Nota: Filtra o feed localmente enquanto a rota /posts/me não é implementada.
    */
   async getMyPosts(page = 1, limit = 10): Promise<FeedResponse> {
-    // 1. Obtém a store de autenticação para pegar o ID do usuário logado
     const authStore = useAuthStore();
     const myUserId = authStore.user?.id;
 
-    // 2. Busca o feed (que retorna tudo)
-    // Nota: Aumentamos o limit para tentar trazer mais posts do usuário de uma vez
-    // já que a paginação do backend é aplicada antes do nosso filtro.
     const response = await api.get<FeedResponse>('/feed', {
       params: { page, limit: 50 } 
     });
 
-    // 3. Filtra apenas os posts onde o autor é o usuário logado
     const allPosts = response.data.data || [];
     const myPosts = allPosts.filter(post => post.authorId === myUserId);
 
-    // 4. Retorna a estrutura esperada (FeedResponse) com os dados filtrados
     return {
       ...response.data,
       data: myPosts,
-      // Opcional: Ajustar totalItems se quiser refletir apenas a contagem filtrada na tela, 
-      // mas o valor real do servidor será diferente.
       totalItems: myPosts.length 
     };
   },
 
   /**
    * Placeholder para o sistema de curtidas.
-   * Retorna um feed vazio conforme solicitado, aguardando implementação no backend.
    */
   async getLikedPosts(page = 1, limit = 10): Promise<FeedResponse> {
     return new Promise((resolve) => {
@@ -103,5 +94,53 @@ export default {
   async likePost(postId: string) {
     console.log(`Solicitação de Like para o post: ${postId}`);
     // Implementar quando a rota PATCH/POST /posts/:id/like existir
+  },
+
+  // --------------------------------------------------------------------------
+  // NOVOS MÉTODOS PARA CRIAÇÃO DE POSTS (FLUXO SEQUENCIAL)
+  // --------------------------------------------------------------------------
+
+  /**
+   * 1. Cria o rascunho do post (apenas texto).
+   * Rota: POST /community/:communityId/posts
+   */
+  async createDraft(communityId: string, content: string): Promise<Post> {
+    const response = await api.post<Post>(`/community/${communityId}/posts`, {
+      content
+      // Se o backend exigir um título futuramente, adicione aqui: title: 'Novo Relatório'
+    });
+    return response.data;
+  },
+
+  /**
+   * 2. Realiza o upload das imagens para um post existente.
+   * Rota: POST /posts/:postId/medias
+   */
+  async uploadMedia(postId: string, files: File[]): Promise<void> {
+    if (!files || files.length === 0) return;
+
+    const formData = new FormData();
+    
+    // O backend espera o campo 'files' (conforme configurado no Multer)
+    files.forEach((file) => {
+      formData.append('files', file);
+    });
+
+    // O Axios detecta automaticamente o FormData e ajusta o Content-Type para multipart/form-data,
+    // mas é uma boa prática explicitar ou deixar o browser gerenciar o boundary.
+    await api.post(`/posts/${postId}/medias`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+  },
+
+  /**
+   * 3. Publica o post (torna visível para outros usuários).
+   * Rota: PATCH /posts/:postId/publish
+   */
+  async publishPost(postId: string): Promise<Post> {
+    const response = await api.patch<Post>(`/posts/${postId}/publish`);
+    return response.data;
   }
 };

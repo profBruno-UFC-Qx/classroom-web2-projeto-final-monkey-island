@@ -33,7 +33,7 @@
              <h4 class="fw-black text-uppercase m-0 text-dark-jungle tracking-wide">Relatórios de Campo</h4>
           </div>
 
-          <div v-if="authStore.isAuthenticated" class="card fossil-card mb-5 p-0 bg-white border-0 shadow-sm position-relative overflow-hidden">
+          <div v-if="canCreatePost" class="card fossil-card mb-5 p-0 bg-white border-0 shadow-sm position-relative overflow-hidden">
             <div class="top-folder-tab bg-warning px-3 py-1 d-inline-block fw-bold small text-dark border-top border-start border-end border-dark">
               NOVO REGISTRO
             </div>
@@ -44,13 +44,17 @@
               <p class="text-secondary small font-monospace mb-3">
                 > Insira os dados da observação para o banco de dados central...
               </p>
-              <button class="btn btn-dark w-full py-2 fw-black text-uppercase border-warning btn-terminal">
+              
+              <button 
+                class="btn btn-dark w-100 py-2 fw-black text-uppercase border-warning btn-terminal"
+                @click="isCreateModalOpen = true"
+              >
                 <i class="bi bi-upload me-2 text-warning"></i>Enviar Dados
               </button>
-            </div>
+              </div>
           </div>
 
-          <div v-else class="card fossil-card mb-5 bg-danger-subtle border-danger border-2 shadow-sm">
+          <div v-else-if="!authStore.isAuthenticated" class="card fossil-card mb-5 bg-danger-subtle border-danger border-2 shadow-sm">
             <div class="card-body p-4 d-flex align-items-center gap-4">
               <div class="bg-danger text-white p-3 rounded-1 d-flex align-items-center justify-content-center shadow border border-white" style="width: 64px; height: 64px;">
                  <i class="bi bi-hand-index-thumb-fill fs-2"></i>
@@ -65,6 +69,16 @@
                   <i class="bi bi-shield-lock me-2"></i>Inserir Senha
                 </router-link>
               </div>
+            </div>
+          </div>
+
+          <div v-else class="card fossil-card mb-5 bg-secondary-subtle border-secondary border-2 shadow-sm">
+            <div class="card-body p-3 d-flex align-items-center gap-3">
+               <i class="bi bi-eye-slash-fill fs-3 text-secondary"></i>
+               <div>
+                 <h6 class="fw-bold text-dark text-uppercase m-0">Modo Observador</h6>
+                 <small class="text-muted font-monospace">Você não possui credenciais de pesquisador para catalogar novas descobertas.</small>
+               </div>
             </div>
           </div>
 
@@ -122,15 +136,23 @@
 
     <AuthAlertModal />
 
+    <CreatePostModal 
+      v-if="canCreatePost"
+      :is-open="isCreateModalOpen" 
+      @close="isCreateModalOpen = false"
+      @post-created="handlePostCreated"
+    />
+
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { useAuthStore } from '../stores/authStore';
 import AppNavbar from '../components/AppNavbar.vue';
 import GameWidget from '../components/widgets/GameWidget.vue';
 import AuthAlertModal from '../components/modals/AuthAlertModal.vue';
+import CreatePostModal from '../components/modals/CreatePostModal.vue'; 
 import PostCard from '../components/feed/PostCard.vue';
 import postService from '../services/postService';
 import type { Post } from '../types/post';
@@ -138,6 +160,15 @@ import type { Post } from '../types/post';
 const authStore = useAuthStore();
 const posts = ref<Post[]>([]);
 const loadingFeed = ref(false);
+const isCreateModalOpen = ref(false);
+
+// Verifica se o usuário tem permissão para criar posts (Pesquisador ou Admin)
+const canCreatePost = computed(() => {
+  // Se quiser testar o botão forçadamente, descomente a linha abaixo e comente o return original:
+  // return true; 
+  return authStore.isAuthenticated && 
+         (authStore.user?.role === 'researcher' || authStore.user?.role === 'admin');
+});
 
 const fetchFeed = async () => {
   loadingFeed.value = true;
@@ -161,7 +192,6 @@ const fetchFeed = async () => {
       const combined = [...userPosts, ...publicPosts];
 
       // Remover duplicatas (usando o ID do post como chave)
-      // Um Map preserva a ordem de inserção, mas vamos reordenar de qualquer forma
       const uniquePostsMap = new Map();
       combined.forEach(post => {
         uniquePostsMap.set(post.id, post);
@@ -182,19 +212,21 @@ const fetchFeed = async () => {
   }
 };
 
-// Buscar ao montar
+const handlePostCreated = async () => {
+  isCreateModalOpen.value = false;
+  await fetchFeed();
+};
+
 onMounted(() => {
   fetchFeed();
 });
 
-// Reagir a mudanças de login/logout para atualizar o feed dinamicamente
 watch(() => authStore.isAuthenticated, () => {
   fetchFeed();
 });
 </script>
 
 <style scoped>
-/* (O estilo permanece o mesmo do original, omitido aqui para brevidade, mas deve ser mantido no arquivo final) */
 /* CORES DO TEMA */
 .text-dark-jungle { color: #1a2f2b; }
 .text-light-fossil { color: #e8e2d9; }

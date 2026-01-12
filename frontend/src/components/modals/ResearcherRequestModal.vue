@@ -23,9 +23,16 @@
                 class="form-control bg-dark text-white border-secondary" 
                 rows="4" 
                 required
+                minlength="100"
                 placeholder="Ex: Sou paleontólogo especializado em..."
                 :disabled="loading"
               ></textarea>
+              <div class="mt-1">
+                <small :class="motivation.length < 100 ? 'text-warning' : 'text-success'" style="font-size: 0.75rem;">
+                  <i class="bi" :class="motivation.length < 100 ? 'bi-info-circle' : 'bi-check-circle'"></i>
+                  Mínimo de 100 caracteres (atual: {{ motivation.length }})
+                </small>
+              </div>
             </div>
 
             <div v-if="errorMessage" class="alert alert-danger small py-2 d-flex align-items-center">
@@ -36,7 +43,11 @@
             </div>
 
             <div class="d-grid">
-              <button type="submit" class="btn btn-primary fw-bold text-uppercase" :disabled="loading">
+              <button 
+                type="submit" 
+                class="btn btn-primary fw-bold text-uppercase" 
+                :disabled="loading || motivation.length < 100"
+              >
                 <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
                 <span v-else>Enviar Solicitação</span>
               </button>
@@ -59,7 +70,6 @@ const loading = ref(false);
 const errorMessage = ref('');
 const successMessage = ref('');
 
-// Função para abrir o modal e resetar estados
 const open = () => {
   motivation.value = '';
   errorMessage.value = '';
@@ -81,12 +91,14 @@ const handleSubmit = async () => {
   try {
     await researcherRequestService.createRequest(motivation.value);
     successMessage.value = 'Solicitação enviada com sucesso!';
-    // ... lógica de fechar
+    motivation.value = '';
   } catch (error: any) {
-    // CAPTURA A MENSAGEM REAL DO BACK-END
-    // O seu back-end envia mensagens como "pending request already exists!"
-    errorMessage.value = error.response?.data?.message || 'Falha na operação técnica.';
-    console.error("Erro 400 detalhado:", error.response?.data);
+    // Se o backend retornar erro de validação (Zod), mostramos a mensagem específica
+    if (error.response?.data?.errors) {
+      errorMessage.value = error.response.data.errors[0]?.message;
+    } else {
+      errorMessage.value = error.response?.data?.message || 'Falha na operação técnica.';
+    }
   } finally {
     loading.value = false;
   }
@@ -110,8 +122,12 @@ defineExpose({ open });
   border-color: #0d6efd;
   transition: all 0.2s;
 }
-.btn-primary:hover {
+.btn-primary:hover:not(:disabled) {
   background-color: #0b5ed7;
   transform: translateY(-2px);
+}
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 </style>

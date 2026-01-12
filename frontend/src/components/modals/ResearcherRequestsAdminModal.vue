@@ -71,6 +71,7 @@
 import { ref } from 'vue';
 import * as bootstrap from 'bootstrap';
 import researcherRequestService from '../../services/researcherRequestService';
+import userService from '../../services/userService';
 
 const requests = ref<any[]>([]);
 const loading = ref(false);

@@ -34,10 +34,12 @@
               <div class="card-body p-0">
                 <div class="p-3 bg-black d-flex justify-content-between align-items-center border-bottom border-secondary">
                   <div>
-                    <h6 class="text-white fw-bold m-0">{{ req.user?.name }}</h6>
+                    <h6 class="text-white fw-bold m-0">{{ req.user?.name || 'Usuário Desconhecido' }}</h6>
                     <small class="text-muted font-monospace x-small">{{ req.user?.email }}</small>
                   </div>
-                  <span class="badge bg-secondary font-monospace x-small">{{ new Date(req.createdAt).toLocaleDateString() }}</span>
+                  <span class="badge bg-secondary font-monospace x-small">
+                    {{ req.createdAt ? new Date(req.createdAt).toLocaleDateString() : 'Data N/A' }}
+                  </span>
                 </div>
                 
                 <div class="p-3">
@@ -85,15 +87,39 @@ const open = async () => {
 const fetchRequests = async () => {
   loading.value = true;
   try {
-    requests.value = await researcherRequestService.getPendingRequests();
+    const response = await researcherRequestService.getPendingRequests();
+    // Pega a lista crua (onde tem user_id, mas não tem o objeto user completo)
+    const rawRequests = response.data || (Array.isArray(response) ? response : []);
+
+    // WORKAROUND FRONTEND:
+    // Para cada pedido, buscamos os dados do usuário pelo ID
+    const enrichedRequests = await Promise.all(rawRequests.map(async (req: any) => {
+      // Se tiver user_id mas não tiver o objeto user populado
+      if (req.user_id && !req.user?.name) {
+        try {
+          const userDetails = await userService.getUserById(req.user_id);
+          // Retorna o pedido com o objeto user preenchido com o que buscamos
+          return { ...req, user: userDetails };
+        } catch (err) {
+          console.error(`Erro ao buscar usuário ${req.user_id}`, err);
+          return { ...req, user: { name: 'Usuário não encontrado', email: '---' } };
+        }
+      }
+      return req;
+    }));
+
+    requests.value = enrichedRequests;
+
   } catch (error) {
     console.error("Falha ao carregar pedidos:", error);
+    requests.value = [];
   } finally {
     loading.value = false;
   }
 };
 
 const handleAction = async (id: string, action: 'approve' | 'reject') => {
+  if (!id) return;
   if (!confirm(`Confirmar ação de ${action === 'approve' ? 'APROVAÇÃO' : 'REJEIÇÃO'}?`)) return;
   
   try {
@@ -102,9 +128,9 @@ const handleAction = async (id: string, action: 'approve' | 'reject') => {
     } else {
       await researcherRequestService.rejectRequest(id);
     }
-    await fetchRequests(); // Recarrega lista
-  } catch (error) {
-    alert("Erro ao processar solicitação.");
+    await fetchRequests(); 
+  } catch (error: any) {
+    alert(error.response?.data?.message || "Erro ao processar solicitação.");
   }
 };
 

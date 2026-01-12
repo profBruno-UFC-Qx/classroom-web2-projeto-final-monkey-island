@@ -29,5 +29,21 @@ export default {
       bio: data.bio,
       institution: data.instituition || data.institution 
     } as User;
+  },
+
+  // --- ADICIONE ESTE MÉTODO ---
+  async getUserById(userId: string): Promise<User> {
+    const response = await api.get(`/users/${userId}`);
+    const data = response.data;
+
+    return {
+      id: data.id,
+      name: data.name,
+      email: data.email,
+      role: data.role,
+      status: data.status,
+      bio: data.bio,
+      institution: data.instituition || data.institution
+    } as User;
   }
 };

@@ -56,11 +56,29 @@ export default {
    * usamos o /feed filtrado ou preparamos para uma futura rota /posts/me.
    */
   async getMyPosts(page = 1, limit = 10): Promise<FeedResponse> {
-    // Por enquanto, utilizamos o /feed que retorna as atividades do usuário
+    // 1. Obtém a store de autenticação para pegar o ID do usuário logado
+    const authStore = useAuthStore();
+    const myUserId = authStore.user?.id;
+
+    // 2. Busca o feed (que retorna tudo)
+    // Nota: Aumentamos o limit para tentar trazer mais posts do usuário de uma vez
+    // já que a paginação do backend é aplicada antes do nosso filtro.
     const response = await api.get<FeedResponse>('/feed', {
-      params: { page, limit }
+      params: { page, limit: 50 } 
     });
-    return response.data;
+
+    // 3. Filtra apenas os posts onde o autor é o usuário logado
+    const allPosts = response.data.data || [];
+    const myPosts = allPosts.filter(post => post.authorId === myUserId);
+
+    // 4. Retorna a estrutura esperada (FeedResponse) com os dados filtrados
+    return {
+      ...response.data,
+      data: myPosts,
+      // Opcional: Ajustar totalItems se quiser refletir apenas a contagem filtrada na tela, 
+      // mas o valor real do servidor será diferente.
+      totalItems: myPosts.length 
+    };
   },
 
   /**

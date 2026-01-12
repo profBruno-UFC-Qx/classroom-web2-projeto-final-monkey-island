@@ -68,14 +68,20 @@
             </div>
           </div>
 
-          <div class="text-center py-5 border border-secondary border-dashed rounded-1 opacity-50 bg-light-industrial">
-            <i class="bi bi-dns fs-1 text-secondary mb-3"></i>
-            <p class="font-monospace text-uppercase fw-bold text-secondary m-0">
-              Sincronizando com o servidor principal...
-            </p>
-            <p class="x-small text-muted font-monospace mt-1">
-              [STATUS: AGUARDANDO_DADOS_DE_CAMPO]
-            </p>
+          <div v-if="loadingFeed" class="text-center py-5">
+            <div class="spinner-border text-secondary" role="status"></div>
+            <p class="mt-2 text-muted font-monospace small">Sincronizando feed de dados...</p>
+          </div>
+
+          <div v-else class="d-flex flex-column gap-4">
+            <div v-if="posts.length === 0" class="text-center py-5 opacity-50 border border-secondary border-dashed rounded-1">
+              <i class="bi bi-broadcast-pin fs-1 text-secondary"></i>
+              <p class="mt-2 text-uppercase fw-bold text-secondary font-monospace">
+                Nenhum registro encontrado no setor.
+              </p>
+            </div>
+            
+            <PostCard v-for="post in posts" :key="post.id" :post="post" />
           </div>
 
         </div>
@@ -120,16 +126,75 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted, watch } from 'vue';
 import { useAuthStore } from '../stores/authStore';
 import AppNavbar from '../components/AppNavbar.vue';
 import GameWidget from '../components/widgets/GameWidget.vue';
 import AuthAlertModal from '../components/modals/AuthAlertModal.vue';
+import PostCard from '../components/feed/PostCard.vue';
+import postService from '../services/postService';
+import type { Post } from '../types/post';
 
 const authStore = useAuthStore();
-// mockPosts removido para evitar conflitos com a integração real
+const posts = ref<Post[]>([]);
+const loadingFeed = ref(false);
+
+const fetchFeed = async () => {
+  loadingFeed.value = true;
+  posts.value = [];
+  try {
+    if (!authStore.isAuthenticated) {
+      // CENÁRIO 1: Não Logado -> Apenas Feed Público (Geral)
+      const response = await postService.getPublicFeed();
+      posts.value = response.data;
+    } else {
+      // CENÁRIO 2: Logado -> Feed do Usuário (Comunidades) + Feed Público (Geral)
+      const [userFeedRes, publicFeedRes] = await Promise.all([
+        postService.getUserFeed(),
+        postService.getPublicFeed()
+      ]);
+
+      const userPosts = userFeedRes.data || [];
+      const publicPosts = publicFeedRes.data || [];
+
+      // Combinar listas
+      const combined = [...userPosts, ...publicPosts];
+
+      // Remover duplicatas (usando o ID do post como chave)
+      // Um Map preserva a ordem de inserção, mas vamos reordenar de qualquer forma
+      const uniquePostsMap = new Map();
+      combined.forEach(post => {
+        uniquePostsMap.set(post.id, post);
+      });
+      const uniquePosts = Array.from(uniquePostsMap.values());
+
+      // Ordenar por data de criação (do mais recente para o mais antigo)
+      uniquePosts.sort((a, b) => {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+
+      posts.value = uniquePosts;
+    }
+  } catch (error) {
+    console.error("Erro ao sincronizar feed:", error);
+  } finally {
+    loadingFeed.value = false;
+  }
+};
+
+// Buscar ao montar
+onMounted(() => {
+  fetchFeed();
+});
+
+// Reagir a mudanças de login/logout para atualizar o feed dinamicamente
+watch(() => authStore.isAuthenticated, () => {
+  fetchFeed();
+});
 </script>
 
 <style scoped>
+/* (O estilo permanece o mesmo do original, omitido aqui para brevidade, mas deve ser mantido no arquivo final) */
 /* CORES DO TEMA */
 .text-dark-jungle { color: #1a2f2b; }
 .text-light-fossil { color: #e8e2d9; }

@@ -29,6 +29,19 @@
 
             <div class="mb-4">
               <label class="form-label fw-bold text-dark-jungle text-uppercase small">
+                <i class="bi bi-type-h1 me-1"></i>Título do Relatório
+              </label>
+              <input 
+                v-model="postTitle" 
+                type="text" 
+                class="form-control border-dark rounded-0 font-monospace shadow-sm" 
+                placeholder="Ex: Análise de Fósseis - Setor 7 (Mín. 5 caracteres)"
+                :disabled="isSubmitting"
+              >
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label fw-bold text-dark-jungle text-uppercase small">
                 <i class="bi bi-file-text-fill me-1"></i>Relatório de Campo
               </label>
               <textarea 
@@ -92,7 +105,6 @@ import communityService from '../../services/communityService';
 import postService from '../../services/postService';
 import type { Community } from '../../types/community';
 
-// Props para controlar a visibilidade via pai
 const props = defineProps<{
   isOpen: boolean
 }>();
@@ -102,6 +114,7 @@ const emit = defineEmits(['close', 'post-created']);
 // Estado
 const myCommunities = ref<Community[]>([]);
 const selectedCommunityId = ref('');
+const postTitle = ref(''); // Novo estado para o título
 const postContent = ref('');
 const selectedFiles = ref<File[]>([]);
 const isSubmitting = ref(false);
@@ -109,13 +122,14 @@ const errorMessage = ref('');
 
 // Validação simples
 const isValid = computed(() => {
-  return selectedCommunityId.value !== '' && postContent.value.trim() !== '';
+  // Backend exige título com min 5 caracteres
+  return selectedCommunityId.value !== '' && 
+         postTitle.value.trim().length >= 5 && 
+         postContent.value.trim() !== '';
 });
 
-// Buscar comunidades do usuário ao carregar o componente
 onMounted(async () => {
   try {
-    // Busca as comunidades onde o usuário é membro
     const response = await communityService.getMyCommunities();
     myCommunities.value = response.data;
   } catch (error) {
@@ -130,7 +144,7 @@ const handleFileUpload = (event: Event) => {
     const filesArray = Array.from(target.files);
     if (filesArray.length > 5) {
       errorMessage.value = "Máximo de 5 imagens permitidas.";
-      target.value = ''; // Limpa o input
+      target.value = ''; 
       selectedFiles.value = [];
       return;
     }
@@ -146,10 +160,14 @@ const submitPost = async () => {
   errorMessage.value = '';
 
   try {
-    // 1. Criar o Draft (Rascunho)
-    const newPost = await postService.createDraft(selectedCommunityId.value, postContent.value);
+    // 1. Criar o Draft com Título e Conteúdo
+    const newPost = await postService.createDraft(
+      selectedCommunityId.value, 
+      postTitle.value, 
+      postContent.value
+    );
 
-    // 2. Se houver imagens, fazer upload usando o ID do post
+    // 2. Se houver imagens, fazer upload
     if (selectedFiles.value.length > 0) {
       await postService.uploadMedia(newPost.id, selectedFiles.value);
     }
@@ -157,7 +175,6 @@ const submitPost = async () => {
     // 3. Publicar o Post
     await postService.publishPost(newPost.id);
 
-    // Sucesso
     emit('post-created');
     closeModal();
     
@@ -170,8 +187,8 @@ const submitPost = async () => {
 };
 
 const closeModal = () => {
-  // Limpar formulário ao fechar
   selectedCommunityId.value = '';
+  postTitle.value = ''; // Limpar título
   postContent.value = '';
   selectedFiles.value = [];
   errorMessage.value = '';

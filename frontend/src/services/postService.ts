@@ -53,7 +53,6 @@ export default {
 
   /**
    * Busca os posts criados pelo próprio usuário para exibição no perfil.
-   * Nota: Filtra o feed localmente enquanto a rota /posts/me não é implementada.
    */
   async getMyPosts(page = 1, limit = 10): Promise<FeedResponse> {
     const authStore = useAuthStore();
@@ -93,7 +92,6 @@ export default {
    */
   async likePost(postId: string) {
     console.log(`Solicitação de Like para o post: ${postId}`);
-    // Implementar quando a rota PATCH/POST /posts/:id/like existir
   },
 
   // --------------------------------------------------------------------------
@@ -101,33 +99,53 @@ export default {
   // --------------------------------------------------------------------------
 
   /**
-   * 1. Cria o rascunho do post (apenas texto).
-   * Rota: POST /community/:communityId/posts
+   * 1. Cria o rascunho do post.
+   * CORREÇÃO: Mapeia a resposta aninhada do backend para um objeto plano que contenha o ID na raiz.
    */
-  async createDraft(communityId: string, content: string): Promise<Post> {
-    const response = await api.post<Post>(`/community/${communityId}/posts`, {
+  async createDraft(communityId: string, title: string, content: string): Promise<Post> {
+    // Usamos 'any' na tipagem do get/post aqui para facilitar a manipulação do DTO aninhado que vem do backend
+    const response = await api.post<any>(`/community/${communityId}/posts`, {
+      title,
       content
-      // Se o backend exigir um título futuramente, adicione aqui: title: 'Novo Relatório'
     });
-    return response.data;
+
+    // O Backend retorna: { post: { id: "...", ... }, authorId: "...", ... }
+    // Precisamos retornar um objeto onde .id esteja acessível diretamente.
+    const data = response.data;
+
+    // Se a resposta vier no formato aninhado (DTO do backend), achatamos ela:
+    if (data.post && data.post.id) {
+      return {
+        ...data.post,              // id, title, content, status, createdAt
+        authorId: data.authorId,
+        communityId: data.communityId,
+        authorName: data.authorName,
+        communityName: data.communityName
+      } as Post;
+    }
+
+    // Caso contrário (se o backend mudar), retorna como está
+    return data;
   },
 
   /**
    * 2. Realiza o upload das imagens para um post existente.
-   * Rota: POST /posts/:postId/medias
    */
   async uploadMedia(postId: string, files: File[]): Promise<void> {
     if (!files || files.length === 0) return;
 
+    // Verificação de segurança para evitar o erro 403 por ID undefined
+    if (!postId) {
+        console.error("Tentativa de upload de mídia sem ID de post válido.");
+        return;
+    }
+
     const formData = new FormData();
     
-    // O backend espera o campo 'files' (conforme configurado no Multer)
     files.forEach((file) => {
       formData.append('files', file);
     });
 
-    // O Axios detecta automaticamente o FormData e ajusta o Content-Type para multipart/form-data,
-    // mas é uma boa prática explicitar ou deixar o browser gerenciar o boundary.
     await api.post(`/posts/${postId}/medias`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
@@ -137,7 +155,6 @@ export default {
 
   /**
    * 3. Publica o post (torna visível para outros usuários).
-   * Rota: PATCH /posts/:postId/publish
    */
   async publishPost(postId: string): Promise<Post> {
     const response = await api.patch<Post>(`/posts/${postId}/publish`);

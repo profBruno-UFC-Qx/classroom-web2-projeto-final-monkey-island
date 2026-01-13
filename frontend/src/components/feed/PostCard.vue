@@ -90,7 +90,6 @@ import postService from '../../services/postService';
 import type { PostMedia } from '../../types/post';
 import * as bootstrap from 'bootstrap';
 
-// Usamos 'any' para lidar com a estrutura aninhada do DTO { post: {...}, authorName: ... }
 const props = defineProps<{
   post: any
 }>();
@@ -99,12 +98,10 @@ const authStore = useAuthStore();
 const medias = ref<PostMedia[]>([]);
 const currentImageIndex = ref(0);
 
-// Computed para normalizar o acesso aos dados do post (corrige o erro de slice/undefined)
 const postData = computed(() => {
   return props.post?.post || props.post || {};
 });
 
-// Formatação de data robusta
 const formattedDate = computed(() => {
   const rawDate = postData.value?.createdAt;
   if (!rawDate) return '--/--/--';
@@ -113,7 +110,6 @@ const formattedDate = computed(() => {
   });
 });
 
-// Busca as mídias ao carregar o card
 onMounted(async () => {
   const postId = postData.value?.id;
   if (!postId) return;
@@ -126,15 +122,18 @@ onMounted(async () => {
   }
 });
 
-// Tratamento de URL (ajusta o caminho do backend para a rota estática)
+// --- CORREÇÃO AQUI ---
 const getImageUrl = (imagePath: string) => {
   if (!imagePath) return '';
-  // Remove o prefixo da pasta física se necessário e aponta para o servidor de arquivos
-  const fileName = imagePath.replace('media_posts/', '');
-  return `http://localhost:3000/images/${fileName}`;
+  
+  // O backend serve a pasta 'public' na rota '/images'.
+  // O 'imagePath' do banco já vem como 'media_posts/nome-do-arquivo.png'.
+  // Então a URL final deve ser: http://localhost:3000/images/media_posts/nome-do-arquivo.png
+  // Removemos o .replace que estava quebrando o caminho.
+  
+  return `http://localhost:3000/images/${imagePath}`;
 };
 
-// Lógica de Slider (Loop Infinito)
 const nextImage = () => {
   if (medias.value.length === 0) return;
   currentImageIndex.value = (currentImageIndex.value + 1) % medias.value.length;
@@ -145,7 +144,6 @@ const prevImage = () => {
   currentImageIndex.value = (currentImageIndex.value - 1 + medias.value.length) % medias.value.length;
 };
 
-// Ações do usuário
 const handleAction = (actionType: string) => {
   if (!authStore.isAuthenticated) {
     const modalElement = document.getElementById('authAlertModal');
@@ -156,14 +154,13 @@ const handleAction = (actionType: string) => {
   } else {
     if (actionType === 'collect') window.alert("Espécime adicionado ao seu cofre!");
     if (actionType === 'like') {
-        // Futura integração: await postService.likePost(postData.value.id)
+        // Futura implementação
     }
   }
 };
 </script>
 
 <style scoped>
-/* Tema InGen Industrial */
 .text-dark-jungle { color: #1a2f2b; }
 .bg-light-industrial { background-color: #f4f4f4; }
 .bg-dark-transparent { background-color: rgba(0,0,0,0.7); }
@@ -172,7 +169,6 @@ const handleAction = (actionType: string) => {
 .tracking-wide { letter-spacing: 1px; }
 .tracking-widest { letter-spacing: 3px; }
 
-/* Estrutura Industrial */
 .post-card {
   border-left: 0;
   border-radius: 4px;
@@ -180,13 +176,11 @@ const handleAction = (actionType: string) => {
   clip-path: polygon(0 0, 100% 0, 100% 100%, 10px 100%, 0 calc(100% - 10px));
 }
 
-/* Container de Imagens */
 .post-image-container {
   min-height: 200px;
   border-bottom: 2px solid #ffc107;
 }
 
-/* Controles de Navegação (Aparecem no hover) */
 .slider-control {
   position: absolute;
   top: 0;
@@ -220,7 +214,6 @@ const handleAction = (actionType: string) => {
   height: 100%;
 }
 
-/* Marcas d'água */
 .watermark {
   position: absolute;
   top: 50%;
@@ -254,7 +247,6 @@ const handleAction = (actionType: string) => {
   transform: rotate(180deg);
 }
 
-/* Botões de Ação */
 .btn-action, .btn-action-danger, .btn-action-warning {
   border: 1px solid #ced4da;
   background-color: white;

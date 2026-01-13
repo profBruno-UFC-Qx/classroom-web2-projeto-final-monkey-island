@@ -1,7 +1,5 @@
 <template>
   <div class="home-layout min-vh-100 bg-concrete">
-    <AppNavbar />
-
     <div class="danger-stripe shadow-sm">
       <div
         class="container-fluid d-flex justify-content-center align-items-center overflow-hidden py-1"
@@ -284,6 +282,8 @@ const fetchFeed = async (reset = false) => {
 
     const data = response?.data ?? [];
     const tp = response?.totalPages ?? 1;
+
+    console.log("esse daqui é o tamanho do data: " + data.length);
 
     totalPages.value = tp;
 

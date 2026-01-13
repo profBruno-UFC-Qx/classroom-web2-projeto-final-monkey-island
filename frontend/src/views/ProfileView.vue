@@ -68,15 +68,11 @@ const user = ref<User | null>(null);
 const loading = ref(true);
 const error = ref("");
 
-// Referências para os componentes de Modal
 const vaultModal = ref();
 const communitiesModal = ref();
 const requestModal = ref();
 const adminRequestsModal = ref();
 
-/**
- * Busca os dados do perfil do usuário logado
- */
 const fetchProfile = async () => {
   loading.value = true;
   error.value = "";

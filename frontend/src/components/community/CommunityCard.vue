@@ -10,7 +10,8 @@
       </p>
 
       <span class="badge bg-dark">
-        <i class="bi bi-people-fill me-1"></i>{{ community.usersCount }} membros
+        <i class="bi bi-people-fill me-1"></i
+        >{{ community.memberCount }} membros
       </span>
     </div>
   </div>

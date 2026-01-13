@@ -24,7 +24,7 @@
         <div class="row g-3">
           <div
             class="col-md-4"
-            v-for="community in filteredCommunities"
+            v-for="community in communities"
             :key="community.id"
           >
             <CommunityCard :community="community" @select="selectCommunity" />
@@ -46,8 +46,11 @@
         </div>
       </div>
 
-      <!-- ASIDE -->
-      <CommunityAside :community="selectedCommunity" />
+      <CommunityAside
+        v-if="selectedCommunity"
+        :community="selectedCommunity"
+        @close="selectedCommunity = null"
+      />
     </div>
 
     <CreateCommunityModal ref="createModal" />
@@ -88,26 +91,44 @@ const openCreateModal = () => {
 };
 
 /**
- * Busca comunidades pelo nome (backend)
+ * Populares (fallback)
+ */
+const fetchPopularCommunities = async () => {
+  const response = await communityService.getPopularCommunities();
+  communities.value = response.data;
+};
+
+/**
+ * Busca com fallback automático
  */
 const fetchCommunities = async () => {
   loading.value = true;
 
   try {
+    if (!search.value.trim()) {
+      await fetchPopularCommunities();
+      return;
+    }
+
     const response = await communityService.searchCommunitiesByName(
       search.value,
       page.value,
       limit
     );
 
-    communities.value = response.data;
+    // 🔁 Busca vazia → fallback
+    if (!response.data || response.data.length === 0) {
+      await fetchPopularCommunities();
+    } else {
+      communities.value = response.data;
+    }
   } finally {
     loading.value = false;
   }
 };
 
 /**
- * Debounce simples para busca
+ * Debounce da busca
  */
 let timeout: number | undefined;
 
@@ -120,7 +141,7 @@ watch(search, () => {
 });
 
 onMounted(async () => {
-  await fetchCommunities();
+  await fetchPopularCommunities();
   myCommunities.value = (await communityService.getMyCommunities()).data;
 });
 </script>

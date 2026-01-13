@@ -1,9 +1,9 @@
 export interface Community {
   id: string;
   name: string;
+  memberCount?: number;
   description: string;
   createdAt: string;
-  ownerId?: string;
 }
 
 export interface CommunityResponse {

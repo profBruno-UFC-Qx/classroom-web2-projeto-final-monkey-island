@@ -1,25 +1,10 @@
-import axios from 'axios';
-import { useAuthStore } from '../stores/authStore';
-import type { User } from '../types/user';
-
-const api = axios.create({
-  baseURL: 'http://localhost:3000',
-  headers: { 'Content-Type': 'application/json' }
-});
-
-// Este interceptor é CRUCIAL. Ele pega o token que acabamos de salvar na store.
-api.interceptors.request.use((config) => {
-  const authStore = useAuthStore();
-  if (authStore.token) {
-    config.headers.Authorization = `Bearer ${authStore.token}`;
-  }
-  return config;
-});
+import api from "@/api/api";
+import type { User } from "../types/user";
 
 export default {
   async getMyProfile(): Promise<User> {
     // Chama a rota que já existe no backend
-    const response = await api.get('/users/me');
+    const response = await api.get("/users/me");
     const data = response.data;
 
     return {
@@ -30,7 +15,7 @@ export default {
       status: data.status,
       bio: data.bio,
       // Garante compatibilidade com erro de digitação comum no backend ou frontend
-      institution: data.instituition || data.institution 
+      institution: data.instituition || data.institution,
     } as User;
   },
 
@@ -45,7 +30,7 @@ export default {
       role: data.role,
       status: data.status,
       bio: data.bio,
-      institution: data.instituition || data.institution
+      institution: data.instituition || data.institution,
     } as User;
-  }
+  },
 };

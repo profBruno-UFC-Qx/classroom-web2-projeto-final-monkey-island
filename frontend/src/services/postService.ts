@@ -1,20 +1,6 @@
-import axios from 'axios';
-import { useAuthStore } from '../stores/authStore';
-import type { Post, PostMedia } from '../types/post';
-
-const api = axios.create({
-  baseURL: 'http://localhost:3000',
-  headers: { 'Content-Type': 'application/json' }
-});
-
-// Interceptor para adicionar o token JWT em todas as requisições
-api.interceptors.request.use((config) => {
-  const authStore = useAuthStore();
-  if (authStore.token) {
-    config.headers.Authorization = `Bearer ${authStore.token}`;
-  }
-  return config;
-});
+import api from "@/api/api";
+import { useAuthStore } from "../stores/authStore";
+import type { Post, PostMedia } from "../types/post";
 
 export interface FeedResponse {
   data: Post[];
@@ -27,8 +13,8 @@ export default {
    * Busca o feed público (posts de todas as comunidades)
    */
   async getPublicFeed(page = 1, limit = 10): Promise<FeedResponse> {
-    const response = await api.get<FeedResponse>('/feed/public', {
-      params: { page, limit }
+    const response = await api.get<FeedResponse>("/feed/public", {
+      params: { page, limit },
     });
     return response.data;
   },
@@ -37,8 +23,8 @@ export default {
    * Busca o feed do usuário (posts das comunidades que ele participa)
    */
   async getUserFeed(page = 1, limit = 10): Promise<FeedResponse> {
-    const response = await api.get<FeedResponse>('/feed', {
-      params: { page, limit }
+    const response = await api.get<FeedResponse>("/feed", {
+      params: { page, limit },
     });
     return response.data;
   },
@@ -47,7 +33,9 @@ export default {
    * Busca as mídias (fotos) de um post específico
    */
   async getPostMedias(postId: string): Promise<PostMedia[]> {
-    const response = await api.get<{ medias: PostMedia[] }>(`/posts/${postId}/medias`);
+    const response = await api.get<{ medias: PostMedia[] }>(
+      `/posts/${postId}/medias`
+    );
     return response.data.medias;
   },
 
@@ -58,17 +46,17 @@ export default {
     const authStore = useAuthStore();
     const myUserId = authStore.user?.id;
 
-    const response = await api.get<FeedResponse>('/feed', {
-      params: { page, limit: 50 } 
+    const response = await api.get<FeedResponse>("/feed", {
+      params: { page, limit: 50 },
     });
 
     const allPosts = response.data.data || [];
-    const myPosts = allPosts.filter(post => post.authorId === myUserId);
+    const myPosts = allPosts.filter((post) => post.authorId === myUserId);
 
     return {
       ...response.data,
       data: myPosts,
-      totalItems: myPosts.length 
+      totalItems: myPosts.length,
     };
   },
 
@@ -81,7 +69,7 @@ export default {
         resolve({
           data: [],
           totalItems: 0,
-          totalPages: 0
+          totalPages: 0,
         });
       }, 300);
     });
@@ -102,11 +90,15 @@ export default {
    * 1. Cria o rascunho do post.
    * CORREÇÃO: Mapeia a resposta aninhada do backend para um objeto plano que contenha o ID na raiz.
    */
-  async createDraft(communityId: string, title: string, content: string): Promise<Post> {
+  async createDraft(
+    communityId: string,
+    title: string,
+    content: string
+  ): Promise<Post> {
     // Usamos 'any' na tipagem do get/post aqui para facilitar a manipulação do DTO aninhado que vem do backend
     const response = await api.post<any>(`/community/${communityId}/posts`, {
       title,
-      content
+      content,
     });
 
     // O Backend retorna: { post: { id: "...", ... }, authorId: "...", ... }
@@ -116,11 +108,11 @@ export default {
     // Se a resposta vier no formato aninhado (DTO do backend), achatamos ela:
     if (data.post && data.post.id) {
       return {
-        ...data.post,              // id, title, content, status, createdAt
+        ...data.post, // id, title, content, status, createdAt
         authorId: data.authorId,
         communityId: data.communityId,
         authorName: data.authorName,
-        communityName: data.communityName
+        communityName: data.communityName,
       } as Post;
     }
 
@@ -136,20 +128,20 @@ export default {
 
     // Verificação de segurança para evitar o erro 403 por ID undefined
     if (!postId) {
-        console.error("Tentativa de upload de mídia sem ID de post válido.");
-        return;
+      console.error("Tentativa de upload de mídia sem ID de post válido.");
+      return;
     }
 
     const formData = new FormData();
-    
+
     files.forEach((file) => {
-      formData.append('files', file);
+      formData.append("files", file);
     });
 
     await api.post(`/posts/${postId}/medias`, formData, {
       headers: {
-        'Content-Type': 'multipart/form-data'
-      }
+        "Content-Type": "multipart/form-data",
+      },
     });
   },
 
@@ -159,5 +151,5 @@ export default {
   async publishPost(postId: string): Promise<Post> {
     const response = await api.patch<Post>(`/posts/${postId}/publish`);
     return response.data;
-  }
+  },
 };

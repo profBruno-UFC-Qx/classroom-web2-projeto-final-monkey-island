@@ -1,22 +1,8 @@
-import axios from 'axios';
-import { useAuthStore } from '../stores/authStore';
-import type { 
-  CreateResearcherRequestPayload, 
-  ResearcherRequestResponse 
-} from '../types/researcherRequest';
-
-const api = axios.create({
-  baseURL: 'http://localhost:3000', // Ajuste se sua URL for diferente
-  headers: { 'Content-Type': 'application/json' }
-});
-
-api.interceptors.request.use((config) => {
-  const authStore = useAuthStore();
-  if (authStore.token) {
-    config.headers.Authorization = `Bearer ${authStore.token}`;
-  }
-  return config;
-});
+import api from "@/api/api";
+import type {
+  CreateResearcherRequestPayload,
+  ResearcherRequestResponse,
+} from "../types/researcherRequest";
 
 export default {
   /**
@@ -25,7 +11,10 @@ export default {
    */
   async createRequest(motivation: string): Promise<ResearcherRequestResponse> {
     const payload: CreateResearcherRequestPayload = { motivation };
-    const response = await api.post<ResearcherRequestResponse>('/researcher-request', payload);
+    const response = await api.post<ResearcherRequestResponse>(
+      "/researcher-request",
+      payload
+    );
     return response.data;
   },
 
@@ -34,13 +23,15 @@ export default {
    * Rota: GET /researcher-request/me
    */
   async getMyRequests(): Promise<ResearcherRequestResponse[]> {
-    const response = await api.get<ResearcherRequestResponse[]>('/researcher-request/me');
+    const response = await api.get<ResearcherRequestResponse[]>(
+      "/researcher-request/me"
+    );
     return response.data;
   },
 
   // --- Métodos de Admin (Mantidos caso precise futuramente) ---
   async getPendingRequests() {
-    return (await api.get('/researcher-request')).data;
+    return (await api.get("/researcher-request")).data;
   },
 
   async approveRequest(requestId: string) {
@@ -49,5 +40,5 @@ export default {
 
   async rejectRequest(requestId: string) {
     return (await api.put(`/researcher-request/${requestId}/reject`)).data;
-  }
+  },
 };

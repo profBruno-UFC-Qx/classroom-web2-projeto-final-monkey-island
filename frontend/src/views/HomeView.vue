@@ -82,20 +82,42 @@
             </div>
           </div>
 
-          <div v-if="loadingFeed" class="text-center py-5">
+          <!-- FEED Paginado (substitui o bloco antigo de feed) -->
+          <div v-if="isLoading && posts.length === 0" class="text-center py-5">
             <div class="spinner-border text-secondary" role="status"></div>
             <p class="mt-2 text-muted font-monospace small">Sincronizando feed de dados...</p>
           </div>
 
           <div v-else class="d-flex flex-column gap-4">
-            <div v-if="posts.length === 0" class="text-center py-5 opacity-50 border border-secondary border-dashed rounded-1">
+            <div v-if="posts.length === 0 && !isLoading" class="text-center py-5 opacity-50 border border-secondary border-dashed rounded-1">
               <i class="bi bi-broadcast-pin fs-1 text-secondary"></i>
               <p class="mt-2 text-uppercase fw-bold text-secondary font-monospace">
                 Nenhum registro encontrado no setor.
               </p>
             </div>
-            
-            <PostCard v-for="post in posts" :key="post.id" :post="post" />
+
+            <transition-group name="list" tag="div" class="d-flex flex-column gap-4">
+              <PostCard
+                v-for="post in posts"
+                :key="post.id"
+                :post="post"
+              />
+            </transition-group>
+
+            <div v-if="page < totalPages" class="text-center mt-4 mb-5">
+              <button
+                @click="loadMore"
+                class="btn btn-outline-dark rounded-pill px-5 py-2 fw-bold text-uppercase"
+                :disabled="isLoading"
+              >
+                <span v-if="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+                {{ isLoading ? 'Processando...' : 'Carregar Arquivos Mais Antigos' }}
+              </button>
+            </div>
+
+            <div v-else-if="posts.length > 0" class="text-center mt-4 mb-5 text-muted font-monospace small">
+              --- FIM DOS REGISTROS ---
+            </div>
           </div>
 
         </div>
@@ -158,71 +180,85 @@ import postService from '../services/postService';
 import type { Post } from '../types/post';
 
 const authStore = useAuthStore();
+
+/* Feed paginado */
 const posts = ref<Post[]>([]);
-const loadingFeed = ref(false);
+const page = ref(1);
+const totalPages = ref(1);
+const isLoading = ref(false);
+const itemsPerPage = 10;
+
+/* Modal e permissões */
 const isCreateModalOpen = ref(false);
 
-// Verifica se o usuário tem permissão para criar posts (Pesquisador ou Admin)
 const canCreatePost = computed(() => {
-  // Se quiser testar o botão forçadamente, descomente a linha abaixo e comente o return original:
-  // return true; 
   return authStore.isAuthenticated && 
          (authStore.user?.role === 'researcher' || authStore.user?.role === 'admin');
 });
 
-const fetchFeed = async () => {
-  loadingFeed.value = true;
-  posts.value = [];
+/**
+ * fetchFeed - carrega a página atual do feed
+ * reset = true -> reinicia paginação e lista (útil ao logar/deslogar ou after-create)
+ */
+const fetchFeed = async (reset = false) => {
+  if (isLoading.value) return;
+  isLoading.value = true;
+
+  if (reset) {
+    page.value = 1;
+    posts.value = [];
+  }
+
   try {
-    if (!authStore.isAuthenticated) {
-      // CENÁRIO 1: Não Logado -> Apenas Feed Público (Geral)
-      const response = await postService.getPublicFeed();
-      posts.value = response.data;
+    let response;
+    // Se autenticado -> buscar feed do usuário (paginado)
+    // Se não autenticado -> buscar feed público (paginado)
+    if (authStore.isAuthenticated) {
+      response = await postService.getUserFeed(page.value, itemsPerPage);
     } else {
-      // CENÁRIO 2: Logado -> Feed do Usuário (Comunidades) + Feed Público (Geral)
-      const [userFeedRes, publicFeedRes] = await Promise.all([
-        postService.getUserFeed(),
-        postService.getPublicFeed()
-      ]);
+      response = await postService.getPublicFeed(page.value, itemsPerPage);
+    }
 
-      const userPosts = userFeedRes.data || [];
-      const publicPosts = publicFeedRes.data || [];
+    // segurança: suporte a diferentes formatos de resposta
+    const data = response?.data ?? [];
+    const tp = response?.totalPages ?? response?.total_pages ?? 1;
 
-      // Combinar listas
-      const combined = [...userPosts, ...publicPosts];
+    totalPages.value = tp;
 
-      // Remover duplicatas (usando o ID do post como chave)
-      const uniquePostsMap = new Map();
-      combined.forEach(post => {
-        uniquePostsMap.set(post.id, post);
-      });
-      const uniquePosts = Array.from(uniquePostsMap.values());
-
-      // Ordenar por data de criação (do mais recente para o mais antigo)
-      uniquePosts.sort((a, b) => {
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-      });
-
-      posts.value = uniquePosts;
+    if (reset) {
+      posts.value = data;
+    } else {
+      // evita duplicatas
+      const newPosts = data.filter(
+        newP => !posts.value.some(existingP => existingP.id === newP.id)
+      );
+      posts.value.push(...newPosts);
     }
   } catch (error) {
-    console.error("Erro ao sincronizar feed:", error);
+    console.error('Erro ao sincronizar feed:', error);
   } finally {
-    loadingFeed.value = false;
+    isLoading.value = false;
+  }
+};
+
+const loadMore = () => {
+  if (page.value < totalPages.value && !isLoading.value) {
+    page.value++;
+    fetchFeed(false);
   }
 };
 
 const handlePostCreated = async () => {
   isCreateModalOpen.value = false;
-  await fetchFeed();
+  await fetchFeed(true);
 };
 
 onMounted(() => {
-  fetchFeed();
+  fetchFeed(true);
 });
 
 watch(() => authStore.isAuthenticated, () => {
-  fetchFeed();
+  fetchFeed(true);
 });
 </script>
 
@@ -235,13 +271,11 @@ watch(() => authStore.isAuthenticated, () => {
 
 .border-dashed { border-style: dashed !important; }
 
-/* TIPOGRAFIA */
 .fw-black { font-weight: 900; }
 .tracking-widest { letter-spacing: 3px; }
 .tracking-wide { letter-spacing: 1px; }
 .text-shadow { text-shadow: 2px 2px 4px rgba(0,0,0,0.8); }
 
-/* FAIXA DE PERIGO */
 .danger-stripe {
   background: repeating-linear-gradient(
     45deg,
@@ -254,7 +288,6 @@ watch(() => authStore.isAuthenticated, () => {
   height: 20px;
 }
 
-/* HERO SECTION */
 .hero-section {
   background-color: #2c3e50;
   background-image: linear-gradient(rgba(26, 47, 43, 0.9), rgba(26, 47, 43, 0.8)), url('https://www.transparenttextures.com/patterns/dark-matter.png');
@@ -277,7 +310,6 @@ watch(() => authStore.isAuthenticated, () => {
 .bg-dark-transparent { background-color: rgba(0, 0, 0, 0.6); }
 .backdrop-blur { backdrop-filter: blur(5px); }
 
-/* BOTÕES E CARDS */
 .btn-terminal {
   transition: all 0.3s;
 }
@@ -292,7 +324,6 @@ watch(() => authStore.isAuthenticated, () => {
   border-radius: 2px;
 }
 
-/* ANIMAÇÕES */
 .animate-pulse {
   animation: pulse 2s infinite;
 }
@@ -304,4 +335,15 @@ watch(() => authStore.isAuthenticated, () => {
 }
 
 .x-small { font-size: 0.7rem; letter-spacing: 1px; }
+
+/* Animação de entrada da lista (do feed) */
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.5s ease;
+}
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateY(30px);
+}
 </style>

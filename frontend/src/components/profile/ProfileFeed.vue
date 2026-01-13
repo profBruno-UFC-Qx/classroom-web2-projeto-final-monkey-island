@@ -27,12 +27,12 @@
 
     <div class="feed-content">
       
-      <div v-if="loading" class="text-center py-5">
+      <div v-if="loading && posts.length === 0" class="text-center py-5">
         <div class="spinner-border text-warning" role="status"></div>
         <p class="mt-2 text-muted font-monospace small">Carregando dados...</p>
       </div>
 
-      <div v-else-if="posts.length === 0" class="text-center py-5 opacity-50">
+      <div v-else-if="posts.length === 0 && !loading" class="text-center py-5 opacity-50">
         <i class="bi fs-1 text-secondary" :class="activeTab === 'posts' ? 'bi-file-earmark-x' : 'bi-heart-break'"></i>
         <h5 class="mt-3 text-uppercase fw-bold text-secondary">
           {{ activeTab === 'posts' ? 'Nenhum registro encontrado' : 'Nenhuma curtida registrada' }}
@@ -42,9 +42,26 @@
         </p>
       </div>
 
-      <div v-else class="row justify-content-center">
-        <div class="col-12" v-for="post in posts" :key="post.id">
-          <PostCard :post="post" />
+      <div v-else>
+        <div class="row justify-content-center">
+          <div class="col-12" v-for="post in posts" :key="post.id">
+            <PostCard :post="post" />
+          </div>
+        </div>
+
+        <div v-if="page < totalPages" class="text-center mt-4 mb-5">
+          <button 
+            @click="loadMore" 
+            class="btn btn-outline-dark rounded-pill px-5 py-2 fw-bold text-uppercase tracking-wide"
+            :disabled="loading"
+          >
+            <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
+            {{ loading ? 'Buscando...' : 'Carregar Mais' }}
+          </button>
+        </div>
+        
+        <div v-else-if="posts.length > 0" class="text-center mt-4 mb-5 text-muted font-monospace small">
+          --- FIM DO ARQUIVO ---
         </div>
       </div>
 
@@ -54,8 +71,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
-import PostCard from '../feed/PostCard.vue'; // Certifique-se que o caminho está correto
+import { ref, onMounted } from 'vue';
+import PostCard from '../feed/PostCard.vue';
 import postService from '../../services/postService';
 import type { Post } from '../../types/post';
 
@@ -63,18 +80,49 @@ const activeTab = ref<'posts' | 'likes'>('posts');
 const posts = ref<Post[]>([]);
 const loading = ref(false);
 
-const loadFeed = async () => {
+// Controle de Paginação
+const page = ref(1);
+const totalPages = ref(1);
+
+/**
+ * Carrega o feed.
+ * @param reset Se true, limpa a lista atual e volta para a página 1.
+ */
+const loadFeed = async (reset = false) => {
+  if (loading.value) return; // Evita chamadas duplicadas
+  
   loading.value = true;
-  posts.value = []; // Limpa lista atual
+
+  if (reset) {
+    page.value = 1;
+    posts.value = [];
+  }
   
   try {
     let response;
+    
+    // Chama o serviço passando a página atual
     if (activeTab.value === 'posts') {
-      response = await postService.getMyPosts();
+      response = await postService.getMyPosts(page.value);
     } else {
-      response = await postService.getLikedPosts();
+      response = await postService.getLikedPosts(page.value);
     }
-    posts.value = response.data;
+    
+    const newPosts = response.data || [];
+
+    if (reset) {
+      posts.value = newPosts;
+    } else {
+      // Adiciona novos posts evitando duplicatas (segurança extra)
+      const uniqueNewPosts = newPosts.filter(
+        (np) => !posts.value.some((ep) => ep.id === np.id)
+      );
+      posts.value.push(...uniqueNewPosts);
+    }
+
+    // Atualiza o total de páginas vindo do backend
+    totalPages.value = response.totalPages;
+
   } catch (error) {
     console.error("Erro ao carregar feed do perfil:", error);
   } finally {
@@ -82,15 +130,22 @@ const loadFeed = async () => {
   }
 };
 
+const loadMore = () => {
+  if (page.value < totalPages.value) {
+    page.value++;
+    loadFeed(false); // false = append mode
+  }
+};
+
 const switchTab = (tab: 'posts' | 'likes') => {
   if (activeTab.value !== tab) {
     activeTab.value = tab;
-    loadFeed();
+    loadFeed(true); // true = reset mode
   }
 };
 
 onMounted(() => {
-  loadFeed();
+  loadFeed(true);
 });
 </script>
 
@@ -98,7 +153,7 @@ onMounted(() => {
 .btn-icon-tab {
   background: transparent;
   border: none;
-  color: #6c757d; /* Cinza */
+  color: #6c757d;
   padding: 10px 20px;
   transition: all 0.3s ease;
   position: relative;
@@ -110,13 +165,12 @@ onMounted(() => {
 }
 
 .btn-icon-tab.active {
-  color: #ffb400; /* Amarelo InGen */
+  color: #ffb400;
 }
 
-/* Indicador (traço embaixo do ícone) */
 .active-indicator {
   position: absolute;
-  bottom: -17px; /* Alinha com a borda do container pai */
+  bottom: -17px;
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
@@ -125,8 +179,7 @@ onMounted(() => {
   box-shadow: 0 -2px 10px rgba(255, 180, 0, 0.5);
 }
 
-/* Ajuste específico para a aba de Likes (pode ser vermelho se preferir) */
-.btn-icon-tab.active i.bi-heart-fill {
-  /* Se quiser diferenciar a cor da curtida: color: #dc3545; */
+.tracking-wide {
+  letter-spacing: 1px;
 }
 </style>

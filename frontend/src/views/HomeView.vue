@@ -283,7 +283,7 @@ const fetchFeed = async (reset = false) => {
     }
 
     const data = response?.data ?? [];
-    const tp = response?.totalPages ?? response?.total_pages ?? 1;
+    const tp = response?.totalPages ?? 1;
 
     totalPages.value = tp;
 

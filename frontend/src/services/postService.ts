@@ -9,9 +9,6 @@ export interface FeedResponse {
 }
 
 export default {
-  /**
-   * Busca o feed público (posts de todas as comunidades)
-   */
   async getPublicFeed(page = 1, limit = 10): Promise<FeedResponse> {
     const response = await api.get<FeedResponse>("/feed/public", {
       params: { page, limit },
@@ -19,9 +16,6 @@ export default {
     return response.data;
   },
 
-  /**
-   * Busca o feed do usuário (posts das comunidades que ele participa)
-   */
   async getUserFeed(page = 1, limit = 10): Promise<FeedResponse> {
     const response = await api.get<FeedResponse>("/feed", {
       params: { page, limit },

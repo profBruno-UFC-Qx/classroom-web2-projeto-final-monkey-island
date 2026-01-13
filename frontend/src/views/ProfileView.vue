@@ -1,7 +1,5 @@
 <template>
   <div class="min-vh-100 bg-concrete pb-5">
-    <AppNavbar />
-
     <div class="container pt-5">
       <div class="row justify-content-center">
         <div class="col-lg-8">
@@ -57,7 +55,6 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import AppNavbar from "../components/AppNavbar.vue";
 import ProfileCard from "../components/profile/ProfileCard.vue";
 import ProfileFeed from "../components/profile/ProfileFeed.vue";
 import RelicsVaultModal from "../components/modals/RelicsVaultModal.vue";

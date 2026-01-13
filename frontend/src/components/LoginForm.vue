@@ -65,35 +65,42 @@
 import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/authStore';
-import type { LoginCredentials } from '../types/auth';
+import { z } from "zod";
 
-// Inicialização das ferramentas
 const router = useRouter();
 const authStore = useAuthStore();
 
-// Estado Reativo (Essencial para o v-model funcionar)
-const credentials = reactive<LoginCredentials>({
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const loginSchema = z.object({
+  email: z.string().email("E-mail inválido").regex(emailRegex, "Formato de e-mail inválido"),
+  password: z.string().min(8, "A senha deve ter pelo menos 8 caracteres"),
+});
+
+const credentials = reactive({
   email: '',
   password: ''
 });
 
-// Variáveis de Controle de UI
 const isLoading = ref(false);
 const errorMessage = ref('');
 
-// Função de Login
 const handleLogin = async () => {
-  isLoading.value = true;
   errorMessage.value = '';
+  
+  const validation = loginSchema.safeParse(credentials);
+  if (!validation.success) {
+    errorMessage.value = validation.error.issues[0].message;
+    return;
+  }
+
+  isLoading.value = true;
 
   try {
     const success = await authStore.login(credentials);
     if (success) {
-      // Redireciona para a home após o sucesso
       router.push('/home'); 
     }
   } catch (error: any) {
-    // Captura a mensagem de erro vinda do backend ou define uma padrão
     errorMessage.value = error.response?.data?.message || 'Falha na autenticação. Verifique suas credenciais.';
   } finally {
     isLoading.value = false;
@@ -102,7 +109,6 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
-/* Estilos mantidos para o design Jurassic */
 .fossil-card {
   border-radius: 4px;
   border-right: 4px solid #ffb400 !important;

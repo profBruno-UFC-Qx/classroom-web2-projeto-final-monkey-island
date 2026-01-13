@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import type { User } from '../types/user'; 
-// CORREÇÃO AQUI: Adicionei RegisterCredentials na importação
 import type { LoginCredentials, RegisterCredentials } from '../types/auth'; 
 import authService from '../services/authService';
+import userService from '../services/userService';
 
 export const useAuthStore = defineStore('auth', () => {
 
@@ -12,16 +12,39 @@ export const useAuthStore = defineStore('auth', () => {
 
   const isAuthenticated = computed(() => !!token.value);
 
+  // Ação para sincronizar o usuário se houver token mas os dados estiverem suspeitos
+  async function checkAuth() {
+    if (token.value) {
+      try {
+        // Atualiza os dados do usuário com o que está no banco
+        const userProfile = await userService.getMyProfile();
+        user.value = userProfile;
+        localStorage.setItem('user', JSON.stringify(userProfile));
+      } catch (error) {
+        console.error("Sessão inválida ou expirada:", error);
+        logout(); // Se o token for inválido, desloga
+      }
+    }
+  }
+
   async function login(credentials: LoginCredentials) {
     try {
+      // 1. Login para pegar o Token
       const data = await authService.login(credentials);
       
       token.value = data.jwt;
       localStorage.setItem('token', data.jwt);
 
+      // 2. Busca perfil completo imediatamente
+      const userProfile = await userService.getMyProfile();
+
+      user.value = userProfile;
+      localStorage.setItem('user', JSON.stringify(userProfile));
+
       return true;
     } catch (error) {
-      console.error('Erro no login no Pinia:', error);
+      console.error('Erro no login:', error);
+      logout();
       throw error;
     }
   }
@@ -41,7 +64,14 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = null;
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    // Força recarregamento para limpar estados de memória de outros componentes
+    window.location.href = '/login'; 
   }
 
-  return { user, token, isAuthenticated, login, logout, register };
+  // Auto-execução: Se já tiver token ao carregar a store, valida o usuário
+  if (token.value) {
+    checkAuth();
+  }
+
+  return { user, token, isAuthenticated, login, logout, register, checkAuth };
 });

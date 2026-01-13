@@ -5,6 +5,7 @@ const LoginView = () => import("../views/LoginView.vue");
 const RegisterView = () => import("../views/RegisterView.vue");
 const PublishPostView = () => import("../views/PublishPostView.vue");
 const CommunitiesView = () => import("../views/CommunitiesView.vue");
+const ProfileView = () => import("../views/ProfileView.vue");
 
 const routes = [
   {
@@ -36,6 +37,11 @@ const routes = [
     name: "comunidades",
     component: CommunitiesView,
   },
+  {
+    path: "/perfil",
+    name: "perfil",
+    component: ProfileView,
+  }
 ];
 
 const router = createRouter({

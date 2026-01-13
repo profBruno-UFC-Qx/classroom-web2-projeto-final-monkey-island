@@ -31,7 +31,8 @@
           
           <div class="mb-3">
             <label class="form-label text-dark-green x-small fw-bold">NOME COMPLETO</label>
-            <input type="text" class="form-control" v-model="form.name" required placeholder="Dr. Alan Grant">
+            <input type="text" class="form-control" v-model="form.name" required placeholder="Ex: AlanGrant">
+            <div class="x-small text-muted mt-1">* Mínimo 5 caracteres, apenas letras e números.</div>
           </div>
 
           <div class="mb-3">
@@ -43,7 +44,7 @@
             <label class="form-label text-dark-green x-small fw-bold">INSTITUIÇÃO / AFILIAÇÃO</label>
             <div class="input-group">
               <span class="input-group-text bg-dark text-warning border-0"><i class="bi bi-building"></i></span>
-              <input type="text" class="form-control" v-model="form.institution" required placeholder="Ex: Universidade Federal...">
+              <input type="text" class="form-control" v-model="form.instituition" required placeholder="Ex: Universidade Federal...">
             </div>
           </div>
 
@@ -55,6 +56,7 @@
           <div class="mb-4">
             <label class="form-label text-dark-green x-small fw-bold">DEFINIR CÓDIGO DE ACESSO</label>
             <input type="password" class="form-control" v-model="form.password" required>
+            <div class="x-small text-muted mt-1">* Mínimo 8 caracteres (A-z, 0-9).</div>
           </div>
 
           <button type="submit" class="btn btn-dark w-100 py-3 fw-black text-uppercase shadow-sm border-warning" :disabled="isLoading">
@@ -87,17 +89,31 @@
 import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/authStore';
-import type { RegisterCredentials } from '../types/auth';
+import { z } from "zod";
 
 const router = useRouter();
 const authStore = useAuthStore();
 
-// Estado do formulário combinando com os campos do Backend (User.ts)
-const form = reactive<RegisterCredentials>({
+const nameRegex = /^[A-Za-z0-9]+$/;
+const registerSchema = z.object({
+  name: z.string()
+    .min(5, "O nome deve ter pelo menos 5 letras")
+    .regex(nameRegex, "O nome não pode conter espaços ou caracteres especiais"),
+  email: z.string().email("E-mail inválido"),
+  password: z.string()
+    .min(8, "A senha deve ter pelo menos 8 caracteres")
+    .regex(/[A-Z]/, "A senha deve conter ao menos uma letra maiúscula")
+    .regex(/[a-z]/, "A senha deve conter ao menos uma letra minúscula")
+    .regex(/[0-9]/, "A senha deve conter ao menos um número"),
+  instituition: z.string().min(2, "A instituição deve ter pelo menos 2 caracteres"),
+  bio: z.string().max(500, "A biografia deve ter no máximo 500 caracteres").optional(),
+});
+
+const form = reactive({
   name: '',
   email: '',
   password: '',
-  institution: '',
+  instituition: '', 
   bio: ''
 });
 
@@ -106,23 +122,28 @@ const errorMessage = ref('');
 const successMessage = ref('');
 
 const handleRegister = async () => {
-  isLoading.value = true;
   errorMessage.value = '';
   successMessage.value = '';
+  
+  const validation = registerSchema.safeParse(form);
+  
+  if (!validation.success) {
+    errorMessage.value = validation.error.issues[0].message;
+    return;
+  }
 
+  isLoading.value = true;
   try {
     await authStore.register(form);
     
-    // Sucesso visual antes de redirecionar
-    successMessage.value = 'Cadastro realizado com sucesso! Redirecionando para login...';
+    successMessage.value = 'Credencial emitida com sucesso! Redirecionando...';
     
     setTimeout(() => {
       router.push('/login');
     }, 2000);
 
   } catch (error: any) {
-    // O backend retorna msg: "user already exists!" em caso de duplicata
-    errorMessage.value = error.response?.data?.message || 'Erro ao processar cadastro.';
+    errorMessage.value = error.response?.data?.message || 'Falha na comunicação com o terminal central.';
   } finally {
     isLoading.value = false;
   }
@@ -132,12 +153,11 @@ const handleRegister = async () => {
 <style scoped>
 .fossil-card {
   border-radius: 4px;
-  /* Borda amarela na esquerda dessa vez */
   border-left: 5px solid #ffb400 !important; 
 }
 
 .bg-light-industrial {
-  background-color: #e8e2d9; /* Cor de osso/fóssil */
+  background-color: #e8e2d9; 
 }
 
 .text-dark-green {
@@ -161,6 +181,6 @@ const handleRegister = async () => {
 .fw-black { font-weight: 900; }
 
 .border-warning {
-    border-color: #ffb400 !important;
+  border-color: #ffb400 !important;
 }
 </style>

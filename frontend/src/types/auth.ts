@@ -7,7 +7,7 @@ export interface RegisterCredentials {
   name: string;
   email: string;
   password: string;
-  institution: string; 
+  instituition: string; 
   bio?: string;       
 }
 

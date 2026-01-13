@@ -11,4 +11,11 @@ export default {
     );
     return response.data;
   },
+
+  async getPopularCommunities(page = 1, limit = 20) {
+    const response = await api.get<CommunityResponse>("/community/popular", {
+      params: { page, limit },
+    });
+    return response.data;
+  },
 };

@@ -3,7 +3,6 @@ import type { User } from "../types/user";
 
 export default {
   async getMyProfile(): Promise<User> {
-    // Chama a rota que já existe no backend
     const response = await api.get("/users/me");
     const data = response.data;
 
@@ -11,10 +10,9 @@ export default {
       id: data.id,
       name: data.name,
       email: data.email,
-      role: data.role, // Aqui virá 'researcher', 'admin' ou 'user'
+      role: data.role,
       status: data.status,
       bio: data.bio,
-      // Garante compatibilidade com erro de digitação comum no backend ou frontend
       institution: data.instituition || data.institution,
     } as User;
   },

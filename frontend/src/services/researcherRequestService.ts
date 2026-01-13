@@ -5,10 +5,6 @@ import type {
 } from "../types/researcherRequest";
 
 export default {
-  /**
-   * Envia uma solicitação para se tornar pesquisador.
-   * Rota: POST /researcher-request
-   */
   async createRequest(motivation: string): Promise<ResearcherRequestResponse> {
     const payload: CreateResearcherRequestPayload = { motivation };
     const response = await api.post<ResearcherRequestResponse>(
@@ -18,10 +14,6 @@ export default {
     return response.data;
   },
 
-  /**
-   * Verifica o status das solicitações do próprio usuário
-   * Rota: GET /researcher-request/me
-   */
   async getMyRequests(): Promise<ResearcherRequestResponse[]> {
     const response = await api.get<ResearcherRequestResponse[]>(
       "/researcher-request/me"
@@ -29,7 +21,6 @@ export default {
     return response.data;
   },
 
-  // --- Métodos de Admin (Mantidos caso precise futuramente) ---
   async getPendingRequests() {
     return (await api.get("/researcher-request")).data;
   },

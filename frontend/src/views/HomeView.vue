@@ -261,10 +261,7 @@ const itemsPerPage = 10;
 const isCreateModalOpen = ref(false);
 
 const canCreatePost = computed(() => {
-  return (
-    authStore.isAuthenticated &&
-    (authStore.user?.role === "researcher" || authStore.user?.role === "admin")
-  );
+  return authStore.isAuthenticated && authStore.user?.role === "researcher";
 });
 
 const fetchFeed = async (reset = false) => {

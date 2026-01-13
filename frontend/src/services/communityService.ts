@@ -18,4 +18,15 @@ export default {
     });
     return response.data;
   },
+
+  async searchArtifacts(
+    name: string,
+    page = 1,
+    limit = 20
+  ): Promise<CommunityResponse> {
+    const response = await api.get<CommunityResponse>("/community/search", {
+      params: { name, page, limit },
+    });
+    return response.data;
+  },
 };

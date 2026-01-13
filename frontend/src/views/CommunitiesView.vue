@@ -88,7 +88,7 @@ const openCreateModal = () => {
 };
 
 onMounted(async () => {
-  // communities.value = (await communityService.getAll()).data;
+  communities.value = (await communityService.getPopularCommunities()).data;
   myCommunities.value = (await communityService.getMyCommunities()).data;
 });
 </script>

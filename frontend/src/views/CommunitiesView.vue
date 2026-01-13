@@ -55,9 +55,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useAuthStore } from "../stores/authStore";
 import communityService from "../services/communityService";
+
 import CommunityCard from "../components/community/CommunityCard.vue";
 import CommunityAside from "../components/community/CommunityAside.vue";
 import CreateCommunityModal from "../components/community/CreateCommunityModal.vue";
@@ -67,17 +68,16 @@ const authStore = useAuthStore();
 const communities = ref<any[]>([]);
 const myCommunities = ref<any[]>([]);
 const selectedCommunity = ref<any | null>(null);
+
 const search = ref("");
+const loading = ref(false);
+
+const page = ref(1);
+const limit = 20;
 
 const createModal = ref();
 
 const isResearcher = computed(() => authStore.user?.role === "researcher");
-
-const filteredCommunities = computed(() =>
-  communities.value.filter((c) =>
-    c.name.toLowerCase().includes(search.value.toLowerCase())
-  )
-);
 
 const selectCommunity = (community: any) => {
   selectedCommunity.value = community;
@@ -87,8 +87,40 @@ const openCreateModal = () => {
   createModal.value?.open();
 };
 
+/**
+ * Busca comunidades pelo nome (backend)
+ */
+const fetchCommunities = async () => {
+  loading.value = true;
+
+  try {
+    const response = await communityService.searchCommunitiesByName(
+      search.value,
+      page.value,
+      limit
+    );
+
+    communities.value = response.data;
+  } finally {
+    loading.value = false;
+  }
+};
+
+/**
+ * Debounce simples para busca
+ */
+let timeout: number | undefined;
+
+watch(search, () => {
+  clearTimeout(timeout);
+  timeout = window.setTimeout(() => {
+    page.value = 1;
+    fetchCommunities();
+  }, 400);
+});
+
 onMounted(async () => {
-  communities.value = (await communityService.getPopularCommunities()).data;
+  await fetchCommunities();
   myCommunities.value = (await communityService.getMyCommunities()).data;
 });
 </script>

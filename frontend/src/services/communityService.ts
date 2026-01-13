@@ -19,7 +19,7 @@ export default {
     return response.data;
   },
 
-  async searchArtifacts(
+  async searchCommunitiesByName(
     name: string,
     page = 1,
     limit = 20

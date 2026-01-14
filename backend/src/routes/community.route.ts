@@ -38,6 +38,7 @@ communityRoutes.get(
   userAuthentication,
   (req, res) => communityController.findCommunitiesCreatedByUser(req, res)
 );
+
 communityRoutes.get("/community/search", (req, res) =>
   communityController.findCommunityByNameLike(req, res)
 );

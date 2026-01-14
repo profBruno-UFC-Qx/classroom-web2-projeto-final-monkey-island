@@ -135,7 +135,7 @@ export class UserCommunityRepositoryDB implements IUserCommunityRepository {
   ): Promise<[Community[], number]> {
     const [items, total] = await this.repo.findAndCount({
       where: { user: { id: userId }, status: CommunityUserStatus.ACTIVE },
-      relations: ["community"],
+      relations: ["community", "community.createdBy"],
       skip,
       take,
     });

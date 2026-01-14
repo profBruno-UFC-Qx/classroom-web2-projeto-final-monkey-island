@@ -245,6 +245,7 @@ export class CommunityUserService implements ICommunityUserService {
         name: item.name,
         description: item.description,
         createdAt: item.createdAt,
+        ownerId: item.createdBy.id ?? undefined,
       })),
       totalItems: total,
       totalPages: Math.ceil(total / currentLimit),

@@ -2,6 +2,7 @@ export interface Community {
   id: string;
   name: string;
   memberCount?: number;
+  ownerId?: string;
   description: string;
   createdAt: string;
 }

@@ -2,7 +2,6 @@
   <div class="modal fade" id="createCommunityModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content fossil-card bg-dark border-warning shadow-sm">
-        <!-- Header -->
         <div
           class="modal-header bg-dark text-warning fw-black border-bottom border-warning"
         >
@@ -13,7 +12,6 @@
           ></button>
         </div>
 
-        <!-- Body -->
         <div class="modal-body bg-light-industrial p-4">
           <input
             v-model="name"
@@ -27,7 +25,6 @@
           ></textarea>
         </div>
 
-        <!-- Footer -->
         <div class="modal-footer bg-dark border-top border-warning">
           <button
             class="btn btn-dark w-100 py-2 fw-black text-uppercase border-warning btn-terminal"
@@ -39,6 +36,13 @@
       </div>
     </div>
   </div>
+
+  <div
+    v-if="showToast"
+    class="toast-success position-fixed bottom-0 start-50 translate-middle-x mb-4 p-3 rounded shadow-lg text-dark-jungle fw-bold"
+  >
+    {{ toastMessage }}
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -48,6 +52,14 @@ import communityService from "../../services/communityService";
 
 const name = ref("");
 const description = ref("");
+
+const toastMessage = ref("");
+const showToast = ref(false);
+
+const playDinoSound = () => {
+  const audio = new Audio("/velociraptor.mp3");
+  audio.play();
+};
 
 const open = () => {
   const modal = new bootstrap.Modal(
@@ -62,14 +74,26 @@ const submit = async () => {
     return;
   }
 
-  await communityService.create({
+  await communityService.createCommunity({
     name: name.value,
     description: description.value,
   });
 
-  location.reload();
-};
+  toastMessage.value = `Comunidade "${name.value}" criada com sucesso! 🎉`;
+  showToast.value = true;
+  playDinoSound();
 
+  name.value = "";
+  description.value = "";
+
+  setTimeout(() => {
+    showToast.value = false;
+  }, 3000);
+
+  const modalEl = document.getElementById("createCommunityModal")!;
+  const modalInstance = bootstrap.Modal.getInstance(modalEl);
+  modalInstance?.hide();
+};
 defineExpose({ open });
 </script>
 
@@ -107,5 +131,31 @@ defineExpose({ open });
   border: 2px solid #ffc107;
   border-radius: 2px;
   background-color: #f0f0f0;
+}
+
+.toast-success {
+  background: linear-gradient(135deg, #ffc107, #fff);
+  border: 2px solid #ffc107;
+  animation: bounceIn 0.6s ease forwards;
+  z-index: 1055;
+  text-align: center;
+  min-width: 250px;
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: translateY(100%) scale(0.5);
+    opacity: 0;
+  }
+  60% {
+    transform: translateY(-10%) scale(1.05);
+    opacity: 1;
+  }
+  80% {
+    transform: translateY(5%) scale(0.95);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
 }
 </style>

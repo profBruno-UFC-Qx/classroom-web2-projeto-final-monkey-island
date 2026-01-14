@@ -1,4 +1,4 @@
-import type { CommunityResponse } from "../types/community";
+import type { CommunityRequest, CommunityResponse } from "../types/community";
 import api from "@/api/api";
 
 export default {
@@ -16,6 +16,11 @@ export default {
     const response = await api.get<CommunityResponse>("/community/popular", {
       params: { page, limit },
     });
+    return response.data;
+  },
+
+  async createCommunity(community: CommunityRequest) {
+    const response = await api.post<CommunityResponse>("/community", community);
     return response.data;
   },
 

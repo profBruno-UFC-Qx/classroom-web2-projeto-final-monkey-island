@@ -6,6 +6,11 @@ export interface Community {
   createdAt: string;
 }
 
+export interface CommunityRequest {
+  name: string;
+  description: string;
+}
+
 export interface CommunityResponse {
   data: Community[];
   totalItems: number;

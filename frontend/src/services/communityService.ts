@@ -1,4 +1,4 @@
-import type { CommunityResponse } from "../types/community";
+import type { CommunityRequest, CommunityResponse } from "../types/community";
 import api from "@/api/api";
 
 export default {
@@ -9,6 +9,29 @@ export default {
         params: { page, limit },
       }
     );
+    return response.data;
+  },
+
+  async getPopularCommunities(page = 1, limit = 20) {
+    const response = await api.get<CommunityResponse>("/community/popular", {
+      params: { page, limit },
+    });
+    return response.data;
+  },
+
+  async createCommunity(community: CommunityRequest) {
+    const response = await api.post<CommunityResponse>("/community", community);
+    return response.data;
+  },
+
+  async searchCommunitiesByName(
+    name: string,
+    page = 1,
+    limit = 20
+  ): Promise<CommunityResponse> {
+    const response = await api.get<CommunityResponse>("/community/search", {
+      params: { name, page, limit },
+    });
     return response.data;
   },
 };

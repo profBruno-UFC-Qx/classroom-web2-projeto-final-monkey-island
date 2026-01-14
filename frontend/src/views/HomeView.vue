@@ -240,7 +240,6 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from "vue";
 import { useAuthStore } from "../stores/authStore";
-import AppNavbar from "../components/AppNavbar.vue";
 import GameWidget from "../components/widgets/GameWidget.vue";
 import AuthAlertModal from "../components/modals/AuthAlertModal.vue";
 import CreatePostModal from "../components/modals/CreatePostModal.vue";
@@ -282,8 +281,6 @@ const fetchFeed = async (reset = false) => {
 
     const data = response?.data ?? [];
     const tp = response?.totalPages ?? 1;
-
-    console.log("esse daqui é o tamanho do data: " + data.length);
 
     totalPages.value = tp;
 

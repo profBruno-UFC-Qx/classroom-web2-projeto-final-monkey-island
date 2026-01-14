@@ -3,5 +3,6 @@ export interface CommunityResponseDto {
   name: string;
   description: string;
   memberCount?: number;
+  ownerId?: string;
   createdAt: Date;
 }

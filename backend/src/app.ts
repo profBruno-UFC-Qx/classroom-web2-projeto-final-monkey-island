@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import authRoutes from "./routes/auth.route";
 import researcherRequestRoutes from "./routes/researcher.request.route";
 import artifactRoutes from "./routes/artifact.route";
@@ -12,6 +13,15 @@ import userRoutes from "./routes/user.routes";
 
 const app = express();
 app.use(express.json());
+
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
+
 app.use("/images", express.static(path.resolve(__dirname, "..", "public")));
 
 app.use(

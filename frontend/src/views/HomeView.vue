@@ -283,8 +283,6 @@ const fetchFeed = async (reset = false) => {
     const data = response?.data ?? [];
     const tp = response?.totalPages ?? 1;
 
-    console.log("esse daqui é o tamanho do data: " + data.length);
-
     totalPages.value = tp;
 
     if (reset) {

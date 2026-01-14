@@ -3,14 +3,12 @@
     class="card fossil-card community-aside border-dark shadow-sm position-relative overflow-hidden"
     v-if="community"
   >
-    <!-- Aba superior -->
     <div
       class="top-folder-tab bg-warning px-3 py-1 fw-bold small text-dark border-top border-start border-end border-dark"
     >
       PAINEL DA COMUNIDADE
     </div>
 
-    <!-- Header -->
     <div
       class="card-header bg-dark text-warning fw-black text-uppercase border-bottom border-warning rounded-0 d-flex justify-content-between align-items-center p-3"
     >
@@ -19,7 +17,6 @@
       <button class="close-btn" @click="$emit('close')">✕</button>
     </div>
 
-    <!-- Corpo -->
     <div class="card-body bg-light-industrial p-4">
       <h6 class="fw-black text-uppercase text-dark-jungle mb-2">
         {{ community.name }}
@@ -49,12 +46,24 @@
         </li>
       </ul>
 
-      <button
-        class="btn btn-dark w-100 py-2 fw-black text-uppercase border-warning btn-terminal"
-      >
-        <i class="bi bi-box-arrow-in-right text-warning me-2"></i>
-        Acessar Comunidade
-      </button>
+      <div>
+        <button
+          class="btn btn-dark w-100 py-2 fw-black text-uppercase border-warning btn-terminal"
+          v-if="authStore.user?.role"
+        >
+          <i class="bi bi-box-arrow-in-right text-warning me-2"></i>
+          Acessar Comunidade
+        </button>
+
+        <button
+          v-else
+          class="btn btn-warning w-100 py-2 fw-black text-uppercase"
+          @click="goToLogin"
+        >
+          <i class="bi bi-box-arrow-in-right me-2"></i>
+          Faça Login para Acessar
+        </button>
+      </div>
     </div>
 
     <div
@@ -66,6 +75,17 @@
 </template>
 
 <script setup lang="ts">
+import { useAuthStore } from "@/stores/authStore";
+import { useRouter } from "vue-router";
+
+const authStore = useAuthStore();
+
+const router = useRouter();
+
+const goToLogin = () => {
+  router.push("/login");
+};
+
 defineProps<{
   community: any | null;
 }>();
@@ -90,7 +110,6 @@ const formatDate = (date?: string) => {
   border-width: 2px;
 }
 
-/* Aba estilo arquivo */
 .top-folder-tab {
   position: absolute;
   top: 0;
@@ -99,7 +118,6 @@ const formatDate = (date?: string) => {
   letter-spacing: 1px;
 }
 
-/* Botão fechar */
 .close-btn {
   background: transparent;
   border: none;
@@ -113,7 +131,6 @@ const formatDate = (date?: string) => {
   opacity: 1;
 }
 
-/* Reaproveitando identidade */
 .bg-light-industrial {
   background-color: #f0f0f0;
 }

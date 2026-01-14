@@ -118,11 +118,12 @@ import communityService from "../services/communityService";
 
 import CommunityAside from "../components/community/CommunityAside.vue";
 import CreateCommunityModal from "../components/community/CreateCommunityModal.vue";
+import type { Community } from "@/types/community";
 
 const authStore = useAuthStore();
 
-const communities = ref<any[]>([]);
-const selectedCommunity = ref<any | null>(null);
+const communities = ref<Community[]>([]);
+const selectedCommunity = ref<Community | null>(null);
 const search = ref("");
 const loading = ref(false);
 const page = ref(1);
@@ -248,11 +249,10 @@ onMounted(fetchPopularCommunities);
   animation: blink 1.5s infinite;
 }
 
-/* Input de busca estilo fossil/jungle */
 .search-input {
-  background-color: rgba(26, 47, 43, 0.8); /* fundo escuro transparente */
-  border: 2px solid #ffc107; /* borda amarela */
-  color: #e8e2d9; /* texto claro */
+  background-color: rgba(26, 47, 43, 0.8);
+  border: 2px solid #ffc107;
+  color: #e8e2d9;
   font-family: "Courier New", monospace;
   font-weight: 700;
   padding: 0.5rem 1rem;

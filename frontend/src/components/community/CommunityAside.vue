@@ -1,38 +1,66 @@
 <template>
-  <aside class="community-aside" v-if="community">
-    <!-- Banner -->
-    <div class="aside-banner">
-      <span class="dino">🦖</span>
+  <aside
+    class="card fossil-card community-aside border-dark shadow-sm position-relative overflow-hidden"
+    v-if="community"
+  >
+    <!-- Aba superior -->
+    <div
+      class="top-folder-tab bg-warning px-3 py-1 fw-bold small text-dark border-top border-start border-end border-dark"
+    >
+      PAINEL DA COMUNIDADE
+    </div>
 
-      <!-- Botão fechar -->
+    <!-- Header -->
+    <div
+      class="card-header bg-dark text-warning fw-black text-uppercase border-bottom border-warning rounded-0 d-flex justify-content-between align-items-center p-3"
+    >
+      <span> <i class="bi bi-diagram-3-fill me-2"></i>Registro </span>
+
       <button class="close-btn" @click="$emit('close')">✕</button>
     </div>
 
-    <!-- Conteúdo -->
-    <div class="aside-content">
-      <h5 class="fw-black mb-2">{{ community.name }}</h5>
+    <!-- Corpo -->
+    <div class="card-body bg-light-industrial p-4">
+      <h6 class="fw-black text-uppercase text-dark-jungle mb-2">
+        {{ community.name }}
+      </h6>
 
-      <p class="description">
+      <p class="small text-muted font-monospace mb-4">
+        >
         {{
-          community.description || "Essa comunidade ainda não possui descrição."
+          community.description ||
+          "Nenhuma descrição registrada no banco de dados."
         }}
       </p>
 
-      <div class="meta">
-        <div class="meta-item">
-          <strong>Membros</strong>
+      <ul
+        class="list-unstyled font-monospace small fw-bold text-dark-jungle mb-4"
+      >
+        <li
+          class="d-flex justify-content-between mb-2 pb-2 border-bottom border-secondary-subtle"
+        >
+          <span><i class="bi bi-people-fill me-1"></i>Membros</span>
           <span>{{ community.memberCount ?? "—" }}</span>
-        </div>
+        </li>
 
-        <div class="meta-item">
-          <strong>Criada em</strong>
+        <li class="d-flex justify-content-between">
+          <span><i class="bi bi-calendar-event me-1"></i>Criada em</span>
           <span>{{ formatDate(community.createdAt) }}</span>
-        </div>
-      </div>
+        </li>
+      </ul>
 
-      <button class="btn btn-primary fw-black w-100 mt-3">
-        Entrar na Comunidade
+      <button
+        class="btn btn-dark w-100 py-2 fw-black text-uppercase border-warning btn-terminal"
+      >
+        <i class="bi bi-box-arrow-in-right text-warning me-2"></i>
+        Acessar Comunidade
       </button>
+    </div>
+
+    <div
+      class="card-footer bg-dark text-secondary text-center font-monospace small"
+    >
+      STATUS: <span class="text-success">ATIVO</span> · 🦖
     </div>
   </aside>
 </template>
@@ -54,38 +82,29 @@ const formatDate = (date?: string) => {
 
 <style scoped>
 .community-aside {
-  width: 320px;
-  background-color: #dcdcdc;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-  display: flex;
-  flex-direction: column;
+  width: 340px;
+  height: 400px;
+  z-index: 3;
+  opacity: 0.9;
+
+  border-width: 2px;
 }
 
-/* Banner */
-.aside-banner {
-  height: 110px;
-  background: linear-gradient(135deg, #1a2f2b, #243f3a);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-}
-
-.dino {
-  font-size: 48px;
+/* Aba estilo arquivo */
+.top-folder-tab {
+  position: absolute;
+  top: 0;
+  left: 16px;
+  transform: translateY(-100%);
+  letter-spacing: 1px;
 }
 
 /* Botão fechar */
 .close-btn {
-  position: absolute;
-  top: 10px;
-  right: 12px;
   background: transparent;
   border: none;
-  color: #ffffff;
-  font-size: 20px;
+  color: #ffc107;
+  font-size: 18px;
   cursor: pointer;
   opacity: 0.8;
 }
@@ -94,37 +113,16 @@ const formatDate = (date?: string) => {
   opacity: 1;
 }
 
-/* Conteúdo */
-.aside-content {
-  padding: 20px;
+/* Reaproveitando identidade */
+.bg-light-industrial {
+  background-color: #f0f0f0;
 }
 
-.description {
-  font-size: 0.9rem;
-  color: #333;
-  margin-bottom: 16px;
-}
-
-/* Metadados */
-.meta {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 16px;
-}
-
-.meta-item {
-  display: flex;
-  flex-direction: column;
-  font-size: 0.8rem;
-}
-
-.meta-item strong {
-  font-weight: 900;
-  text-transform: uppercase;
+.text-dark-jungle {
   color: #1a2f2b;
 }
 
-.meta-item span {
-  color: #555;
+.fw-black {
+  font-weight: 900;
 }
 </style>

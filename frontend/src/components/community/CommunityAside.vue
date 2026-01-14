@@ -103,7 +103,7 @@ const formatDate = (date?: string) => {
 <style scoped>
 .community-aside {
   width: 340px;
-  height: 400px;
+  height: 550px;
   z-index: 3;
   opacity: 0.9;
 

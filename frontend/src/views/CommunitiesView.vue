@@ -1,6 +1,5 @@
 <template>
   <div class="home-layout min-vh-100 bg-concrete">
-    <!-- Header -->
     <header class="hero-section py-5 mb-5 shadow-lg position-relative">
       <div class="overlay-grid"></div>
       <div class="container position-relative z-1 text-center">
@@ -61,37 +60,13 @@
             </p>
           </div>
 
-          <div v-else class="d-flex flex-column gap-3">
-            <div
+          <div v-else class="communities-list d-flex flex-column gap-3">
+            <CommunityCard
               v-for="community in communities"
               :key="community.id"
-              class="card fossil-card bg-dark border-secondary community-card"
-              @click="selectCommunity(community)"
-            >
-              <div class="card-body d-flex align-items-center gap-3">
-                <div
-                  class="d-flex align-items-center justify-content-center bg-black border border-secondary rounded-1 position-relative"
-                  style="width: 60px; height: 60px; min-width: 60px"
-                >
-                  <i class="bi bi-shield-shaded fs-3 text-warning"></i>
-                </div>
-
-                <div class="flex-grow-1">
-                  <h6 class="text-warning fw-bold text-uppercase m-0">
-                    {{ community.name }}
-                  </h6>
-                  <p class="text-secondary font-monospace x-small m-0">
-                    {{ community.description || "Sem descrição" }}
-                  </p>
-                </div>
-
-                <button
-                  class="btn btn-sm btn-outline-warning rounded-0 fw-bold px-3"
-                >
-                  <i class="bi bi-box-arrow-in-right"></i>
-                </button>
-              </div>
-            </div>
+              :community="community"
+              @select="selectCommunity"
+            />
           </div>
         </div>
 
@@ -117,6 +92,7 @@ import { useAuthStore } from "../stores/authStore";
 import communityService from "../services/communityService";
 
 import CommunityAside from "../components/community/CommunityAside.vue";
+import CommunityCard from "@/components/community/CommunityCard.vue";
 import CreateCommunityModal from "../components/community/CreateCommunityModal.vue";
 import type { Community } from "@/types/community";
 
@@ -237,6 +213,28 @@ onMounted(fetchPopularCommunities);
   opacity: 0.7;
   filter: drop-shadow(0 0 5px white) drop-shadow(0 0 5px white)
     drop-shadow(0 0 5px white);
+}
+
+.communities-list {
+  max-height: 500px;
+  overflow-y: auto;
+  padding-right: 6px;
+  scrollbar-width: thin;
+}
+
+.communities-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.communities-list::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #ffc107, #ffea70);
+  border-radius: 4px;
+  border: 2px solid #1a2f2b;
+}
+
+.communities-list::-webkit-scrollbar-track {
+  background: rgba(26, 47, 43, 0.8);
+  border-radius: 4px;
 }
 
 .btn-terminal:hover {

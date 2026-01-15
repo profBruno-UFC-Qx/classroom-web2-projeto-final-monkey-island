@@ -2,7 +2,7 @@
   <div class="modal fade" id="joinCommunityModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content fossil-card bg-dark border-warning shadow-sm">
-        <!-- HEADER -->
+
         <div
           class="modal-header bg-dark text-warning fw-black border-bottom border-warning"
         >
@@ -15,7 +15,7 @@
           ></button>
         </div>
 
-        <!-- BODY -->
+        
         <div class="modal-body bg-light-industrial p-4">
           <h6 class="fw-black text-uppercase text-dark-jungle mb-2">
             {{ community?.name }}
@@ -149,7 +149,7 @@ const enterCommunity = () => {
   const modalEl = document.getElementById("joinCommunityModal")!;
   bootstrap.Modal.getInstance(modalEl)?.hide();
 
-  router.push(`/communities/${community.value.id}`);
+  router.push(`/comunidades/${community.value.id}`);
 };
 
 const goToLogin = () => {

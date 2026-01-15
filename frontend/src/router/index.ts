@@ -1,3 +1,4 @@
+import CommunityView from "@/views/CommunityView.vue";
 import { createRouter, createWebHistory } from "vue-router";
 
 const HomeView = () => import("../views/HomeView.vue");
@@ -13,7 +14,7 @@ const routes = [
     redirect: "/login",
   },
   {
-    path: "/home", 
+    path: "/home",
     name: "home",
     component: HomeView,
   },
@@ -38,10 +39,17 @@ const routes = [
     component: CommunitiesView,
   },
   {
+    path: "/comunidades/:id",
+    name: "comunidade",
+    component: CommunityView,
+    props: true,
+  },
+
+  {
     path: "/perfil",
     name: "perfil",
     component: ProfileView,
-  }
+  },
 ];
 
 const router = createRouter({

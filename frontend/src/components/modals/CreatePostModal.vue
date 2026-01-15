@@ -25,7 +25,7 @@
           </div>
 
           <div class="modal-body p-4">
-            <div class="mb-4">
+            <div class="mb-4" v-if="!communityId">
               <label
                 class="form-label fw-bold text-dark-jungle text-uppercase small"
               >
@@ -151,22 +151,20 @@ import { isAxiosError } from "axios";
 
 const props = defineProps<{
   isOpen: boolean;
+  communityId?: string;
 }>();
 
 const emit = defineEmits(["close", "post-created"]);
 
-// Estado
 const myCommunities = ref<Community[]>([]);
 const selectedCommunityId = ref("");
-const postTitle = ref(""); // Novo estado para o título
+const postTitle = ref("");
 const postContent = ref("");
 const selectedFiles = ref<File[]>([]);
 const isSubmitting = ref(false);
 const errorMessage = ref("");
 
-// Validação simples
 const isValid = computed(() => {
-  // Backend exige título com min 5 caracteres
   return (
     selectedCommunityId.value !== "" &&
     postTitle.value.trim().length >= 5 &&
@@ -175,12 +173,16 @@ const isValid = computed(() => {
 });
 
 onMounted(async () => {
-  try {
-    const response = await communityService.getMyCommunities();
-    myCommunities.value = response.data;
-  } catch (error) {
-    console.error("Erro ao carregar comunidades", error);
-    errorMessage.value = "Falha ao carregar lista de comunidades.";
+  if (!props.communityId) {
+    try {
+      const response = await communityService.getMyCommunities();
+      myCommunities.value = response.data;
+    } catch (error) {
+      console.error("Erro ao carregar comunidades", error);
+      errorMessage.value = "Falha ao carregar lista de comunidades.";
+    }
+  } else {
+    selectedCommunityId.value = props.communityId;
   }
 });
 
@@ -234,7 +236,7 @@ const submitPost = async () => {
 };
 
 const closeModal = () => {
-  selectedCommunityId.value = "";
+  selectedCommunityId.value = props.communityId || "";
   postTitle.value = "";
   postContent.value = "";
   selectedFiles.value = [];

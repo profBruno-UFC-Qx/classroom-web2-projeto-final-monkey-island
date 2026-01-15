@@ -23,6 +23,20 @@ export default {
     return response.data;
   },
 
+  async recentPostsInCommunity(
+    communityId: string,
+    page = 1,
+    limit = 10
+  ): Promise<FeedResponse> {
+    const response = await api.get<FeedResponse>(
+      `/community/${communityId}/posts`,
+      {
+        params: { page, limit },
+      }
+    );
+    return response.data;
+  },
+
   async getPostMedias(postId: string): Promise<PostMedia[]> {
     const response = await api.get<{ medias: PostMedia[] }>(
       `/posts/${postId}/medias`

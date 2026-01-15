@@ -72,6 +72,7 @@
             <div
               v-for="community in communities"
               :key="community.id"
+              @click="enterCommunity(community.id)"
               class="card bg-dark border-secondary community-card"
             >
               <div class="card-body d-flex align-items-center gap-3">
@@ -151,6 +152,9 @@ import * as bootstrap from "bootstrap";
 import communityService from "../../services/communityService";
 import type { Community } from "../../types/community";
 import { useAuthStore } from "../../stores/authStore";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 const authStore = useAuthStore();
 const communities = ref<Community[]>([]);
@@ -164,6 +168,13 @@ const open = async () => {
     modal.show();
     await loadData();
   }
+};
+
+const enterCommunity = (communityId: string) => {
+  const modalEl = document.getElementById("communitiesModal")!;
+  bootstrap.Modal.getInstance(modalEl)?.hide();
+
+  router.push(`/comunidades/${communityId}`);
 };
 
 const loadData = async () => {

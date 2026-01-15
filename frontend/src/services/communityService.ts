@@ -16,6 +16,11 @@ export default {
     return response.data;
   },
 
+  async getCommunityById(communityId: string) {
+    const response = await api.get(`/community/${communityId}`);
+    return response.data;
+  },
+
   async joinCommunity(communityId: string) {
     const response = await api.post(`/community/${communityId}/join`);
     return response.data;

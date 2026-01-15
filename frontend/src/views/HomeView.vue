@@ -1,5 +1,26 @@
 <template>
-  <div class="home-layout min-vh-100 bg-concrete">
+  <div class="home-layout min-vh-100 bg-concrete position-relative">
+    <div 
+      v-if="showArtifact && artifact" 
+      class="artifact-drop"
+      :style="{ top: position.top + '%', left: position.left + '%' }"
+      @click="collectArtifact"
+      title="Clique para coletar!"
+    >
+      <img 
+        :src="getImageUrl(artifact.image)" 
+        :alt="artifact.name" 
+        class="artifact-img" 
+      />
+      <span class="sparkle">✨</span>
+    </div>
+
+    <transition name="fade">
+      <div v-if="collectionMessage" class="collection-feedback font-monospace fw-bold">
+        <i class="bi bi-check-circle-fill me-2"></i>{{ collectionMessage }}
+      </div>
+    </transition>
+
     <div class="danger-stripe shadow-sm">
       <div
         class="container-fluid d-flex justify-content-center align-items-center overflow-hidden py-1"
@@ -247,20 +268,108 @@ import PostCard from "../components/feed/PostCard.vue";
 import postService from "../services/postService";
 import type { Post } from "../types/post";
 
-const authStore = useAuthStore();
+// --- INTERFACES & CONFIG ---
+interface Artifact {
+  id: string;
+  name: string;
+  image: string;
+  rarity: string;
+}
 
+const API_URL = 'http://localhost:3000'; 
+
+// --- STORE & REFS ---
+const authStore = useAuthStore();
 const posts = ref<Post[]>([]);
 const page = ref(1);
 const totalPages = ref(1);
 const isLoading = ref(false);
 const itemsPerPage = 10;
-
 const isCreateModalOpen = ref(false);
 
+// Refs do Artefato
+const artifact = ref<Artifact | null>(null);
+const showArtifact = ref(false);
+const collectionMessage = ref('');
+const position = ref({ top: 0, left: 0 });
+
+// --- COMPUTED ---
 const canCreatePost = computed(() => {
   return authStore.isAuthenticated && authStore.user?.role === "researcher";
 });
 
+// --- HELPER FUNCTIONS ---
+const getImageUrl = (path: string) => {
+  // Remove barra inicial se houver
+  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  // CORREÇÃO: Adiciona /images/ pois o backend serve a pasta public nesta rota
+  return `${API_URL}/images/${cleanPath}`;
+};
+
+// --- ARTIFACT LOGIC ---
+const trySpawnArtifact = async () => {
+  if (!authStore.isAuthenticated) return;
+
+  // Chance de 25%
+  if (Math.random() > 0.25) {
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_URL}/artifacts/random-choice`);
+    if (!response.ok) return;
+    
+    const data = await response.json();
+    artifact.value = data;
+
+    // Define posição aleatória (evitando as bordas extremas)
+    position.value = {
+      top: Math.random() * (70 - 15) + 15,
+      left: Math.random() * (85 - 5) + 5
+    };
+
+    showArtifact.value = true;
+    console.log('Sistema: Artefato detectado!', data.name);
+  } catch (error) {
+    console.error("Falha no radar de artefatos:", error);
+  }
+};
+
+const collectArtifact = async () => {
+  if (!artifact.value || !authStore.isAuthenticated) return;
+
+  const token = localStorage.getItem('token'); 
+  if (!token) {
+    alert("ERRO DE AUTENTICAÇÃO: Token perdido.");
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_URL}/artifact-collection/artifact/${artifact.value.id}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (response.ok) {
+      collectionMessage.value = `Artefato coletado: ${artifact.value.name}!`;
+      showArtifact.value = false;
+      
+      setTimeout(() => {
+        collectionMessage.value = '';
+      }, 3000);
+    } else {
+      console.error('Falha na coleta');
+      collectionMessage.value = 'Erro: Falha na contenção do artefato.';
+    }
+  } catch (error) {
+    console.error('Erro na requisição', error);
+  }
+};
+
+// --- FEED LOGIC ---
 const fetchFeed = async (reset = false) => {
   if (isLoading.value) return;
   isLoading.value = true;
@@ -311,19 +420,95 @@ const handlePostCreated = async () => {
   await fetchFeed(true);
 };
 
+// --- LIFECYCLE ---
 onMounted(() => {
   fetchFeed(true);
+  if (authStore.isAuthenticated) {
+    trySpawnArtifact();
+  }
 });
 
 watch(
   () => authStore.isAuthenticated,
-  () => {
+  (isAuthenticated) => {
     fetchFeed(true);
+    if (isAuthenticated) {
+      trySpawnArtifact();
+    }
   }
 );
 </script>
 
 <style scoped>
+/* ESTILOS DO ARTEFATO */
+.artifact-drop {
+  position: fixed; /* Fica fixo na tela mesmo com scroll */
+  cursor: pointer;
+  z-index: 9999; /* Garante que fique acima de tudo */
+  animation: float 3s ease-in-out infinite;
+  transition: transform 0.2s;
+}
+
+.artifact-drop:hover {
+  transform: scale(1.15) rotate(5deg);
+}
+
+.artifact-img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 15px rgba(255, 193, 7, 0.6));
+}
+
+.sparkle {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  font-size: 24px;
+  animation: spin 2s linear infinite;
+  text-shadow: 0 0 5px gold;
+}
+
+.collection-feedback {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background-color: #1a2f2b; /* Dark Jungle */
+  color: #ffc107; /* Warning */
+  padding: 1rem 1.5rem;
+  border-radius: 4px;
+  border: 2px solid #ffc107;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  z-index: 10000;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+}
+
+/* ANIMAÇÕES */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); opacity: 0.5; }
+  50% { opacity: 1; }
+  to { transform: rotate(360deg); opacity: 0.5; }
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+/* ESTILOS ORIGINAIS MANTIDOS ABAIXO */
 .text-dark-jungle {
   color: #1a2f2b;
 }

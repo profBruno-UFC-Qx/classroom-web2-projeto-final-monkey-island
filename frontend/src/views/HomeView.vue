@@ -68,7 +68,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from "vue";
 import { useAuthStore } from "../stores/authStore";
-import { usePostStore } from "../stores/postStore"; // Nova Store
+import { usePostStore } from "../stores/postStore";
 
 // Componentes
 import HomeHero from "../components/layout/HomeHero.vue";
@@ -86,22 +86,25 @@ const isCreateModalOpen = ref(false);
 
 const canCreatePost = computed(() => authStore.isAuthenticated && authStore.user?.role === "researcher");
 
-// Ao criar post, recarrega o feed
+// Ao criar post, recarrega o feed do zero (fetchPosts com false) para mostrar o novo post no topo
 const handlePostCreated = async () => {
   isCreateModalOpen.value = false;
-  await postStore.fetchFeed(true);
+  await postStore.fetchPosts(false);
 };
 
 // Inicialização
 onMounted(() => {
-  // Carrega apenas se estiver vazio, para preservar estado ao navegar
+  // Garante que estamos no contexto "Global" (Home), limpando qualquer seleção de comunidade anterior
+  postStore.setContext(null);
+
+  // Carrega apenas se estiver vazio ou se quisermos garantir dados frescos na montagem
   if (postStore.posts.length === 0) {
-    postStore.fetchFeed(true);
+    postStore.fetchPosts(false);
   }
 });
 
 // Se o estado de auth mudar (login/logout), recarrega o feed
-watch(() => authStore.isAuthenticated, () => postStore.fetchFeed(true));
+watch(() => authStore.isAuthenticated, () => postStore.fetchPosts(false));
 </script>
 
 <style scoped>

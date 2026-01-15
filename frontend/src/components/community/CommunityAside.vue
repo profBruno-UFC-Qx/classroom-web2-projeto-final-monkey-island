@@ -50,6 +50,7 @@
         <button
           class="btn btn-dark w-100 py-2 fw-black text-uppercase border-warning btn-terminal"
           v-if="authStore.user?.role"
+          @click="openJoinModal"
         >
           <i class="bi bi-box-arrow-in-right text-warning me-2"></i>
           Acessar Comunidade
@@ -72,23 +73,33 @@
       STATUS: <span class="text-success">ATIVO</span> · 🦖
     </div>
   </aside>
+  <JoinCommunityModal ref="joinModal" />
 </template>
 
 <script setup lang="ts">
 import { useAuthStore } from "@/stores/authStore";
 import { useRouter } from "vue-router";
+import { ref } from "vue";
+import JoinCommunityModal from "./JoinCommunityModal.vue";
 
 const authStore = useAuthStore();
 
 const router = useRouter();
 
+const joinModal = ref();
+
 const goToLogin = () => {
   router.push("/login");
 };
 
-defineProps<{
+const props = defineProps<{
   community: any | null;
 }>();
+
+const openJoinModal = () => {
+  if (!props.community) return;
+  joinModal.value.open(props.community);
+};
 
 defineEmits<{
   (e: "close"): void;

@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import postService from '../services/postService';
 import { useAuthStore } from './authStore';
 import type { Post } from '../types/post';
@@ -7,35 +7,60 @@ import type { Post } from '../types/post';
 export const usePostStore = defineStore('post', () => {
   const authStore = useAuthStore();
 
-  // Estado
   const posts = ref<Post[]>([]);
   const page = ref(1);
   const totalPages = ref(1);
   const isLoading = ref(false);
+  const currentContextId = ref<string | null>(null); 
   const itemsPerPage = 10;
 
-  // Actions
-  const fetchFeed = async (reset = false) => {
-    if (isLoading.value && !reset) return; 
-    
-    isLoading.value = true;
-    if (reset) {
+
+  const resetStore = () => {
+    posts.value = [];
+    page.value = 1;
+    totalPages.value = 1;
+    currentContextId.value = null;
+  };
+
+
+  const setContext = (communityId: string | null) => {
+    if (currentContextId.value !== communityId) {
+      resetStore();
+      currentContextId.value = communityId;
+    }
+  };
+
+
+  const fetchPosts = async (loadMoreAction = false) => {
+    if (isLoading.value) return;
+    if (!loadMoreAction) {
       page.value = 1;
       posts.value = [];
     }
 
+    isLoading.value = true;
+
     try {
       let response;
-      if (authStore.isAuthenticated) {
-        response = await postService.getUserFeed(page.value, itemsPerPage);
+
+      if (currentContextId.value) {
+        response = await postService.recentPostsInCommunity(
+          currentContextId.value, 
+          page.value, 
+          itemsPerPage
+        );
       } else {
-        response = await postService.getPublicFeed(page.value, itemsPerPage);
+        if (authStore.isAuthenticated) {
+          response = await postService.getUserFeed(page.value, itemsPerPage);
+        } else {
+          response = await postService.getPublicFeed(page.value, itemsPerPage);
+        }
       }
 
       const data = response?.data ?? [];
       totalPages.value = response?.totalPages ?? 1;
 
-      if (reset) {
+      if (!loadMoreAction) {
         posts.value = data;
       } else {
         const newPosts = data.filter(
@@ -44,7 +69,7 @@ export const usePostStore = defineStore('post', () => {
         posts.value.push(...newPosts);
       }
     } catch (error) {
-      console.error("Erro ao buscar feed:", error);
+      console.error("Erro ao buscar posts:", error);
     } finally {
       isLoading.value = false;
     }
@@ -53,12 +78,8 @@ export const usePostStore = defineStore('post', () => {
   const loadMore = () => {
     if (page.value < totalPages.value && !isLoading.value) {
       page.value++;
-      fetchFeed(false);
+      fetchPosts(true);
     }
-  };
-
-  const resetFeed = () => {
-    fetchFeed(true);
   };
 
   return {
@@ -66,8 +87,10 @@ export const usePostStore = defineStore('post', () => {
     page,
     totalPages,
     isLoading,
-    fetchFeed,
+    currentContextId,
+    setContext,
+    fetchPosts,
     loadMore,
-    resetFeed
+    resetStore
   };
 });

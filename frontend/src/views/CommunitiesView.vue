@@ -48,6 +48,22 @@
           </div>
 
           <div
+            v-else-if="communityStore.error"
+            class="alert alert-danger border-0 shadow-sm fw-bold text-center"
+          >
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            {{ communityStore.error }}
+            <div class="mt-2">
+              <button
+                class="btn btn-sm btn-outline-danger"
+                @click="communityStore.fetchPopularCommunities()"
+              >
+                Tentar Novamente
+              </button>
+            </div>
+          </div>
+
+          <div
             v-else-if="communityStore.communities.length === 0"
             class="text-center py-5 opacity-50"
           >
@@ -89,10 +105,10 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from "vue";
 import { useAuthStore } from "../stores/authStore";
-import { useCommunityStore } from "../stores/communityStore"; // Nova Store
+import { useCommunityStore } from "../stores/communityStore";
 
 import CommunityAside from "../components/community/CommunityAside.vue";
-import CommunityCard from "@/components/community/CommunityCard.vue";
+import CommunityCard from "../components/community/CommunityCard.vue";
 import CreateCommunityModal from "../components/community/CreateCommunityModal.vue";
 
 const authStore = useAuthStore();

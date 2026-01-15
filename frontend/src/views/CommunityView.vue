@@ -9,12 +9,15 @@
           <h1
             class="display-5 fw-black text-warning text-uppercase mb-0 tracking-widest text-shadow"
           >
-            <i class="bi bi-diagram-3-fill me-3"></i
-            >{{ community?.name || "Comunidade" }}
+            <i class="bi bi-diagram-3-fill me-3"></i>
+            {{ communityStore.selectedCommunity?.name || "Carregando..." }}
           </h1>
           <div class="mt-2">
             <span class="text-light-fossil font-monospace small text-uppercase">
-              {{ community?.description || "Descrição não disponível." }}
+              {{
+                communityStore.selectedCommunity?.description ||
+                "Descrição não disponível."
+              }}
             </span>
           </div>
         </div>
@@ -50,7 +53,6 @@
             </div>
           </div>
 
-          <!-- Aviso para não autenticados -->
           <div
             v-else-if="!authStore.isAuthenticated"
             class="card fossil-card mb-5 bg-danger-subtle border-danger border-2 shadow-sm"
@@ -82,8 +84,10 @@
             </div>
           </div>
 
-          <!-- Feed de Posts -->
-          <div v-if="isLoading && posts.length === 0" class="text-center py-5">
+          <div
+            v-if="postStore.isLoading && postStore.posts.length === 0"
+            class="text-center py-5"
+          >
             <div class="spinner-border text-secondary" role="status"></div>
             <p class="mt-2 text-muted font-monospace small">
               Sincronizando feed da comunidade...
@@ -92,7 +96,7 @@
 
           <div v-else class="d-flex flex-column gap-4">
             <div
-              v-if="posts.length === 0 && !isLoading"
+              v-if="postStore.posts.length === 0 && !postStore.isLoading"
               class="text-center py-5 opacity-50 border border-secondary border-dashed rounded-1"
             >
               <i class="bi bi-broadcast-pin fs-1 text-secondary"></i>
@@ -108,25 +112,32 @@
               tag="div"
               class="d-flex flex-column gap-4"
             >
-              <PostCard v-for="post in posts" :key="post.id" :post="post" />
+              <PostCard
+                v-for="post in postStore.posts"
+                :key="post.id"
+                :post="post"
+              />
             </transition-group>
 
-            <div v-if="page < totalPages" class="text-center mt-4 mb-5">
+            <div
+              v-if="postStore.page < postStore.totalPages"
+              class="text-center mt-4 mb-5"
+            >
               <button
-                @click="loadMore"
+                @click="postStore.loadMore"
                 class="btn btn-outline-dark rounded-pill px-5 py-2 fw-bold text-uppercase"
-                :disabled="isLoading"
+                :disabled="postStore.isLoading"
               >
                 <span
-                  v-if="isLoading"
+                  v-if="postStore.isLoading"
                   class="spinner-border spinner-border-sm me-2"
                 ></span>
-                {{ isLoading ? "Processando..." : "Carregar Mais" }}
+                {{ postStore.isLoading ? "Processando..." : "Carregar Mais" }}
               </button>
             </div>
 
             <div
-              v-else-if="posts.length > 0"
+              v-else-if="postStore.posts.length > 0"
               class="text-center mt-4 mb-5 text-muted font-monospace small"
             >
               --- FIM DOS REGISTROS ---
@@ -147,11 +158,12 @@
               class="card-body bg-light-industrial font-monospace small fw-bold"
             >
               <p>
-                <strong>Membros:</strong> {{ community?.memberCount ?? "—" }}
+                <strong>Membros:</strong>
+                {{ communityStore.selectedCommunity?.memberCount ?? "—" }}
               </p>
               <p>
                 <strong>Criada em:</strong>
-                {{ formatDate(community?.createdAt) }}
+                {{ formatDate(communityStore.selectedCommunity?.createdAt) }}
               </p>
             </div>
           </div>
@@ -170,91 +182,33 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
-import { useRoute } from "vue-router";
+import { ref, onMounted, computed, onUnmounted } from "vue";
 import { useAuthStore } from "../stores/authStore";
+import { usePostStore } from "../stores/postStore";
+import { useCommunityStore } from "../stores/communityStore";
 import PostCard from "../components/feed/PostCard.vue";
 import CreatePostModal from "../components/modals/CreatePostModal.vue";
-import postService from "../services/postService";
-import communityService from "../services/communityService";
-import type { Post } from "../types/post";
-
-const authStore = useAuthStore();
-const route = useRoute();
 
 const props = defineProps<{
   id: string;
 }>();
 
 const communityId = ref<string>(props.id || "");
-
-const posts = ref<Post[]>([]);
-const page = ref(1);
-const totalPages = ref(1);
-const isLoading = ref(false);
-const itemsPerPage = 10;
-
-const community = ref<any>(null);
-
 const isCreateModalOpen = ref(false);
+
+// Stores
+const authStore = useAuthStore();
+const postStore = usePostStore();
+const communityStore = useCommunityStore();
 
 const canCreatePost = computed(() => {
   return authStore.isAuthenticated && authStore.user?.role === "researcher";
 });
 
-const fetchCommunity = async () => {
-  try {
-    const res = await communityService.getCommunityById(communityId.value);
-    community.value = res;
-  } catch (err) {
-    console.error("Erro ao buscar comunidade:", err);
-  }
-};
-
-const fetchPosts = async (reset = false) => {
-  if (isLoading.value) return;
-  isLoading.value = true;
-
-  if (reset) {
-    page.value = 1;
-    posts.value = [];
-  }
-
-  try {
-    const res = await postService.recentPostsInCommunity(
-      communityId.value,
-      page.value,
-      itemsPerPage
-    );
-    const data = res?.data ?? [];
-    const tp = res?.totalPages ?? 1;
-    totalPages.value = tp;
-
-    if (reset) {
-      posts.value = data;
-    } else {
-      const newPosts = data.filter(
-        (p) => !posts.value.some((ep) => ep.id === p.id)
-      );
-      posts.value.push(...newPosts);
-    }
-  } catch (err) {
-    console.error("Erro ao buscar posts:", err);
-  } finally {
-    isLoading.value = false;
-  }
-};
-
-const loadMore = () => {
-  if (page.value < totalPages.value && !isLoading.value) {
-    page.value++;
-    fetchPosts(false);
-  }
-};
-
+// Ao criar post, fecha modal e recarrega feed da store
 const handlePostCreated = async () => {
   isCreateModalOpen.value = false;
-  await fetchPosts(true);
+  await postStore.fetchPosts(false);
 };
 
 const formatDate = (date?: string) => {
@@ -262,9 +216,22 @@ const formatDate = (date?: string) => {
   return new Date(date).toLocaleDateString("pt-BR");
 };
 
+// Ciclo de Vida
 onMounted(async () => {
-  await fetchCommunity();
-  await fetchPosts(true);
+  // 1. Define o contexto da store de posts para esta comunidade específica
+  postStore.setContext(communityId.value);
+
+  // 2. Busca dados em paralelo (Info da comunidade + Feed de posts)
+  await Promise.all([
+    communityStore.fetchActiveCommunity(communityId.value),
+    postStore.fetchPosts(false),
+  ]);
+});
+
+onUnmounted(() => {
+  // Limpa a seleção e o contexto ao sair da página
+  communityStore.clearSelection();
+  postStore.setContext(null); // Volta para o contexto global/home se necessário
 });
 </script>
 

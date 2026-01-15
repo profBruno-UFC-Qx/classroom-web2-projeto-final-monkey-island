@@ -10,7 +10,7 @@
             </h3>
           </div>
 
-          <div v-if="loading" class="text-center py-5">
+          <div v-if="authStore.isLoading" class="text-center py-5">
             <div class="spinner-border text-warning" role="status"></div>
             <p class="mt-3 text-muted fw-bold small">
               Acessando banco de dados...
@@ -18,29 +18,29 @@
           </div>
 
           <div
-            v-else-if="error"
+            v-else-if="authStore.error"
             class="alert alert-danger border-0 shadow-sm fw-bold text-center"
           >
-            <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ error }}
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ authStore.error }}
             <br />
             <button
               class="btn btn-outline-danger btn-sm mt-3"
-              @click="fetchProfile"
+              @click="authStore.refreshProfile()"
             >
               Tentar Novamente
             </button>
           </div>
 
           <ProfileCard
-            v-else-if="user"
-            :user="user"
+            v-else-if="authStore.user"
+            :user="authStore.user"
             @openVault="handleOpenVault"
             @openCommunities="handleOpenCommunities"
             @requestResearcher="handleRequestResearcher"
             @openAdminRequests="handleOpenAdminRequests"
           />
 
-          <ProfileFeed v-if="user" />
+          <ProfileFeed v-if="authStore.user" />
         </div>
       </div>
     </div>
@@ -48,44 +48,27 @@
     <RelicsVaultModal ref="vaultModal" />
     <MyCommunitiesModal ref="communitiesModal" />
     <ResearcherRequestModal ref="requestModal" />
-
     <ResearcherRequestsAdminModal ref="adminRequestsModal" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
+import { useAuthStore } from "../stores/authStore"; // Store centralizada
+
 import ProfileCard from "../components/profile/ProfileCard.vue";
 import ProfileFeed from "../components/profile/ProfileFeed.vue";
 import RelicsVaultModal from "../components/modals/RelicsVaultModal.vue";
 import MyCommunitiesModal from "../components/modals/MyCommunitiesModal.vue";
 import ResearcherRequestModal from "../components/modals/ResearcherRequestModal.vue";
-import ResearcherRequestsAdminModal from "../components/modals/ResearcherRequestsAdminModal.vue"; // Importação do modal admin
-import userService from "../services/userService";
-import type { User } from "../types/user";
+import ResearcherRequestsAdminModal from "../components/modals/ResearcherRequestsAdminModal.vue";
 
-const user = ref<User | null>(null);
-const loading = ref(true);
-const error = ref("");
+const authStore = useAuthStore();
 
 const vaultModal = ref();
 const communitiesModal = ref();
 const requestModal = ref();
 const adminRequestsModal = ref();
-
-const fetchProfile = async () => {
-  loading.value = true;
-  error.value = "";
-  try {
-    user.value = await userService.getMyProfile();
-  } catch (err: any) {
-    error.value =
-      "Falha ao carregar credenciais. Sessão expirada ou erro no servidor.";
-    console.error(err);
-  } finally {
-    loading.value = false;
-  }
-};
 
 const handleOpenVault = () => {
   if (vaultModal.value) vaultModal.value.open();
@@ -105,8 +88,9 @@ const handleOpenAdminRequests = () => {
   }
 };
 
+// Ao montar, solicita atualização dos dados do perfil na store
 onMounted(() => {
-  fetchProfile();
+  authStore.refreshProfile();
 });
 </script>
 

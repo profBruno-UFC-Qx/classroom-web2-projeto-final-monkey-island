@@ -1,11 +1,13 @@
-import { api } from '../types/api';
+import api from '../api/api';
 import type { Artifact } from '../types/artifact';
+
+const BASE_URL = 'http://localhost:3000';
 
 export default {
   async getRandomArtifact(): Promise<Artifact | null> {
     try {
-      // Simples e direto
-      return await api.get<Artifact>('/artifacts/random-choice');
+      const response = await api.get<Artifact>('/artifacts/random-choice');
+      return response.data;
     } catch (error) {
       console.error('Service: Erro ao buscar artefato', error);
       return null;
@@ -14,7 +16,6 @@ export default {
 
   async collectArtifact(artifactId: string): Promise<boolean> {
     try {
-      // Não precisa passar token! O api.ts já pega do localStorage automaticamente.
       await api.post(`/artifact-collection/artifact/${artifactId}`, {});
       return true;
     } catch (error) {
@@ -24,6 +25,9 @@ export default {
   },
 
   getImageUrl(path: string): string {
-    return api.getImageUrl(path);
+
+    if (!path) return '';
+    const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+    return `${BASE_URL}/images/${cleanPath}`;
   }
 };

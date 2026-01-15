@@ -2,13 +2,16 @@
   <div>
     <div 
       v-if="showArtifact && artifact" 
-      class="artifact-drop"
+      class="artifact-drop hidden-mode"
       :style="{ top: position.top + '%', left: position.left + '%' }"
       @click="collectArtifact"
-      title="Clique para coletar!"
+      title="???"
     >
-      <img :src="getImageUrl(artifact.image)" :alt="artifact.name" class="artifact-img" />
-      <span class="sparkle">✨</span>
+      <img 
+        :src="getImageUrl(artifact.image)" 
+        :alt="artifact.name" 
+        class="artifact-img" 
+      />
     </div>
 
     <transition name="fade">
@@ -40,15 +43,26 @@ const getImageUrl = (path: string) => {
 
 const trySpawnArtifact = async () => {
   if (!authStore.isAuthenticated) return;
-  if (Math.random() > 0.25) return; // 25% chance
+  
+  // Chance de 25% (Mantida)
+  if (Math.random() > 0.25) return;
 
   try {
     const response = await fetch(`${API_URL}/artifacts/random-choice`);
     if (!response.ok) return;
     const data = await response.json();
     artifact.value = data;
-    position.value = { top: Math.random() * (70 - 15) + 15, left: Math.random() * (85 - 5) + 5 };
+    
+    // POSIÇÃO FURTIVA:
+    // Permite que apareça quase nas bordas totais da tela (2% a 92%)
+    // Antes era centralizado (15-70), agora é espalhado.
+    position.value = { 
+      top: Math.random() * (92 - 2) + 2, 
+      left: Math.random() * (92 - 2) + 2 
+    };
+    
     showArtifact.value = true;
+    console.log('Sistema: Anomalia detectada no setor.'); // Log discreto
   } catch (error) { console.error(error); }
 };
 
@@ -76,13 +90,50 @@ watch(() => authStore.isAuthenticated, (isAuth) => { if (isAuth) trySpawnArtifac
 </script>
 
 <style scoped>
-.artifact-drop { position: fixed; cursor: pointer; z-index: 9999; animation: float 3s ease-in-out infinite; transition: transform 0.2s; }
-.artifact-drop:hover { transform: scale(1.15) rotate(5deg); }
-.artifact-img { width: 80px; height: 80px; object-fit: contain; filter: drop-shadow(0 0 15px rgba(255, 193, 7, 0.6)); }
-.sparkle { position: absolute; top: -10px; right: -10px; font-size: 24px; animation: spin 2s linear infinite; text-shadow: 0 0 5px gold; }
-.collection-feedback { position: fixed; bottom: 30px; right: 30px; background-color: #1a2f2b; color: #ffc107; padding: 1rem 1.5rem; border-radius: 4px; border: 2px solid #ffc107; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 10000; text-transform: uppercase; display: flex; align-items: center; }
-@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
-@keyframes spin { from { transform: rotate(0deg); opacity: 0.5; } 50% { opacity: 1; } to { transform: rotate(360deg); opacity: 0.5; } }
+/* ESTILO FURTIVO */
+.artifact-drop { 
+  position: fixed; 
+  cursor: pointer; 
+  z-index: 999; /* Fica acima do fundo, mas abaixo de modais */
+  transition: all 0.3s ease;
+  
+  /* CAMUFLAGEM INICIAL */
+  opacity: 0.3; /* Quase transparente */
+  filter: grayscale(100%) contrast(150%); /* Preto e branco para misturar com texto */
+  transform: scale(0.9) rotate(0deg);
+}
+
+/* EFEITO AO PASSAR O MOUSE (REVELAÇÃO) */
+.artifact-drop:hover { 
+  opacity: 1; /* Totalmente visível */
+  filter: grayscale(0%) contrast(100%) drop-shadow(0 0 8px gold); /* Cor original + brilho */
+  transform: scale(1.2) rotate(10deg); /* Cresce para confirmar */
+  z-index: 10000; /* Traz para frente de tudo ao achar */
+}
+
+.artifact-img { 
+  width: 40px; /* Bem menor (era 80px) */
+  height: 40px; 
+  object-fit: contain; 
+}
+
+/* Feedback de sucesso (Mantido) */
+.collection-feedback { 
+  position: fixed; 
+  bottom: 30px; 
+  right: 30px; 
+  background-color: #1a2f2b; 
+  color: #ffc107; 
+  padding: 1rem 1.5rem; 
+  border-radius: 4px; 
+  border: 2px solid #ffc107; 
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3); 
+  z-index: 10000; 
+  text-transform: uppercase; 
+  display: flex; 
+  align-items: center; 
+}
+
 .fade-enter-active, .fade-leave-active { transition: opacity 0.5s ease; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
 </style>

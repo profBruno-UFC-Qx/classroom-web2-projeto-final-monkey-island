@@ -32,12 +32,15 @@ export const useArtifactStore = defineStore('artifact', () => {
 
   const trySpawnArtifact = async () => {
     if (!authStore.isAuthenticated) return;
-    if (Math.random() > 0.25) return; // 25% de chance
+    
+    // Chance de 25% (Pode ajustar para testes)
+    if (Math.random() > 0.25) return; 
 
     const data = await artifactService.getRandomArtifact();
     
     if (data) {
       artifact.value = data;
+      // Define posição aleatória longe das bordas (5% a 90%)
       position.value = { 
         top: Math.random() * (90 - 5) + 5, 
         left: Math.random() * (90 - 5) + 5 
@@ -50,14 +53,15 @@ export const useArtifactStore = defineStore('artifact', () => {
   const collectArtifact = async () => {
     if (!artifact.value || !authStore.isAuthenticated) return;
     
-    const token = localStorage.getItem('token');
-    if (!token) return;
-
-    const success = await artifactService.collectArtifact(artifact.value.id, token);
+    // CORREÇÃO: Removemos a manipulação manual de token aqui.
+    // O service agora usa a instância do api.ts que injeta o token automaticamente.
+    const success = await artifactService.collectArtifact(artifact.value.id);
 
     if (success) {
       collectionMessage.value = `Coletado: ${artifact.value.name}`;
       showArtifact.value = false;
+      
+      // Limpa mensagem após 3 segundos
       setTimeout(() => { collectionMessage.value = ''; }, 3000);
     }
   };

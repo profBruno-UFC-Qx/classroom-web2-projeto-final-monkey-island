@@ -6,7 +6,6 @@ export enum ArtifactRarity {
   UNIQUE_SPECIMEN = "unique_specimen",
 }
 
-
 export interface Artifact {
   id: string;
   name: string;
@@ -15,12 +14,10 @@ export interface Artifact {
   image: string; 
 }
 
-
 export interface ArtifactCollectionItem {
   artifact: Artifact;
   quantity: number;
 }
-
 
 export interface ArtifactCollectionResponse {
   data: ArtifactCollectionItem[];

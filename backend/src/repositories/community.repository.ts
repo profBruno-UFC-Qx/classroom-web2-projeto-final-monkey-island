@@ -11,7 +11,7 @@ export interface ICommunityRepository {
   save(community: Community): Promise<Community>;
   deleteCommunity(communityId: string): Promise<void>;
   findCommunityByName(name: string): Promise<Community | null>;
-  findCommunityById(id: string): Promise<Community | null>;
+  findCommunityById(id: string): Promise<CommunityWithCount | null>;
   findCommunitiesCreatedByUser(userId: string): Promise<Community[]>;
   findAllCommunitiesByNameLike(
     name: string,
@@ -42,8 +42,27 @@ export class CommunityRepositoryDB implements ICommunityRepository {
     return await this.repo.findOne({ where: { name } });
   }
 
-  async findCommunityById(id: string): Promise<Community | null> {
-    return await this.repo.findOne({ where: { id }, relations: ["createdBy"] });
+  async findCommunityById(id: string): Promise<CommunityWithCount | null> {
+    const qb = this.repo
+      .createQueryBuilder("community")
+      .addSelect((subQuery) => {
+        return subQuery
+          .select("COUNT(cu.id)", "memberCount")
+          .from("community_user", "cu")
+          .where("cu.communityId = community.id")
+          .andWhere("cu.status = :status", { status: "ACTIVE" });
+      }, "memberCount")
+      .where("community.id = :id", { id })
+      .leftJoinAndSelect("community.createdBy", "createdBy");
+
+    const community = await qb.getRawAndEntities();
+
+    if (!community.entities[0]) return null;
+
+    return {
+      ...community.entities[0],
+      memberCount: Number(community.raw[0].memberCount),
+    };
   }
 
   async findCommunitiesCreatedByUser(userId: string): Promise<Community[]> {

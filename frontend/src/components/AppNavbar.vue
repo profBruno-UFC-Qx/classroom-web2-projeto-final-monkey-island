@@ -10,7 +10,7 @@
       </router-link>
       
       <div class="d-none d-lg-flex align-items-center gap-4 ms-auto me-4">
-        <router-link to="/ranking" class="nav-lab-link">
+        <router-link to="/rankings" class="nav-lab-link">
           <i class="bi bi-bar-chart-steps"></i> Ranking
         </router-link>
         <router-link to="/comunidades" class="nav-lab-link">

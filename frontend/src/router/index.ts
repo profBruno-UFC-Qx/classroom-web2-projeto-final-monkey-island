@@ -8,6 +8,7 @@ const PublishPostView = () => import("../views/PublishPostView.vue");
 const CommunitiesView = () => import("../views/CommunitiesView.vue");
 const ProfileView = () => import("../views/ProfileView.vue");
 const DinoGameView = () => import("../views/DinoGameView.vue");
+const RankingsView = () => import("../views/RankingsView.vue");
 
 const routes = [
   {
@@ -55,6 +56,11 @@ const routes = [
   path: '/game',
   name: 'game',
   component: DinoGameView,
+  },
+  {
+    path: "/rankings",
+    name: "rankings",
+    component: RankingsView,
   },
 ];
 

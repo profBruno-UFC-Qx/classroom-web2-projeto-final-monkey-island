@@ -6,7 +6,7 @@
       <div class="position-absolute top-0 end-0 p-3 z-2">
         <button 
           v-if="user.role === 'user'"
-          @click="$emit('requestResearcher')"
+          @click="emit('requestResearcher')"
           class="btn btn-sm btn-outline-primary fw-bold text-uppercase shadow-sm d-flex align-items-center gap-2"
           title="Solicitar acesso de Pesquisador"
         >
@@ -16,7 +16,7 @@
 
         <button 
           v-else-if="user.role === 'admin'"
-          @click="$emit('openAdminRequests')"
+          @click="emit('openAdminRequests')"
           class="btn btn-sm btn-danger fw-bold text-uppercase shadow-sm d-flex align-items-center gap-2 border-white"
         >
           <i class="bi bi-shield-lock-fill"></i>
@@ -34,9 +34,9 @@
           <div class="d-flex align-items-center gap-2 mt-1">
             <span class="badge bg-secondary text-uppercase x-small">
               <i class="bi bi-pass-fill me-1"></i> 
-              {{ user.role === 'admin' ? 'Administrador' : (user.role === 'researcher' ? 'Pesquisador' : 'Visitante') }}
+              {{ roleLabel }}
             </span>
-            <span class="text-white-50 small font-monospace">ID: {{ user.id.slice(0,8).toUpperCase() }}</span>
+            <span class="text-white-50 small font-monospace">ID: {{ formattedId }}</span>
           </div>
         </div>
       </div>
@@ -72,14 +72,14 @@
 
       <div class="d-flex flex-column gap-2">
         <button 
-          @click="$emit('openVault')" 
+          @click="emit('openVault')" 
           class="btn btn-dark w-100 py-3 fw-black text-uppercase border-warning btn-relics shadow-sm"
         >
           <i class="bi bi-box-seam-fill me-2 text-warning"></i> Acessar Cofre de Relíquias
         </button>
 
         <button 
-          @click="$emit('openCommunities')" 
+          @click="emit('openCommunities')" 
           class="btn btn-dark w-100 py-3 fw-black text-uppercase border-info btn-communities shadow-sm"
         >
           <i class="bi bi-hdd-network-fill me-2 text-info"></i> Meus Setores e Comunidades
@@ -97,12 +97,27 @@ const props = defineProps<{
   user: User
 }>();
 
-defineEmits([
-  'openVault', 
-  'openCommunities', 
-  'requestResearcher', 
-  'openAdminRequests'
-]);
+// Tipagem estrita dos eventos emitidos
+const emit = defineEmits<{
+  (e: 'openVault'): void;
+  (e: 'openCommunities'): void;
+  (e: 'requestResearcher'): void;
+  (e: 'openAdminRequests'): void;
+}>();
+
+// Computed para limpar a lógica do template
+const roleLabel = computed(() => {
+  const labels: Record<string, string> = {
+    admin: 'Administrador',
+    researcher: 'Pesquisador',
+    user: 'Visitante',
+  };
+  return labels[props.user.role] || 'Visitante';
+});
+
+const formattedId = computed(() => {
+  return props.user.id?.slice(0, 8).toUpperCase() || 'N/A';
+});
 
 const statusIcon = computed(() => {
   return props.user.status === 'active' 

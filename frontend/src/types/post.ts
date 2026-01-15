@@ -1,3 +1,7 @@
+import type { PaginatedResponse } from './common';
+
+export type PostStatus = "DRAFT" | "PUBLISHED" | "DELETED";
+
 export interface PostMedia {
   mediaId: string;
   image: string;
@@ -9,7 +13,7 @@ export interface Post {
   title: string;
   content: string;
   createdAt: string;
-  status: "DRAFT" | "PUBLISHED" | "DELETED";
+  status: PostStatus;
 
   communityId: string;
   communityName?: string;
@@ -21,3 +25,5 @@ export interface Post {
 
   medias?: PostMedia[];
 }
+
+export type FeedResponse = PaginatedResponse<Post>;

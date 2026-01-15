@@ -1,9 +1,13 @@
+export type UserRole = 'admin' | 'user' | 'researcher';
+
+export type UserStatus = 'active' | 'inactive' | 'banned';
+
 export interface User {
   id: string; 
   name: string;
   email: string;
-  role: 'admin' | 'user' | 'researcher'; 
+  role: UserRole; 
   institution?: string;
   bio?: string;
-  status: 'active' | 'inactive' | 'banned';
+  status: UserStatus;
 }

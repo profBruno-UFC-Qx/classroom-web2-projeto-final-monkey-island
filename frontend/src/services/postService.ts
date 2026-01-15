@@ -1,12 +1,6 @@
 import api from "@/api/api";
 import { useAuthStore } from "../stores/authStore";
-import type { Post, PostMedia } from "../types/post";
-
-export interface FeedResponse {
-  data: Post[];
-  totalItems: number;
-  totalPages: number;
-}
+import type { Post, PostMedia, FeedResponse } from "../types/post";
 
 export default {
   async getPublicFeed(page = 1, limit = 10): Promise<FeedResponse> {
@@ -48,6 +42,8 @@ export default {
     const authStore = useAuthStore();
     const myUserId = authStore.user?.id;
 
+    // Nota: Mantendo a lógica original de filtro no front-end temporariamente.
+    // O ideal seria um endpoint dedicado /users/me/posts no backend.
     const response = await api.get<FeedResponse>("/feed", {
       params: { page, limit: 50 },
     });
@@ -63,6 +59,7 @@ export default {
   },
 
   async getLikedPosts(page = 1, limit = 10): Promise<FeedResponse> {
+    // Mock mantido conforme original
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve({
@@ -76,6 +73,7 @@ export default {
 
   async likePost(postId: string) {
     console.log(`Solicitação de Like para o post: ${postId}`);
+    // Futuro: await api.post(`/posts/${postId}/like`);
   },
 
   async createDraft(
@@ -83,6 +81,8 @@ export default {
     title: string,
     content: string
   ): Promise<Post> {
+    // Uso de any aqui é aceitável temporariamente pois a resposta do create
+    // pode ter uma estrutura aninhada diferente do tipo Post padrão
     const response = await api.post<any>(`/community/${communityId}/posts`, {
       title,
       content,
@@ -90,6 +90,7 @@ export default {
 
     const data = response.data;
 
+    // Normalização para garantir que retornamos um objeto Post válido
     if (data.post && data.post.id) {
       return {
         ...data.post,

@@ -25,7 +25,7 @@
         <div class="col-lg-8">
           <div class="d-flex justify-content-between align-items-center mb-4">
             <input
-              v-model="search"
+              v-model="searchQuery"
               class="form-control w-50 search-input"
               placeholder="Buscar comunidade..."
             />
@@ -40,7 +40,7 @@
             </button>
           </div>
 
-          <div v-if="loading" class="text-center py-5">
+          <div v-if="communityStore.loading" class="text-center py-5">
             <div class="spinner-border text-warning mb-3" role="status"></div>
             <p class="text-light-fossil font-monospace small blink-text">
               SINCRONIZANDO COMUNIDADES...
@@ -48,7 +48,7 @@
           </div>
 
           <div
-            v-else-if="communities.length === 0"
+            v-else-if="communityStore.communities.length === 0"
             class="text-center py-5 opacity-50"
           >
             <i class="bi bi-diagram-2 display-1 text-secondary"></i>
@@ -62,19 +62,19 @@
 
           <div v-else class="communities-list d-flex flex-column gap-3">
             <CommunityCard
-              v-for="community in communities"
+              v-for="community in communityStore.communities"
               :key="community.id"
               :community="community"
-              @select="selectCommunity"
+              @select="communityStore.selectCommunity"
             />
           </div>
         </div>
 
         <div class="col-lg-4">
           <CommunityAside
-            v-if="selectedCommunity"
-            :community="selectedCommunity"
-            @close="selectedCommunity = null"
+            v-if="communityStore.selectedCommunity"
+            :community="communityStore.selectedCommunity"
+            @close="communityStore.clearSelection"
           />
         </div>
       </div>
@@ -89,77 +89,38 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from "vue";
 import { useAuthStore } from "../stores/authStore";
-import communityService from "../services/communityService";
+import { useCommunityStore } from "../stores/communityStore"; // Nova Store
 
 import CommunityAside from "../components/community/CommunityAside.vue";
 import CommunityCard from "@/components/community/CommunityCard.vue";
 import CreateCommunityModal from "../components/community/CreateCommunityModal.vue";
-import type { Community } from "@/types/community";
 
 const authStore = useAuthStore();
+const communityStore = useCommunityStore();
 
-const communities = ref<Community[]>([]);
-const selectedCommunity = ref<Community | null>(null);
-const search = ref("");
-const loading = ref(false);
-const page = ref(1);
-const limit = 20;
+const searchQuery = ref("");
 const createModal = ref();
 
 const isResearcher = computed(() => authStore.user?.role === "researcher");
-
-const selectCommunity = (community: any) => {
-  selectedCommunity.value = community;
-};
 
 const openCreateModal = () => {
   createModal.value?.open();
 };
 
-const fetchPopularCommunities = async () => {
-  loading.value = true;
-  try {
-    const response = await communityService.getPopularCommunities();
-    communities.value = response.data;
-  } finally {
-    loading.value = false;
-  }
-};
-
-const fetchCommunities = async () => {
-  loading.value = true;
-  try {
-    if (!search.value.trim()) {
-      await fetchPopularCommunities();
-      return;
-    }
-
-    const response = await communityService.searchCommunitiesByName(
-      search.value,
-      page.value,
-      limit
-    );
-
-    if (!response.data || response.data.length === 0) {
-      await fetchPopularCommunities();
-    } else {
-      communities.value = response.data;
-    }
-  } finally {
-    loading.value = false;
-  }
-};
-
 let timeout: number | undefined;
-watch(search, () => {
+
+// Watcher para Debounce: Só chama a store após o usuário parar de digitar
+watch(searchQuery, (newQuery) => {
   clearTimeout(timeout);
   timeout = window.setTimeout(() => {
-    page.value = 1;
-    fetchCommunities();
+    communityStore.searchCommunities(newQuery);
   }, 400);
 });
 
-onMounted(fetchPopularCommunities);
+// Inicialização via Store
+onMounted(() => {
+  communityStore.fetchPopularCommunities();
+});
 </script>
 
 <style scoped>

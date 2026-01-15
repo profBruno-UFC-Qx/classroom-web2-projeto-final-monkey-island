@@ -1,4 +1,8 @@
-import type { CommunityRequest, CommunityResponse } from "../types/community";
+import type {
+  Community,
+  CommunityRequest,
+  CommunityResponse,
+} from "../types/community";
 import api from "@/api/api";
 
 export default {
@@ -12,10 +16,20 @@ export default {
     return response.data;
   },
 
+  async joinCommunity(communityId: string) {
+    const response = await api.post(`/community/${communityId}/join`);
+    return response.data;
+  },
+
   async getPopularCommunities(page = 1, limit = 20) {
     const response = await api.get<CommunityResponse>("/community/popular", {
       params: { page, limit },
     });
+    return response.data;
+  },
+
+  async checkMembership(communityId: string) {
+    const response = await api.get(`/community/${communityId}/users/isMember`);
     return response.data;
   },
 

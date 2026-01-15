@@ -46,6 +46,8 @@ export interface ICommunityUserService {
     targetUserId: string,
     communityId: string
   ): Promise<CommunityUserResponseDto>;
+
+  userExistsInCommunity(userId: string, communityId: string): Promise<boolean>;
 }
 
 @injectable()
@@ -116,6 +118,17 @@ export class CommunityUserService implements ICommunityUserService {
 
     const response = await this.communityUserRepository.save(communityUser);
     return this.entityToResponseDto(response);
+  }
+
+  async userExistsInCommunity(
+    userId: string,
+    communityId: string
+  ): Promise<boolean> {
+    const result = await this.communityUserRepository.existsByUserAndCommunity(
+      userId,
+      communityId
+    );
+    return result;
   }
 
   async banUser(

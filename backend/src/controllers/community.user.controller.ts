@@ -76,6 +76,18 @@ export class CommunityUserController {
     }
   }
 
+  async userExistsInCommunity(req: Request, res: Response): Promise<void> {
+    const userId = req.user?.id as string;
+    const communityId = req.params.communityId;
+    console.log("userId: " + userId);
+    console.log("communityId: " + communityId);
+    const isMember = await this.communityUserService.userExistsInCommunity(
+      userId,
+      communityId
+    );
+    res.status(200).json({ isMember });
+  }
+
   async banUser(req: Request, res: Response): Promise<void> {
     try {
       const targetUserId = req.params.targetUserId;

@@ -43,6 +43,12 @@ communityUserRoutes.get("/community/:communityId/users", (req, res) =>
 );
 
 communityUserRoutes.get(
+  "/community/:communityId/users/isMember",
+  userAuthentication,
+  (req, res) => communityUserController.userExistsInCommunity(req, res)
+);
+
+communityUserRoutes.get(
   "/community/profile/my-communities",
   userAuthentication,
   (req, res) => communityUserController.listCommunitiesOfUser(req, res)

@@ -1,5 +1,3 @@
-// src/types/researcherRequest.ts
-
 export type ResearcherRequestStatus = "pending" | "approved" | "rejected";
 
 export interface CreateResearcherRequestPayload {
@@ -9,8 +7,8 @@ export interface CreateResearcherRequestPayload {
 export interface ResearcherRequestResponse {
   id: string;
   status: ResearcherRequestStatus;
-  user_id: string;
+  userId: string;       
   motivation: string;
-  updated_at: string;
-  created_at: string;
+  updatedAt: string;    
+  createdAt: string;    
 }

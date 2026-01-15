@@ -1,10 +1,11 @@
-export enum ArtifactRarity {
-  FRAGMENT = "fragment",
-  PARTIAL_FOSSIL = "partial_fossil",
-  RARE_FOSSIL = "rare",
-  EXCEPTIONAL_SPECIMEN = "exceptional_specimen",
-  UNIQUE_SPECIMEN = "unique_specimen",
-}
+import type { PaginatedResponse } from './common';
+
+export type ArtifactRarity = 
+  | "fragment"
+  | "partial_fossil"
+  | "rare"
+  | "exceptional_specimen"
+  | "unique_specimen";
 
 export interface Artifact {
   id: string;
@@ -19,8 +20,5 @@ export interface ArtifactCollectionItem {
   quantity: number;
 }
 
-export interface ArtifactCollectionResponse {
-  data: ArtifactCollectionItem[];
-  totalItems: number;
-  totalPages: number;
-}
+
+export type ArtifactCollectionResponse = PaginatedResponse<ArtifactCollectionItem>;

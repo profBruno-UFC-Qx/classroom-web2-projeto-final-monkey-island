@@ -1,3 +1,5 @@
+import type { PaginatedResponse } from './common';
+
 export interface Community {
   id: string;
   name: string;
@@ -12,8 +14,4 @@ export interface CommunityRequest {
   description: string;
 }
 
-export interface CommunityResponse {
-  data: Community[];
-  totalItems: number;
-  totalPages: number;
-}
+export type CommunityResponse = PaginatedResponse<Community>;

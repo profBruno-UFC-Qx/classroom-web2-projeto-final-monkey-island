@@ -84,10 +84,9 @@
 import { ref, computed, onMounted } from "vue";
 import * as bootstrap from "bootstrap";
 
-// Imports Refatorados
 import { useAuthStore } from "../../stores/authStore";
 import { usePostStore } from "../../stores/postStore";
-// import { useArtifactStore } from "../../stores/artifactStore"; // Se existir
+
 import postService from "../../services/postService";
 import { getImageUrl } from "../../utils/mediaUtils";
 import { formatDate } from "../../utils/formatters";
@@ -99,16 +98,14 @@ const props = defineProps<{
 
 const authStore = useAuthStore();
 const postStore = usePostStore();
-// const artifactStore = useArtifactStore(); 
+
 
 const medias = ref<PostMedia[]>([]);
 const currentImageIndex = ref(0);
 
-// Normalização dos dados (caso o objeto venha aninhado ou plano)
 const postData = computed(() => props.post?.post || props.post || {});
 
-// Fetch de Mídia
-// (Mantivemos aqui pois é específico de exibição, mas poderia ser movido para uma Action "fetchPostDetails" se desejado)
+
 onMounted(async () => {
   const postId = postData.value?.id;
   if (!postId) return;
@@ -120,7 +117,7 @@ onMounted(async () => {
   }
 });
 
-// Navegação de Imagem (Lógica puramente visual, fica no componente)
+
 const nextImage = () => {
   if (medias.value.length === 0) return;
   currentImageIndex.value = (currentImageIndex.value + 1) % medias.value.length;
@@ -131,7 +128,6 @@ const prevImage = () => {
   currentImageIndex.value = (currentImageIndex.value - 1 + medias.value.length) % medias.value.length;
 };
 
-// Checagem de Auth Genérica
 const checkAuth = () => {
   if (!authStore.isAuthenticated) {
     const modalElement = document.getElementById("authAlertModal");
@@ -144,7 +140,6 @@ const checkAuth = () => {
   return true;
 };
 
-// Ações delegadas para Stores
 const handleLike = async () => {
   if (!checkAuth()) return;
   await postStore.likePost(postData.value.id);
@@ -152,7 +147,6 @@ const handleLike = async () => {
 
 const handleCollect = () => {
   if (!checkAuth()) return;
-  // artifactStore.collectItem(postData.value.id); // Exemplo de uso correto da Store
   window.alert("Funcionalidade delegada para ArtifactStore (Em breve)");
 };
 </script>

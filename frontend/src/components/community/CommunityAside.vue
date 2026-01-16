@@ -80,7 +80,7 @@
 import { useAuthStore } from "@/stores/authStore";
 import { useRouter } from "vue-router";
 import { ref } from "vue";
-import JoinCommunityModal from "./JoinCommunityModal.vue";
+import JoinCommunityModal from "@/components/community/JoinCommunityModal.vue";
 
 const authStore = useAuthStore();
 

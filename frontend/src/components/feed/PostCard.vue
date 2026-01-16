@@ -84,14 +84,14 @@
 import { ref, computed, onMounted } from "vue";
 import * as bootstrap from "bootstrap";
 
-import { useAuthStore } from "../../stores/authStore";
-import { usePostStore } from "../../stores/postStore";
+import { useAuthStore } from "@/stores/authStore";
+import { usePostStore } from "@/stores/postStore";
 
-import postService from "../../services/postService";
-import { getImageUrl } from "../../utils/mediaUtils";
+import postService from "@/services/postService";
+import { getImageUrl } from "@/utils/mediaUtils";
 // Adicionada importação do novo formatter
-import { formatDate, formatShortId } from "../../utils/formatters";
-import type { PostMedia } from "../../types/post";
+import { formatDate, formatShortId } from "@/utils/formatters";
+import type { PostMedia } from "@/types/post";
 
 const props = defineProps<{
   post: any;

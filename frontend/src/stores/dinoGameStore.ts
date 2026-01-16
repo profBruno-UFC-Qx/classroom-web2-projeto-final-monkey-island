@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, reactive } from 'vue';
-import type { Cell, WordDefinition, CluesState } from '../types/game';
+import type { Cell, WordDefinition, CluesState } from '@/types/game';
 
 // Dados estáticos das palavras (podem vir de uma API no futuro)
 const WORDS: WordDefinition[] = [
@@ -126,7 +126,6 @@ export const useDinoGameStore = defineStore('dinoGame', () => {
     activeClueId.value = id;
   };
 
-  // Helper para a view saber onde focar
   const getWordDefinition = (id: number) => WORDS.find(w => w.id === id);
 
   return {

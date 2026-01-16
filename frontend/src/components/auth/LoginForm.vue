@@ -64,7 +64,7 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
 // import { useRouter } from 'vue-router'; // Removido: A store agora lida com o redirecionamento
-import { useAuthStore } from '../stores/authStore';
+import { useAuthStore } from '@/stores/authStore';
 import { z } from "zod";
 
 const authStore = useAuthStore();

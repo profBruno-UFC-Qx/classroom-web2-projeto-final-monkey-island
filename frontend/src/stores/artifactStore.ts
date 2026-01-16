@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import { useAuthStore } from './authStore';
-import artifactService from '../services/artifactService';
-import type { Artifact, ArtifactRarity } from '../types/artifact';
+import { useAuthStore } from '@/stores/authStore';
+import artifactService from '@/services/artifactService';
+import type { Artifact, ArtifactRarity } from '@/types/artifact';
 
 export const useArtifactStore = defineStore('artifact', () => {
   const authStore = useAuthStore();

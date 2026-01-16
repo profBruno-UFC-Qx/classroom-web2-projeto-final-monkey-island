@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import postService from '../services/postService';
-import { useAuthStore } from './authStore';
-import type { Post } from '../types/post';
+import postService from '@/services/postService';
+import { useAuthStore } from '@/stores/authStore';
+import type { Post } from '@/types/post';
 
 // interface simples para os itens do ranking
 export interface RankItem {

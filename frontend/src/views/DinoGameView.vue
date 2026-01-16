@@ -42,10 +42,10 @@
 import { onMounted } from 'vue';
 import { useDinoGameStore } from '../stores/dinoGameStore';
 
-import DinoGameHero from '../components/game/DinoGameHero.vue';
-import CrosswordBoard from '../components/game/CrosswordBoard.vue';
-import CluesPanel from '../components/game/CluesPanel.vue';
-import VictoryModal from '../components/game/VictoryModal.vue';
+import DinoGameHero from '@/components/game/DinoGameHero.vue';
+import CrosswordBoard from '@/components/game/CrosswordBoard.vue';
+import CluesPanel from '@/components/game/CluesPanel.vue';
+import VictoryModal from '@/components/game/VictoryModal.vue';
 
 const gameStore = useDinoGameStore();
 

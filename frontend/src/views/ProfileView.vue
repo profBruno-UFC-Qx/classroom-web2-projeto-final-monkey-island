@@ -59,12 +59,12 @@ import { ref, onMounted } from "vue";
 import { useAuthStore } from "../stores/authStore";
 
 // importação dos componentes visuais
-import ProfileCard from "../components/profile/ProfileCard.vue";
-import ProfileFeed from "../components/profile/ProfileFeed.vue";
-import RelicsVaultModal from "../components/modals/RelicsVaultModal.vue";
-import MyCommunitiesModal from "../components/modals/MyCommunitiesModal.vue";
-import ResearcherRequestModal from "../components/modals/ResearcherRequestModal.vue";
-import ResearcherRequestsAdminModal from "../components/modals/ResearcherRequestsAdminModal.vue";
+import ProfileCard from "@/components/profile/ProfileCard.vue";
+import ProfileFeed from "@/components/profile/ProfileFeed.vue";
+import RelicsVaultModal from "@/components/game/RelicsVaultModal.vue";
+import MyCommunitiesModal from "@/components/community/MyCommunitiesModal.vue";
+import ResearcherRequestModal from "@/components/admin/ResearcherRequestModal.vue";
+import ResearcherRequestsAdminModal from "@/components/admin/ResearcherRequestsAdminModal.vue";
 
 // inicializa a store de autenticação
 const authStore = useAuthStore();

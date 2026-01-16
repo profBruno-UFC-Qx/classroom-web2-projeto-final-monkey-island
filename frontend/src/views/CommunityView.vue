@@ -49,10 +49,10 @@ import { usePostStore } from "../stores/postStore";
 import { useCommunityStore } from "../stores/communityStore";
 
 // imports dos novos componentes
-import FeedStatusCard from "../components/feed/FeedStatusCard.vue";
-import CommunityFeed from "../components/community/CommunityFeed.vue";
-import CommunityInfoWidget from "../components/community/CommunityInfoWidget.vue";
-import CreatePostModal from "../components/modals/CreatePostModal.vue";
+import FeedStatusCard from "@/components/feed/FeedStatusCard.vue";
+import CommunityFeed from "@/components/community/CommunityFeed.vue";
+import CommunityInfoWidget from "@/components/community/CommunityInfoWidget.vue";
+import CreatePostModal from "@/components/feed/CreatePostModal.vue";
 
 const props = defineProps<{ id: string }>();
 const communityId = ref<string>(props.id || "");

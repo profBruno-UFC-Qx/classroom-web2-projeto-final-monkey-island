@@ -72,18 +72,18 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from "vue";
-import { useAuthStore } from "../stores/authStore";
-import { usePostStore } from "../stores/postStore";
+import { useAuthStore } from "@/stores/authStore";
+import { usePostStore } from "@/stores/postStore";
 
 // importação dos componentes visuais
-import HomeHero from "../components/layout/HomeHero.vue";
-import ArtifactManager from "../components/widgets/ArtifactManager.vue";
-import FeedStatusCard from "../components/feed/FeedStatusCard.vue";
-import GameWidget from "../components/widgets/GameWidget.vue";
-import ParkStatusWidget from "../components/widgets/ParkStatusWidget.vue";
-import AuthAlertModal from "../components/modals/AuthAlertModal.vue";
-import CreatePostModal from "../components/modals/CreatePostModal.vue";
-import PostCard from "../components/feed/PostCard.vue";
+import HomeHero from "@/components/layout/HomeHero.vue";
+import ArtifactManager from "@/components/game/ArtifactManager.vue";
+import FeedStatusCard from "@/components/feed/FeedStatusCard.vue";
+import GameWidget from "@/components/game/GameWidget.vue";
+import ParkStatusWidget from "@/components/layout/ParkStatusWidget.vue";
+import AuthAlertModal from "@/components/auth/AuthAlertModal.vue";
+import CreatePostModal from "@/components/feed/CreatePostModal.vue";
+import PostCard from "@/components/feed/PostCard.vue";
 
 // inicializa as stores
 const authStore = useAuthStore();

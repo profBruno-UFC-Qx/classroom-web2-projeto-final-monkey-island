@@ -16,11 +16,6 @@
         <router-link to="/comunidades" class="nav-lab-link">
           <i class="bi bi-shield-shaded"></i> Setores
         </router-link>
-
-        <router-link v-if="authStore.user?.role === 'researcher' || authStore.user?.role === 'admin'" 
-          to="/area-pesquisador" class="nav-lab-link text-warning">
-          <i class="bi bi-microscope"></i> Laboratório
-        </router-link>
       </div>
 
       <div class="d-flex align-items-center gap-3">
@@ -67,7 +62,7 @@
 </template>
 
 <script setup lang="ts">
-import { useAuthStore } from '../stores/authStore';
+import { useAuthStore } from '@/stores/authStore';
 import { useRouter } from 'vue-router';
 
 const authStore = useAuthStore();

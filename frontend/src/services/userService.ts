@@ -1,5 +1,5 @@
 import api from "@/api/api";
-import type { User } from "../types/user";
+import type { User } from "@/types/user";
 
 function normalizeUser(data: any): User {
   return {

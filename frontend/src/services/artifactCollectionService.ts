@@ -1,8 +1,8 @@
 import type {
   ArtifactCollectionResponse,
   ArtifactRarity,
-} from "../types/artifact";
-import api from "../api/api";
+} from "@/types/artifact";
+import api from "@/api/api";
 
 export default {
   async getMyCollection(

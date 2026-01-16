@@ -72,9 +72,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import PostCard from '../feed/PostCard.vue';
-import postService from '../../services/postService';
-import type { Post } from '../../types/post';
+import PostCard from '@/components/feed/PostCard.vue';
+import postService from '@/services/postService';
+import type { Post } from '@/types/post';
 
 const activeTab = ref<'posts' | 'likes'>('posts');
 const posts = ref<Post[]>([]);

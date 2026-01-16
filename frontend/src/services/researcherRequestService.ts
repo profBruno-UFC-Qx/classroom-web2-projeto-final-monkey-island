@@ -2,7 +2,7 @@ import api from "@/api/api";
 import type {
   CreateResearcherRequestPayload,
   ResearcherRequestResponse,
-} from "../types/researcherRequest";
+} from "@/types/researcherRequest";
 
 export default {
   async createRequest(motivation: string): Promise<ResearcherRequestResponse> {

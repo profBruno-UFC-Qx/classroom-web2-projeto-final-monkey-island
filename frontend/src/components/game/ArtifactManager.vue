@@ -28,8 +28,8 @@
 
 <script setup lang="ts">
 import { onMounted, watch } from 'vue';
-import { useArtifactStore } from '../../stores/artifactStore';
-import { useAuthStore } from '../../stores/authStore';
+import { useArtifactStore } from '@/stores/artifactStore';
+import { useAuthStore } from '@/stores/authStore';
 
 const store = useArtifactStore();
 const authStore = useAuthStore();

@@ -1,17 +1,16 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import type { User } from '../types/user'; 
-import type { LoginCredentials, RegisterCredentials } from '../types/auth'; 
-import authService from '../services/authService';
-import userService from '../services/userService';
-import router from '../router'; // Importação direta do router (certifique-se que o router exporta 'default')
+import type { User } from '@/types/user'; 
+import type { LoginCredentials, RegisterCredentials } from '@/types/auth'; 
+import authService from '@/services/authService';
+import userService from '@/services/userService';
+import router from '@/router'; 
 
 export const useAuthStore = defineStore('auth', () => {
 
   const user = ref<User | null>(JSON.parse(localStorage.getItem('user') || 'null'));
   const token = ref<string | null>(localStorage.getItem('token'));
   
-  // Estado global de loading e erro para autenticação
   const isLoading = ref(false); 
   const error = ref<string | null>(null);
 
@@ -19,9 +18,6 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function checkAuth() {
     if (token.value) {
-      // Evita setar loading se for apenas uma verificação de fundo, 
-      // mas se for refresh de perfil explícito, pode ser útil manter true.
-      // Aqui mantemos true para consistência com o ProfileView.
       isLoading.value = true;
       error.value = null;
       try {
@@ -31,7 +27,7 @@ export const useAuthStore = defineStore('auth', () => {
       } catch (err) {
         console.error("Sessão inválida ou expirada:", err);
         error.value = "Sessão expirada.";
-        logout(true); // Logout silencioso ou com aviso
+        logout(true); 
       } finally {
         isLoading.value = false;
       }
@@ -48,15 +44,12 @@ export const useAuthStore = defineStore('auth', () => {
       token.value = data.jwt;
       localStorage.setItem('token', data.jwt);
       
-      // Busca perfil imediatamente antes de liberar
       await checkAuth();
 
-      // Redirecionamento via Router (SPA friendly)
       router.push('/home');
       return true;
     } catch (err: any) {
       console.error('Erro no login:', err);
-      // Captura mensagem do backend ou usa genérica
       error.value = err.response?.data?.error?.message || err.message || "Falha no login";
       throw err;
     } finally {
@@ -69,7 +62,6 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null;
     try {
       await authService.register(credentials);
-      // Opcional: Já fazer login automático após registro ou redirecionar para login
       router.push('/login'); 
       return true; 
     } catch (err: any) {
@@ -93,8 +85,6 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  // Inicialização: Se existir token, valida.
-  // Nota: Em SSR isso pode causar problemas, mas em SPA puro é aceitável.
   if (token.value) {
     checkAuth();
   }

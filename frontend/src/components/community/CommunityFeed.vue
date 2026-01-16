@@ -34,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import PostCard from "../feed/PostCard.vue";
+import PostCard from "@/components/feed/PostCard.vue";
 
 // recebe os dados da store via props do pai
 defineProps<{

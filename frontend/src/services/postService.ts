@@ -1,6 +1,6 @@
 import api from "@/api/api";
-import { useAuthStore } from "../stores/authStore";
-import type { Post, PostMedia, FeedResponse } from "../types/post";
+import { useAuthStore } from "@/stores/authStore";
+import type { Post, PostMedia, FeedResponse } from "@/types/post";
 
 export default {
   async getPublicFeed(page = 1, limit = 10): Promise<FeedResponse> {

@@ -2,7 +2,7 @@ import type {
   Community,
   CommunityRequest,
   CommunityResponse,
-} from "../types/community";
+} from "@/types/community";
 import api from "@/api/api";
 
 export default {

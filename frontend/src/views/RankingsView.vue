@@ -55,8 +55,8 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue';
-import { usePostStore } from '../stores/postStore';
-import RankingCard from '../components/RankingCard.vue';
+import { usePostStore } from '@/stores/postStore';
+import RankingCard from '@/components/feed/RankingCard.vue';
 
 const postStore = usePostStore();
 

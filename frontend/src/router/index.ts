@@ -1,14 +1,14 @@
 import CommunityView from "@/views/CommunityView.vue";
 import { createRouter, createWebHistory } from "vue-router";
 
-const HomeView = () => import("../views/HomeView.vue");
-const LoginView = () => import("../views/LoginView.vue");
-const RegisterView = () => import("../views/RegisterView.vue");
-const PublishPostView = () => import("../views/PublishPostView.vue");
-const CommunitiesView = () => import("../views/CommunitiesView.vue");
-const ProfileView = () => import("../views/ProfileView.vue");
-const DinoGameView = () => import("../views/DinoGameView.vue");
-const RankingsView = () => import("../views/RankingsView.vue");
+const HomeView = () => import("@/views/HomeView.vue");
+const LoginView = () => import("@/views/LoginView.vue");
+const RegisterView = () => import("@/views/RegisterView.vue");
+const PublishPostView = () => import("@/views/ProfileView.vue");
+const CommunitiesView = () => import("@/views/CommunitiesView.vue");
+const ProfileView = () => import("@/views/ProfileView.vue");
+const DinoGameView = () => import("@/views/DinoGameView.vue");
+const RankingsView = () => import("@/views/RankingsView.vue");
 
 const routes = [
   {

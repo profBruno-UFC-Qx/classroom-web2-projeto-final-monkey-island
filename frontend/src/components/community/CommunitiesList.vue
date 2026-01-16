@@ -44,7 +44,7 @@
 </template>
 
 <script setup lang="ts">
-import CommunityCard from './CommunityCard.vue';
+import CommunityCard from '@/components/community/CommunityCard.vue';
 
 defineProps<{
   communities: any[];

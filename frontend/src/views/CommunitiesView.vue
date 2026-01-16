@@ -40,16 +40,15 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from "vue";
-import { useAuthStore } from "../stores/authStore";
-import { useCommunityStore } from "../stores/communityStore";
+import { useAuthStore } from "@/stores/authStore";
+import { useCommunityStore } from "@/stores/communityStore";
 
 // importação dos componentes organizados
-import CommunitiesHero from "../components/community/CommunitiesHero.vue";
-import CommunitiesControls from "../components/community/CommunitiesControls.vue";
-import CommunitiesList from "../components/community/CommunitiesList.vue";
-import CommunityAside from "../components/community/CommunityAside.vue";
-import CreateCommunityModal from "../components/community/CreateCommunityModal.vue";
-
+import CommunitiesHero from "@/components/community/CommunitiesHero.vue";
+import CommunitiesControls from "@/components/community/CommunitiesControls.vue";
+import CommunitiesList from "@/components/community/CommunitiesList.vue";
+import CommunityAside from "@/components/community/CommunityAside.vue";
+import CreateCommunityModal from "@/components/community/CreateCommunityModal.vue";
 const authStore = useAuthStore();
 const communityStore = useCommunityStore();
 

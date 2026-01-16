@@ -144,9 +144,9 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
-import communityService from "../../services/communityService";
-import postService from "../../services/postService";
-import type { Community } from "../../types/community";
+import communityService from "@/services/communityService";
+import postService from "@/services/postService";
+import type { Community } from "@/types/community";
 import { isAxiosError } from "axios";
 
 const props = defineProps<{

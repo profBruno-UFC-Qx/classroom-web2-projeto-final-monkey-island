@@ -15,7 +15,7 @@
           </h5>
           <div class="d-flex gap-3 mt-1 align-items-center">
             <span class="badge bg-dark rounded-0 font-monospace text-warning x-small">
-              ID: {{ postData.id?.slice(0, 8).toUpperCase() || "S/ID" }}
+              ID: {{ formatShortId(postData.id) }}
             </span>
             <span class="font-monospace x-small text-muted">
               <i class="bi bi-calendar-event me-1"></i> {{ formatDate(postData.createdAt) }}
@@ -89,7 +89,8 @@ import { usePostStore } from "../../stores/postStore";
 
 import postService from "../../services/postService";
 import { getImageUrl } from "../../utils/mediaUtils";
-import { formatDate } from "../../utils/formatters";
+// Adicionada importação do novo formatter
+import { formatDate, formatShortId } from "../../utils/formatters";
 import type { PostMedia } from "../../types/post";
 
 const props = defineProps<{
@@ -99,12 +100,10 @@ const props = defineProps<{
 const authStore = useAuthStore();
 const postStore = usePostStore();
 
-
 const medias = ref<PostMedia[]>([]);
 const currentImageIndex = ref(0);
 
 const postData = computed(() => props.post?.post || props.post || {});
-
 
 onMounted(async () => {
   const postId = postData.value?.id;
@@ -116,7 +115,6 @@ onMounted(async () => {
     console.error(`Erro media post ${postId}`, error);
   }
 });
-
 
 const nextImage = () => {
   if (medias.value.length === 0) return;
@@ -152,7 +150,7 @@ const handleCollect = () => {
 </script>
 
 <style scoped>
-/* Mantive seus estilos originais */
+/* Estilos mantidos conforme original */
 .text-dark-jungle { color: #1a2f2b; }
 .bg-light-industrial { background-color: #f4f4f4; }
 .bg-dark-transparent { background-color: rgba(0, 0, 0, 0.7); }

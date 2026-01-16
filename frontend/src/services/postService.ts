@@ -24,9 +24,7 @@ export default {
   ): Promise<FeedResponse> {
     const response = await api.get<FeedResponse>(
       `/community/${communityId}/posts`,
-      {
-        params: { page, limit },
-      }
+      { params: { page, limit } }
     );
     return response.data;
   },
@@ -42,10 +40,14 @@ export default {
     const authStore = useAuthStore();
     const myUserId = authStore.user?.id;
 
-    // Nota: Mantendo a lógica original de filtro no front-end temporariamente.
-    // O ideal seria um endpoint dedicado /users/me/posts no backend.
+    if (!myUserId) {
+       return { data: [], totalItems: 0, totalPages: 0 };
+    }
+
+    // Alerta de Performance: Filtragem no Client-Side
+    // Idealmente, solicitar ao backend um endpoint GET /users/me/posts
     const response = await api.get<FeedResponse>("/feed", {
-      params: { page, limit: 50 },
+      params: { page, limit: 50 }, // Aumentado limite para tentar pegar mais posts do usuário
     });
 
     const allPosts = response.data.data || [];
@@ -59,21 +61,18 @@ export default {
   },
 
   async getLikedPosts(page = 1, limit = 10): Promise<FeedResponse> {
-    // Mock mantido conforme original
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          data: [],
-          totalItems: 0,
-          totalPages: 0,
-        });
-      }, 300);
-    });
+    // TODO: Implementar endpoint real no backend
+    return {
+      data: [],
+      totalItems: 0,
+      totalPages: 0,
+    };
   },
 
-  async likePost(postId: string) {
-    console.log(`Solicitação de Like para o post: ${postId}`);
-    // Futuro: await api.post(`/posts/${postId}/like`);
+  async likePost(postId: string): Promise<void> {
+     // TODO: Integrar com backend
+    console.log(`Like simulado no post: ${postId}`);
+    // await api.post(`/posts/${postId}/like`);
   },
 
   async createDraft(
@@ -81,8 +80,6 @@ export default {
     title: string,
     content: string
   ): Promise<Post> {
-    // Uso de any aqui é aceitável temporariamente pois a resposta do create
-    // pode ter uma estrutura aninhada diferente do tipo Post padrão
     const response = await api.post<any>(`/community/${communityId}/posts`, {
       title,
       content,
@@ -90,7 +87,7 @@ export default {
 
     const data = response.data;
 
-    // Normalização para garantir que retornamos um objeto Post válido
+    // Normalização defensiva
     if (data.post && data.post.id) {
       return {
         ...data.post,
@@ -100,28 +97,19 @@ export default {
         communityName: data.communityName,
       } as Post;
     }
-
-    return data;
+    
+    // Fallback se a estrutura já vier correta
+    return data as Post;
   },
 
   async uploadMedia(postId: string, files: File[]): Promise<void> {
-    if (!files || files.length === 0) return;
-
-    if (!postId) {
-      console.error("Tentativa de upload de mídia sem ID de post válido.");
-      return;
-    }
+    if (!files?.length || !postId) return;
 
     const formData = new FormData();
-
-    files.forEach((file) => {
-      formData.append("files", file);
-    });
+    files.forEach((file) => formData.append("files", file));
 
     await api.post(`/posts/${postId}/medias`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
+      headers: { "Content-Type": "multipart/form-data" },
     });
   },
 

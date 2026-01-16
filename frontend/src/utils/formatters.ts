@@ -6,3 +6,9 @@ export const formatDate = (dateString?: string) => {
     year: "numeric",
   });
 };
+
+
+export const formatShortId = (id?: string) => {
+  if (!id) return "S/ID";
+  return id.slice(0, 8).toUpperCase();
+};

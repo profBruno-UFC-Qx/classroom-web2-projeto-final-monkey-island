@@ -9,36 +9,36 @@ export default {
   async getMyCommunities(page = 1, limit = 20): Promise<CommunityResponse> {
     const response = await api.get<CommunityResponse>(
       "/community/profile/my-communities",
-      {
-        params: { page, limit },
-      }
+      { params: { page, limit } }
     );
     return response.data;
   },
 
-  async getCommunityById(communityId: string) {
-    const response = await api.get(`/community/${communityId}`);
+  async getCommunityById(communityId: string): Promise<Community> {
+    const response = await api.get<Community>(`/community/${communityId}`);
     return response.data;
   },
 
-  async joinCommunity(communityId: string) {
+  // Retorna status ou void dependendo do backend. Assumindo que retorna msg de sucesso.
+  async joinCommunity(communityId: string): Promise<any> {
     const response = await api.post(`/community/${communityId}/join`);
     return response.data;
   },
 
-  async getPopularCommunities(page = 1, limit = 20) {
+  async getPopularCommunities(page = 1, limit = 20): Promise<CommunityResponse> {
     const response = await api.get<CommunityResponse>("/community/popular", {
       params: { page, limit },
     });
     return response.data;
   },
 
-  async checkMembership(communityId: string) {
+  async checkMembership(communityId: string): Promise<boolean> {
+    // Assumindo que o backend retorna { isMember: boolean } ou similar
     const response = await api.get(`/community/${communityId}/users/isMember`);
-    return response.data;
+    return response.data; 
   },
 
-  async createCommunity(community: CommunityRequest) {
+  async createCommunity(community: CommunityRequest): Promise<CommunityResponse> {
     const response = await api.post<CommunityResponse>("/community", community);
     return response.data;
   },

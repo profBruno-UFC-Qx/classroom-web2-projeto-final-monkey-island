@@ -41,14 +41,14 @@
             </div>
           </div>
 
-          <button type="submit" class="btn btn-warning w-100 py-3 fw-black text-uppercase shadow" :disabled="isLoading">
-            <span v-if="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+          <button type="submit" class="btn btn-warning w-100 py-3 fw-black text-uppercase shadow" :disabled="authStore.isLoading">
+            <span v-if="authStore.isLoading" class="spinner-border spinner-border-sm me-2"></span>
             <span v-else>Iniciar Sessão <i class="bi bi-chevron-right ms-2"></i></span>
           </button>
         </form>
 
-        <div v-if="errorMessage" class="alert alert-danger mt-3 py-2 border-0 bg-danger text-white small text-center fw-bold">
-          <i class="bi bi-shield-lock-fill me-2"></i> {{ errorMessage }}
+        <div v-if="validationError || authStore.error" class="alert alert-danger mt-3 py-2 border-0 bg-danger text-white small text-center fw-bold">
+          <i class="bi bi-shield-lock-fill me-2"></i> {{ validationError || authStore.error }}
         </div>
 
         <div class="text-center mt-4 border-top border-secondary pt-3">
@@ -63,12 +63,12 @@
 
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
-import { useRouter } from 'vue-router';
+// import { useRouter } from 'vue-router'; // Removido: A store agora lida com o redirecionamento
 import { useAuthStore } from '../stores/authStore';
 import { z } from "zod";
 
-const router = useRouter();
 const authStore = useAuthStore();
+// const router = useRouter(); // Não é mais necessário aqui se a store fizer o push
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const loginSchema = z.object({
@@ -81,55 +81,40 @@ const credentials = reactive({
   password: ''
 });
 
-const isLoading = ref(false);
-const errorMessage = ref('');
+// Apenas erro de validação local. O erro de API vem da store.
+const validationError = ref('');
 
 const handleLogin = async () => {
-  errorMessage.value = '';
+  validationError.value = '';
+  // Limpa erro anterior da store ao tentar novamente
+  authStore.error = null; 
   
   const validation = loginSchema.safeParse(credentials);
   if (!validation.success) {
-    errorMessage.value = validation.error.issues[0].message;
+    validationError.value = validation.error.issues[0].message;
     return;
   }
 
-  isLoading.value = true;
-
-  try {
-    const success = await authStore.login(credentials);
-    if (success) {
-      router.push('/home'); 
-    }
-  } catch (error: any) {
-    errorMessage.value = error.response?.data?.message || 'Falha na autenticação. Verifique suas credenciais.';
-  } finally {
-    isLoading.value = false;
-  }
+  // Não precisamos de try/catch aqui se não formos fazer nada específico além de deixar a store lidar com o erro.
+  // A store já define 'isLoading' e 'error'.
+  await authStore.login(credentials);
 };
 </script>
 
 <style scoped>
+/* Estilos mantidos iguais */
 .fossil-card {
   border-radius: 4px;
   border-right: 4px solid #ffb400 !important;
 }
-
 .x-small { font-size: 0.7rem; letter-spacing: 1px; }
-
-.form-control {
-  transition: all 0.3s ease;
-}
-
+.form-control { transition: all 0.3s ease; }
 .form-control:focus {
   background-color: #222 !important;
   border-color: #ffb400;
   box-shadow: none;
   color: white;
 }
-
-.bg-secondary {
-  background-color: #343a40 !important;
-}
-
+.bg-secondary { background-color: #343a40 !important; }
 .fw-black { font-weight: 900; }
 </style>

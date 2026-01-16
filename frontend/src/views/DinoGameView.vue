@@ -9,169 +9,61 @@
         
         <div class="col-xl-7 col-lg-8">
           <CrosswordBoard 
-            :grid="grid"
-            :rows="ROWS"
-            :cols="COLS"
-            :active-clue-id="activeClueId"
-            @reset="resetGame"
-            @check="checkAnswers"
-            @focus-clue="activeClueId = $event"
+            :grid="gameStore.grid"
+            :rows="gameStore.ROWS"
+            :cols="gameStore.COLS"
+            :active-clue-id="gameStore.activeClueId"
+            @reset="gameStore.resetGame"
+            @check="gameStore.checkAnswers"
+            @focus-clue="gameStore.setActiveClue($event)"
           />
         </div>
 
         <div class="col-xl-4 col-lg-4">
           <CluesPanel 
-            :clues="clues"
-            :active-clue-id="activeClueId"
-            @select-clue="highlightWordFromClue"
+            :clues="gameStore.clues"
+            :active-clue-id="gameStore.activeClueId"
+            @select-clue="handleSelectClue"
           />
         </div>
 
       </div>
     </div>
 
-    <VictoryModal :show="gameWon" @reset="resetGame" />
+    <VictoryModal 
+      :show="gameStore.gameWon" 
+      @reset="gameStore.resetGame" 
+    />
 
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
+import { onMounted } from 'vue';
+import { useDinoGameStore } from '../stores/dinoGameStore';
 
-// imports dos novos componentes
 import DinoGameHero from '../components/game/DinoGameHero.vue';
 import CrosswordBoard from '../components/game/CrosswordBoard.vue';
 import CluesPanel from '../components/game/CluesPanel.vue';
 import VictoryModal from '../components/game/VictoryModal.vue';
 
-// --- configuração do grid ---
-interface Cell {
-  isActive: boolean;
-  letter: string;
-  userInput: string;
-  status: 'neutral' | 'correct' | 'wrong';
-  number?: number;
-  wordRefs: number[];
-}
+const gameStore = useDinoGameStore();
 
-const ROWS = 18;
-const COLS = 18;
-const grid = reactive<Cell[][]>([]);
-const activeClueId = ref<number | null>(null);
-const gameWon = ref(false);
-
-// dados das palavras
-const words = [
-  // horizontais
-  { id: 1, word: 'PALEONTOLOGIA', direction: 'across', row: 8, col: 2, text: 'Ciência que estuda a vida do passado através de fósseis' },
-  { id: 4, word: 'VELOCIRAPTOR', direction: 'across', row: 2, col: 2, text: 'Predador ágil famoso por caçar em bando (Jurassic Park)' },
-  { id: 5, word: 'METEORO', direction: 'across', row: 5, col: 1, text: 'Causa provável da extinção em massa do Cretáceo' },
-  { id: 6, word: 'FOSSIL', direction: 'across', row: 14, col: 5, text: 'Resto mineralizado de um ser vivo antigo' },
-  // verticais
-  { id: 2, word: 'TIRANOSSAURO', direction: 'down', row: 3, col: 6, text: 'O "Rei Lagarto Tirano", grande carnívoro do Cretáceo' },
-  { id: 3, word: 'TRICERATOPS', direction: 'down', row: 1, col: 8, text: 'Herbívoro famoso por seus três chifres e escudo ósseo' }
-];
-
-const clues = reactive({
-  across: words.filter(w => w.direction === 'across').map(w => ({ id: w.id, text: w.text, solved: false })),
-  down: words.filter(w => w.direction === 'down').map(w => ({ id: w.id, text: w.text, solved: false }))
-});
-
-// inicializa a matriz do grid
-const initGrid = () => {
-  grid.splice(0, grid.length);
-  for (let r = 0; r < ROWS; r++) {
-    const row: Cell[] = [];
-    for (let c = 0; c < COLS; c++) {
-      row.push({ isActive: false, letter: '', userInput: '', status: 'neutral', wordRefs: [] });
-    }
-    grid.push(row);
-  }
-
-  // preenche com as palavras definidas
-  words.forEach(w => {
-    const letters = w.word.toUpperCase().split('');
-    for (let i = 0; i < letters.length; i++) {
-      let r = w.row;
-      let c = w.col;
-      if (w.direction === 'across') c += i;
-      else r += i;
-
-      if (r < ROWS && c < COLS) {
-        grid[r][c].isActive = true;
-        grid[r][c].letter = letters[i];
-        grid[r][c].wordRefs.push(w.id);
-        if (i === 0) grid[r][c].number = w.id;
-      }
-    }
-  });
-};
-
-// destaca a palavra ao clicar na dica
-const highlightWordFromClue = (id: number) => {
-  activeClueId.value = id;
-  const word = words.find(w => w.id === id);
+// Lógica de UI (manipulação do DOM) permanece na View ou Componente, 
+// pois a Store não deve saber que existe um "document" ou "focus".
+const handleSelectClue = (id: number) => {
+  gameStore.setActiveClue(id);
+  
+  const word = gameStore.getWordDefinition(id);
   if (word) {
-    // força o foco via dom (hack necessário pois o grid é complexo)
+    // Hack de foco mantido aqui, pois é responsabilidade visual
     const el = document.getElementById(`cell-${word.row}-${word.col}`);
     el?.focus();
   }
 };
 
-// verifica se o usuário acertou tudo
-const checkAnswers = () => {
-  let allCorrect = true;
-  for (let r = 0; r < ROWS; r++) {
-    for (let c = 0; c < COLS; c++) {
-      const cell = grid[r][c];
-      if (cell.isActive) {
-        if (cell.userInput === cell.letter) {
-          cell.status = 'correct';
-        } else {
-          cell.status = 'wrong';
-          allCorrect = false;
-        }
-      }
-    }
-  }
-  updateClueStatus();
-  if (allCorrect) gameWon.value = true;
-};
-
-// risca as dicas já resolvidas
-const updateClueStatus = () => {
-  const checkWord = (w: any) => {
-    const letters = w.word.split('');
-    for (let i = 0; i < letters.length; i++) {
-      let r = w.row;
-      let c = w.col;
-      if (w.direction === 'across') c += i; else r += i;
-      if (grid[r][c].userInput !== grid[r][c].letter) return false;
-    }
-    return true;
-  };
-
-  [...clues.across, ...clues.down].forEach(clue => {
-    const wordDef = words.find(w => w.id === clue.id);
-    if (wordDef) clue.solved = checkWord(wordDef);
-  });
-};
-
-// reinicia o jogo
-const resetGame = () => {
-  grid.forEach(row => row.forEach(cell => {
-    if (cell.isActive) {
-      cell.userInput = '';
-      cell.status = 'neutral';
-    }
-  }));
-  [...clues.across, ...clues.down].forEach(c => c.solved = false);
-  gameWon.value = false;
-  activeClueId.value = null;
-};
-
 onMounted(() => {
-  initGrid();
+  gameStore.initGrid();
 });
 </script>
 

@@ -7,6 +7,7 @@ export interface PostResponseDto {
     content: string;
     createdAt: Date;
     status: PostStatus;
+    likeCount: number;
   };
   communityId: string;
   communityName?: string;

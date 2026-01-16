@@ -264,6 +264,7 @@ export class PostService implements IPostService {
         content: post.content,
         createdAt: post.createdAt,
         status: post.status,
+        likeCount: post.likeCount,
       },
       communityId: post.community.id,
       communityName: post.community.name ?? undefined,

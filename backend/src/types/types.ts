@@ -25,4 +25,7 @@ export const TYPES = {
   PostMediaRepositoryDB: Symbol.for("PostMediaRepositoryDB"),
   PostMediaService: Symbol.for("PostMediaService"),
   PostMediaController: Symbol.for(" PostMediaController"),
+  LikeRepository: Symbol.for("LikeRepository"),
+  LikeService: Symbol.for("LikeService"),
+  LikeController: Symbol.for("LikeController"),
 };

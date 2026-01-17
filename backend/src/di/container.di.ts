@@ -72,6 +72,9 @@ import { UserController } from "../controllers/user.controller";
 import { LikeRepositoryInMemory, ILikeRepository } from "../repositories/like.repository";
 import { LikeService, ILikeService } from "../services/like.service";
 import { LikeController } from "../controllers/like.controller";
+import { CommentRepositoryInMemory, ICommentRepository } from "../repositories/comment.repository";
+import { CommentService, ICommentService } from "../services/comment.service";
+import { CommentController } from "../controllers/comment.controller";
 export const container: Container = new Container();
 
 //essa é pra camada de autenticação macaco :)
@@ -160,10 +163,22 @@ container
   .to(PostMediaController);
 container
   .bind<ILikeRepository>(TYPES.LikeRepository)
-  .to(LikeRepositoryInMemory).inSingletonScope(); // Singleton é importante aqui para o Mock manter os dados em memória
+  .to(LikeRepositoryInMemory).inSingletonScope(); 
 container
   .bind<ILikeService>(TYPES.LikeService)
   .to(LikeService);
 container
   .bind<LikeController>(TYPES.LikeController)
   .to(LikeController);
+container
+    .bind<ICommentRepository>(TYPES.CommentRepository)
+    .to(CommentRepositoryInMemory)
+    .inSingletonScope(); 
+
+  container
+    .bind<ICommentService>(TYPES.CommentService)
+    .to(CommentService);
+
+  container
+    .bind<CommentController>(TYPES.CommentController)
+    .to(CommentController);

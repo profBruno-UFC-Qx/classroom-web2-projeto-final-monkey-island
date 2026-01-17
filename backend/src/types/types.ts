@@ -28,4 +28,7 @@ export const TYPES = {
   LikeRepository: Symbol.for("LikeRepository"),
   LikeService: Symbol.for("LikeService"),
   LikeController: Symbol.for("LikeController"),
+  CommentRepository: Symbol.for("CommentRepository"),
+  CommentService: Symbol.for("CommentService"),
+  CommentController: Symbol.for("CommentController"),
 };

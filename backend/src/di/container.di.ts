@@ -72,7 +72,7 @@ import { UserController } from "../controllers/user.controller";
 import { LikeRepositoryDB, ILikeRepository } from "../repositories/like.repository";
 import { LikeService, ILikeService } from "../services/like.service";
 import { LikeController } from "../controllers/like.controller";
-import { CommentRepositoryInMemory, ICommentRepository } from "../repositories/comment.repository";
+import { CommentRepositoryDB, ICommentRepository } from "../repositories/comment.repository";
 import { CommentService, ICommentService } from "../services/comment.service";
 import { CommentController } from "../controllers/comment.controller";
 export const container: Container = new Container();
@@ -171,9 +171,8 @@ container
   .bind<LikeController>(TYPES.LikeController)
   .to(LikeController);
 container
-    .bind<ICommentRepository>(TYPES.CommentRepository)
-    .to(CommentRepositoryInMemory)
-    .inSingletonScope(); 
+  .bind<ICommentRepository>(TYPES.CommentRepository)
+  .to(CommentRepositoryDB);
 
   container
     .bind<ICommentService>(TYPES.CommentService)

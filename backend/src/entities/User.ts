@@ -10,6 +10,7 @@ import {
 import { ResearcherRequest } from "./researcher.request";
 import { ArtifactCollection } from "./artifact.collection";
 import { Like } from "./like";
+import { Comment } from "./comment";
 
 export enum UserRole {
   ADMIN = "admin",
@@ -69,7 +70,7 @@ export class User {
     default: UserStatus.ACTIVE,
   })
   status: UserStatus;
-  
+
   @OneToMany(() => Like, (like) => like.user)
   likes: Like[];
 
@@ -79,6 +80,9 @@ export class User {
   @OneToMany(() => ArtifactCollection, (ac) => ac.user)
   artifactsColletions: ArtifactCollection[];
 
+  @OneToMany(() => Comment, (comment) => comment.user)
+  comments: Comment[];
+  
   @CreateDateColumn()
   createdAt: Date;
 

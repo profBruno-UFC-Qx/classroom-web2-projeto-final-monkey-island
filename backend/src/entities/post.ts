@@ -12,6 +12,7 @@ import { User } from "./User";
 import { Community } from "./community";
 import { PostMedia } from "./post.media";
 import { Like } from "./like";
+import { Comment } from "./comment";
 
 export enum PostStatus {
   DRAFT = "DRAFT",
@@ -54,6 +55,9 @@ export class Post {
   @OneToMany(() => Like, (like) => like.post)
   likes: Like[];
 
+  @OneToMany(() => Comment, (comment) => comment.post)
+  comments: Comment[];
+  
   @Column({ type: "int", default: 0 })
   commentCount: number;
 
@@ -62,4 +66,5 @@ export class Post {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
 }

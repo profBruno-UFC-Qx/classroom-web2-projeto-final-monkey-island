@@ -1,41 +1,37 @@
 import { injectable } from "inversify";
-import { CommentMemory } from "../entities/comment.memory";
+import { AppDataSource } from "../config/db.connection";
+import { Comment } from "../entities/comment";
+
 
 export interface ICommentRepository {
-  save(comment: CommentMemory): Promise<CommentMemory>;
-  findById(id: string): Promise<CommentMemory | undefined>;
-  delete(id: string): Promise<void>;
-  findAllByPostId(postId: string): Promise<CommentMemory[]>;
+  save(comment: Comment): Promise<Comment>;
+  delete(commentId: string): Promise<void>;
+  findById(commentId: string): Promise<Comment | null>;
+  findAllByPostId(postId: string): Promise<Comment[]>;
 }
 
 @injectable()
-export class CommentRepositoryInMemory implements ICommentRepository {
-  // Armazenamento em RAM
-  private comments: CommentMemory[] = [];
-
-  async save(comment: CommentMemory): Promise<CommentMemory> {
-    // Se já existe, atualiza (não usaremos update por enquanto, mas é boa prática)
-    const index = this.comments.findIndex((c) => c.id === comment.id);
-    if (index >= 0) {
-      this.comments[index] = comment;
-    } else {
-      this.comments.push(comment);
-    }
-    return comment;
+export class CommentRepositoryDB implements ICommentRepository {
+  private get repo() {
+    return AppDataSource.getRepository(Comment);
   }
 
-  async findById(id: string): Promise<CommentMemory | undefined> {
-    return this.comments.find((c) => c.id === id);
+  async save(comment: Comment): Promise<Comment> {
+    return await this.repo.save(comment);
   }
 
-  async delete(id: string): Promise<void> {
-    // Filtra removendo o item com o ID especificado
-    // Nota: Em uma implementação real recursiva, deveríamos apagar os filhos também.
-    // Aqui faremos a remoção simples.
-    this.comments = this.comments.filter((c) => c.id !== id && c.parentId !== id);
+  async delete(commentId: string): Promise<void> {
+    await this.repo.delete(commentId);
   }
 
-  async findAllByPostId(postId: string): Promise<CommentMemory[]> {
-    return this.comments.filter((c) => c.postId === postId);
+  async findById(commentId: string): Promise<Comment | null> {
+    return await this.repo.findOne({ where: { id: commentId } });
+  }
+
+  async findAllByPostId(postId: string): Promise<Comment[]> {
+    return await this.repo.find({
+      where: { postId: postId },
+      order: { createdAt: "ASC" } 
+    });
   }
 }

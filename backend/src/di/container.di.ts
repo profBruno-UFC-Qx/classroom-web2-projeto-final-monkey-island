@@ -69,7 +69,7 @@ import {
 } from "../services/post.media.service";
 import { PostMediaController } from "../controllers/post.media.controller";
 import { UserController } from "../controllers/user.controller";
-import { LikeRepositoryInMemory, ILikeRepository } from "../repositories/like.repository";
+import { LikeRepositoryDB, ILikeRepository } from "../repositories/like.repository";
 import { LikeService, ILikeService } from "../services/like.service";
 import { LikeController } from "../controllers/like.controller";
 import { CommentRepositoryInMemory, ICommentRepository } from "../repositories/comment.repository";
@@ -163,7 +163,7 @@ container
   .to(PostMediaController);
 container
   .bind<ILikeRepository>(TYPES.LikeRepository)
-  .to(LikeRepositoryInMemory).inSingletonScope(); 
+  .to(LikeRepositoryDB);
 container
   .bind<ILikeService>(TYPES.LikeService)
   .to(LikeService);

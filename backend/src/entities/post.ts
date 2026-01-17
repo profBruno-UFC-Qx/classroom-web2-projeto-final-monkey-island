@@ -11,6 +11,7 @@ import {
 import { User } from "./User";
 import { Community } from "./community";
 import { PostMedia } from "./post.media";
+import { Like } from "./like";
 
 export enum PostStatus {
   DRAFT = "DRAFT",
@@ -49,6 +50,9 @@ export class Post {
 
   @Column({ type: "int", default: 0 })
   likeCount: number;
+
+  @OneToMany(() => Like, (like) => like.post)
+  likes: Like[];
 
   @Column({ type: "int", default: 0 })
   commentCount: number;

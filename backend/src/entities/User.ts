@@ -9,6 +9,7 @@ import {
 
 import { ResearcherRequest } from "./researcher.request";
 import { ArtifactCollection } from "./artifact.collection";
+import { Like } from "./like";
 
 export enum UserRole {
   ADMIN = "admin",
@@ -68,6 +69,9 @@ export class User {
     default: UserStatus.ACTIVE,
   })
   status: UserStatus;
+  
+  @OneToMany(() => Like, (like) => like.user)
+  likes: Like[];
 
   @OneToMany(() => ResearcherRequest, (request) => request.user)
   researcherRequests: ResearcherRequest[];

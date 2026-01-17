@@ -16,6 +16,25 @@
         <router-link to="/comunidades" class="nav-lab-link">
           <i class="bi bi-shield-shaded"></i> Setores
         </router-link>
+
+        <template v-if="authStore.user?.role === 'ADMIN'">
+          <div class="vr text-secondary mx-1" style="height: 20px;"></div>
+          
+          <router-link to="/admin/requests" class="nav-lab-link text-info" title="Solicitações">
+            <i class="bi bi-inbox-fill"></i>
+            <span v-if="adminStore.pendingRequests.length > 0" class="badge bg-danger rounded-pill" style="font-size: 0.6rem;">
+              {{ adminStore.pendingRequests.length }}
+            </span>
+          </router-link>
+          
+          <router-link to="/admin/artifacts" class="nav-lab-link text-info" title="Gerir Artefatos">
+            <i class="bi bi-gem"></i>
+          </router-link>
+          
+          <router-link to="/admin/users" class="nav-lab-link text-info" title="Gerir Usuários">
+            <i class="bi bi-people-fill"></i>
+          </router-link>
+        </template>
       </div>
 
       <div class="d-flex align-items-center gap-3">
@@ -39,6 +58,27 @@
                   <i class="bi bi-person me-2"></i>Perfil
                 </router-link>
               </li>
+              
+              <template v-if="authStore.user?.role === 'ADMIN'">
+                <li><hr class="dropdown-divider border-secondary"></li>
+                <li><h6 class="dropdown-header text-warning opacity-75">ADMINISTRAÇÃO</h6></li>
+                <li>
+                  <router-link class="dropdown-item" to="/admin/requests">
+                    <i class="bi bi-clipboard-check me-2"></i>Solicitações
+                  </router-link>
+                </li>
+                <li>
+                  <router-link class="dropdown-item" to="/admin/artifacts">
+                    <i class="bi bi-gem me-2"></i>Artefatos
+                  </router-link>
+                </li>
+                <li>
+                  <router-link class="dropdown-item" to="/admin/users">
+                    <i class="bi bi-people me-2"></i>Usuários
+                  </router-link>
+                </li>
+              </template>
+
               <li><hr class="dropdown-divider border-secondary"></li>
               <li>
                 <button @click="handleLogout" class="dropdown-item text-danger">
@@ -62,11 +102,21 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue'; // Importado para buscar requests ao montar
 import { useAuthStore } from '@/stores/authStore';
+import { useAdminStore } from '@/stores/adminStore'; // Importe a store do admin
 import { useRouter } from 'vue-router';
 
 const authStore = useAuthStore();
+const adminStore = useAdminStore(); // Instancia a store
 const router = useRouter();
+
+// Opcional: Buscar contagem de solicitações se for admin
+onMounted(() => {
+  if (authStore.user?.role === 'ADMIN') {
+    adminStore.fetchPendingRequests();
+  }
+});
 
 const handleLogout = () => {
   authStore.logout();
@@ -101,6 +151,14 @@ const handleLogout = () => {
 .nav-lab-link:hover {
   color: #ffb400;
   transform: translateY(-2px);
+}
+
+/* Classe utilitária para os links de admin */
+.text-info {
+  color: #0dcaf0 !important;
+}
+.text-info:hover {
+  color: #3dd5f3 !important;
 }
 
 .status-indicator {

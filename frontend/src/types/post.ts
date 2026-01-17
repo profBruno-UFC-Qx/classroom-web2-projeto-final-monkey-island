@@ -13,17 +13,21 @@ export interface Post {
   title: string;
   content: string;
   createdAt: string;
-  status: PostStatus;
-
-  communityId: string;
-  communityName?: string;
-  authorId: string;
-  authorName?: string;
-
+  author: {
+    id: string;
+    name: string;
+  };
+  community: {
+    id: string;
+    name: string;
+  };
   likeCount: number;
-  commentCount: number;
+  userHasLiked?: boolean;
+}
 
-  medias?: PostMedia[];
+export interface LikeToggleResponse {
+  liked: boolean;
+  newLikeCount: number;
 }
 
 export type FeedResponse = PaginatedResponse<Post>;

@@ -13,7 +13,7 @@
 
 <script setup lang="ts">
 // importa o componente do formulário de registro
-import RegisterForm from "@/components/RegisterForm.vue";
+import RegisterForm from "@/components/auth/RegisterForm.vue";
 </script>
 
 <style scoped>

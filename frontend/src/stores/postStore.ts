@@ -4,7 +4,7 @@ import postService from '@/services/postService';
 import { useAuthStore } from '@/stores/authStore';
 import type { Post } from '@/types/post';
 
-// interface simples para os itens do ranking
+// Interface simples para os itens do ranking
 export interface RankItem {
   id: string;
   name: string;
@@ -28,6 +28,8 @@ export const usePostStore = defineStore('post', () => {
   const loadingRankings = ref(false);
   const analyzedCount = ref(0);
 
+  // --- Actions do Feed ---
+
   const resetStore = () => {
     posts.value = [];
     page.value = 1;
@@ -44,6 +46,7 @@ export const usePostStore = defineStore('post', () => {
 
   const fetchPosts = async (loadMoreAction = false) => {
     if (isLoading.value) return;
+    
     if (!loadMoreAction) {
       page.value = 1;
       posts.value = [];
@@ -74,6 +77,7 @@ export const usePostStore = defineStore('post', () => {
       if (!loadMoreAction) {
         posts.value = data;
       } else {
+        // Evita duplicatas ao carregar mais
         const newPosts = data.filter(
           (newP) => !posts.value.some((existingP) => existingP.id === newP.id)
         );
@@ -93,12 +97,40 @@ export const usePostStore = defineStore('post', () => {
     }
   };
 
-  // --- Nova Ação: Buscar e Calcular Rankings ---
+  // --- Nova Action: Curtir / Descurtir (Corrigida) ---
+  const toggleLike = async (postId: string) => {
+    try {
+      // 1. Chamada ao backend
+      const response = await postService.toggleLike(postId);
+      
+      // 2. Atualiza o estado local do post específico
+      // Procura o item na lista. O ID pode estar em 'p.id' ou em 'p.post.id' dependendo do endpoint
+      const postItem = posts.value.find((p: any) => {
+        const actualId = p.post?.id || p.id;
+        return actualId === postId;
+      });
+
+      if (postItem) {
+        // Define qual objeto vai receber a atualização (o wrapper ou o objeto direto)
+        const target = (postItem as any).post ? (postItem as any).post : postItem;
+
+        // Atualiza os valores reativamente
+        target.likeCount = response.newLikeCount;
+        target.userHasLiked = response.liked;
+      }
+    } catch (error) {
+      console.error("Erro ao curtir post:", error);
+      // Aqui você poderia adicionar uma notificação de erro visual
+    }
+  };
+
+  // --- Nova Action: Buscar e Calcular Rankings ---
   const fetchRankings = async () => {
     try {
       loadingRankings.value = true;
       
       // Busca uma amostra maior (200 posts) para análise estatística
+      // Nota: Em produção real, isso deveria ser um endpoint dedicado no backend
       const response = await postService.getPublicFeed(1, 200);
       const postsData = response.data || [];
       analyzedCount.value = postsData.length;
@@ -121,7 +153,7 @@ export const usePostStore = defineStore('post', () => {
         }
       });
 
-      // Ordena e pega os top 10
+      // Ordena por contagem (maior para menor) e pega os top 10
       topUsers.value = [...userMap.values()].sort((a, b) => b.count - a.count).slice(0, 10);
       topCommunities.value = [...commMap.values()].sort((a, b) => b.count - a.count).slice(0, 10);
 
@@ -133,22 +165,20 @@ export const usePostStore = defineStore('post', () => {
   };
 
   return {
-    // Feed
     posts,
     page,
     totalPages,
     isLoading,
     currentContextId,
-    setContext,
-    fetchPosts,
-    loadMore,
-    resetStore,
-    
-    // Rankings (Novos)
     topUsers,
     topCommunities,
     loadingRankings,
     analyzedCount,
-    fetchRankings
+    setContext,
+    fetchPosts,
+    loadMore,
+    resetStore,
+    toggleLike,
+    fetchRankings  
   };
 });

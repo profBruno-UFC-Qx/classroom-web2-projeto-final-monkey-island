@@ -1,4 +1,5 @@
 import CommunityView from "@/views/CommunityView.vue";
+import PostDetailsView from '../views/PostDetailsView.vue';
 import { createRouter, createWebHistory } from "vue-router";
 
 const HomeView = () => import("@/views/HomeView.vue");
@@ -62,6 +63,12 @@ const routes = [
     name: "rankings",
     component: RankingsView,
   },
+  {
+      path: '/posts/:id',
+      name: 'post-details',
+      component: PostDetailsView,
+      meta: { requiresAuth: true }
+    },
 ];
 
 const router = createRouter({

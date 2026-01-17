@@ -62,16 +62,21 @@
         </p>
 
         <div class="d-flex gap-2 flex-wrap pt-2 border-top border-secondary-subtle">
-          <button class="btn btn-action btn-sm px-3">
+          <button @click="handleCommentClick" class="btn btn-action btn-sm px-3">
             <i class="bi bi-chat-left-text-fill me-2"></i>
             {{ postData.commentCount || 0 }}
           </button>
 
-          <button @click="handleLike" class="btn btn-action-danger btn-sm px-3">
-            <i class="bi bi-heart-fill me-2"></i> {{ postData.likeCount || 0 }}
+          <button 
+            @click.stop="handleLike" 
+            class="btn btn-action-danger btn-sm px-3"
+            :class="{ 'active-like': postData.userHasLiked }" 
+          >
+            <i class="bi me-2" :class="postData.userHasLiked ? 'bi-heart-fill' : 'bi-heart'"></i>
+            {{ postData.likeCount || 0 }}
           </button>
 
-          <button @click="handleCollect" class="btn btn-action-warning btn-sm px-3 ms-auto">
+          <button @click.stop="handleCollect" class="btn btn-action-warning btn-sm px-3 ms-auto">
             <i class="bi bi-archive-fill me-2"></i> CATALOGAR
           </button>
         </div>
@@ -82,6 +87,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
+import { useRouter } from 'vue-router'; // Importar router
 import * as bootstrap from "bootstrap";
 
 import { useAuthStore } from "@/stores/authStore";
@@ -89,25 +95,29 @@ import { usePostStore } from "@/stores/postStore";
 
 import postService from "@/services/postService";
 import { getImageUrl } from "@/utils/mediaUtils";
-// Adicionada importação do novo formatter
 import { formatDate, formatShortId } from "@/utils/formatters";
 import type { PostMedia } from "@/types/post";
 
 const props = defineProps<{
   post: any;
+  isDetailView?: boolean; // Prop para saber se já estamos na view de detalhes
 }>();
 
+const router = useRouter(); // Instanciar router
 const authStore = useAuthStore();
 const postStore = usePostStore();
 
 const medias = ref<PostMedia[]>([]);
 const currentImageIndex = ref(0);
 
+// Normaliza o objeto post para garantir que acessamos os dados corretamente
+// independente se vier dentro de um wrapper 'post' ou direto
 const postData = computed(() => props.post?.post || props.post || {});
 
 onMounted(async () => {
   const postId = postData.value?.id;
   if (!postId) return;
+  
   try {
     const fetchedMedias = await postService.getPostMedias(postId);
     medias.value = fetchedMedias.sort((a, b) => a.order - b.order);
@@ -138,9 +148,18 @@ const checkAuth = () => {
   return true;
 };
 
+// Navegação para a tela de detalhes do post
+const handleCommentClick = () => {
+  if (props.isDetailView) return; // Se já estamos na tela de detalhes, não faz nada
+  // Navega para a rota de detalhes passando o ID do post
+  router.push(`/posts/${postData.value.id}`);
+};
+
+// Lógica de Like conectada à Store
 const handleLike = async () => {
   if (!checkAuth()) return;
-  await postStore.likePost(postData.value.id);
+  // Chama a action criada na Store (toggleLike)
+  await postStore.toggleLike(postData.value.id);
 };
 
 const handleCollect = () => {
@@ -150,7 +169,7 @@ const handleCollect = () => {
 </script>
 
 <style scoped>
-/* Estilos mantidos conforme original */
+/* CORES E VARIÁVEIS DO TEMA */
 .text-dark-jungle { color: #1a2f2b; }
 .bg-light-industrial { background-color: #f4f4f4; }
 .bg-dark-transparent { background-color: rgba(0, 0, 0, 0.7); }
@@ -158,18 +177,123 @@ const handleCollect = () => {
 .x-small { font-size: 0.7rem; }
 .tracking-wide { letter-spacing: 1px; }
 .tracking-widest { letter-spacing: 3px; }
-.post-card { border-left: 0; border-radius: 4px; background-color: #fff; clip-path: polygon(0 0, 100% 0, 100% 100%, 10px 100%, 0 calc(100% - 10px)); }
-.post-image-container { min-height: 200px; border-bottom: 2px solid #ffc107; }
-.slider-control { position: absolute; top: 0; bottom: 0; width: 15%; background: transparent; border: none; color: white; opacity: 0; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; }
+
+/* CARD BASE */
+.post-card { 
+  border-left: 0; 
+  border-radius: 4px; 
+  background-color: #fff; 
+  /* Efeito de corte no canto inferior esquerdo (Tech Style) */
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 10px 100%, 0 calc(100% - 10px)); 
+}
+
+/* IMAGEM E CARROSEL */
+.post-image-container { 
+  min-height: 200px; 
+  border-bottom: 2px solid #ffc107; 
+}
+
+.slider-control { 
+  position: absolute; 
+  top: 0; 
+  bottom: 0; 
+  width: 15%; 
+  background: transparent; 
+  border: none; 
+  color: white; 
+  opacity: 0; 
+  transition: all 0.2s ease; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  cursor: pointer; 
+  z-index: 10; 
+}
+
 .post-image-container:hover .slider-control { opacity: 1; }
 .slider-control:hover { background: rgba(0, 0, 0, 0.4); color: #ffc107; }
-.object-fit-contain { object-fit: contain; background-color: #000; width: 100%; height: 100%; }
-.watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); font-size: 4rem; font-weight: 900; color: rgba(0, 0, 0, 0.03); pointer-events: none; z-index: 0; text-transform: uppercase; }
-.classification-strip { position: absolute; left: 0; top: 0; bottom: 0; width: 30px; background: repeating-linear-gradient(45deg, #1a2f2b, #1a2f2b 10px, #142421 10px, #142421 20px); border-right: 2px solid #ffc107; color: rgba(255, 255, 255, 0.5); font-size: 0.6rem; font-weight: bold; z-index: 2; }
-.vertical-text { writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg); }
-.btn-action, .btn-action-danger, .btn-action-warning { border: 1px solid #ced4da; background-color: white; color: #6c757d; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; transition: all 0.2s ease; }
+
+.object-fit-contain { 
+  object-fit: contain; 
+  background-color: #000; 
+  width: 100%; 
+  height: 100%; 
+}
+
+/* ELEMENTOS DECORATIVOS (Secret Files Theme) */
+.watermark { 
+  position: absolute; 
+  top: 50%; 
+  left: 50%; 
+  transform: translate(-50%, -50%) rotate(-30deg); 
+  font-size: 4rem; 
+  font-weight: 900; 
+  color: rgba(0, 0, 0, 0.03); 
+  pointer-events: none; 
+  z-index: 0; 
+  text-transform: uppercase; 
+}
+
+.classification-strip { 
+  position: absolute; 
+  left: 0; 
+  top: 0; 
+  bottom: 0; 
+  width: 30px; 
+  background: repeating-linear-gradient(45deg, #1a2f2b, #1a2f2b 10px, #142421 10px, #142421 20px); 
+  border-right: 2px solid #ffc107; 
+  color: rgba(255, 255, 255, 0.5); 
+  font-size: 0.6rem; 
+  font-weight: bold; 
+  z-index: 2; 
+}
+
+.vertical-text { 
+  writing-mode: vertical-rl; 
+  text-orientation: mixed; 
+  transform: rotate(180deg); 
+}
+
+/* BOTÕES DE AÇÃO */
+.btn-action, .btn-action-danger, .btn-action-warning { 
+  border: 1px solid #ced4da; 
+  background-color: white; 
+  color: #6c757d; 
+  font-weight: 700; 
+  font-size: 0.75rem; 
+  text-transform: uppercase; 
+  transition: all 0.2s ease; 
+}
+
 .btn-action:hover { background-color: #e9ecef; color: #212529; }
-.btn-action-danger:hover { background-color: #fff5f5; color: #dc3545; border-color: #dc3545; }
-.btn-action-warning:hover { background-color: #fff9e6; color: #b48900; border-color: #ffc107; }
-.title-glitch:hover { text-shadow: 2px 0 #ffc107, -2px 0 #dc3545; }
+
+.btn-action-danger:hover { 
+  background-color: #fff5f5; 
+  color: #dc3545; 
+  border-color: #dc3545; 
+}
+
+.btn-action-warning:hover { 
+  background-color: #fff9e6; 
+  color: #b48900; 
+  border-color: #ffc107; 
+}
+
+/* ESTADO ATIVO DO LIKE (Novo) */
+.btn-action-danger.active-like {
+  background-color: #dc3545;
+  color: white;
+  border-color: #dc3545;
+}
+
+.title-glitch:hover { 
+  text-shadow: 2px 0 #ffc107, -2px 0 #dc3545; 
+}
+
+.line-clamp-content {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 </style>

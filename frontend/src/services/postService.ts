@@ -1,7 +1,6 @@
 import api from "@/api/api";
 import { useAuthStore } from "@/stores/authStore";
-import type { Post, PostMedia, FeedResponse } from "@/types/post";
-
+import type { Post, PostMedia, FeedResponse,LikeToggleResponse } from "@/types/post";
 export default {
   async getPublicFeed(page = 1, limit = 10): Promise<FeedResponse> {
     const response = await api.get<FeedResponse>("/feed/public", {
@@ -116,5 +115,13 @@ export default {
   async publishPost(postId: string): Promise<Post> {
     const response = await api.patch<Post>(`/posts/${postId}/publish`);
     return response.data;
+  },
+  async toggleLike(postId: string): Promise<LikeToggleResponse> {
+    const { data } = await api.post<LikeToggleResponse>(`/posts/${postId}/like`);
+    return data;
+  },
+  async getPostById(postId: string): Promise<PostResponse> {
+    const { data } = await api.get<PostResponse>(`/posts/${postId}`);
+    return data;
   },
 };

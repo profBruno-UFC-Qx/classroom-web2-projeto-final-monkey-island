@@ -58,7 +58,7 @@
 import { ref, onMounted } from "vue";
 import { useAuthStore } from "../stores/authStore";
 
-// importação dos componentes visuais
+// Importação dos componentes visuais
 import ProfileCard from "@/components/profile/ProfileCard.vue";
 import ProfileFeed from "@/components/profile/ProfileFeed.vue";
 import RelicsVaultModal from "@/components/game/RelicsVaultModal.vue";
@@ -66,16 +66,16 @@ import MyCommunitiesModal from "@/components/community/MyCommunitiesModal.vue";
 import ResearcherRequestModal from "@/components/admin/ResearcherRequestModal.vue";
 import ResearcherRequestsAdminModal from "@/components/admin/ResearcherRequestsAdminModal.vue";
 
-// inicializa a store de autenticação
+// Inicializa a store de autenticação
 const authStore = useAuthStore();
 
-// referencias para controlar os modais
+// Referencias para controlar os modais
 const vaultModal = ref();
 const communitiesModal = ref();
 const requestModal = ref();
 const adminRequestsModal = ref();
 
-// funções simples para abrir cada modal
+// Funções simples para abrir cada modal
 const handleOpenVault = () => {
   vaultModal.value?.open();
 };
@@ -92,14 +92,14 @@ const handleOpenAdminRequests = () => {
   adminRequestsModal.value?.open();
 };
 
-// busca os dados mais recentes assim que a tela abre
+// Busca os dados mais recentes assim que a tela abre
 onMounted(() => {
   authStore.refreshProfile();
 });
 </script>
 
 <style scoped>
-/* estilos simples para complementar o bootstrap */
+/* Estilos simples para complementar o bootstrap */
 .text-dark {
   color: #212529;
 }

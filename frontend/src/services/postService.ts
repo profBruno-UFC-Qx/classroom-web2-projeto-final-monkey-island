@@ -59,15 +59,6 @@ export default {
     };
   },
 
-  async getLikedPosts(page = 1, limit = 10): Promise<FeedResponse> {
-    // TODO: Implementar endpoint real no backend
-    return {
-      data: [],
-      totalItems: 0,
-      totalPages: 0,
-    };
-  },
-
   async likePost(postId: string): Promise<void> {
      // TODO: Integrar com backend
     console.log(`Like simulado no post: ${postId}`);

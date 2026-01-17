@@ -75,10 +75,6 @@
             <i class="bi me-2" :class="postData.userHasLiked ? 'bi-heart-fill' : 'bi-heart'"></i>
             {{ postData.likeCount || 0 }}
           </button>
-
-          <button @click.stop="handleCollect" class="btn btn-action-warning btn-sm px-3 ms-auto">
-            <i class="bi bi-archive-fill me-2"></i> CATALOGAR
-          </button>
         </div>
       </div>
     </div>
@@ -160,11 +156,6 @@ const handleLike = async () => {
   if (!checkAuth()) return;
   // Chama a action criada na Store (toggleLike)
   await postStore.toggleLike(postData.value.id);
-};
-
-const handleCollect = () => {
-  if (!checkAuth()) return;
-  window.alert("Funcionalidade delegada para ArtifactStore (Em breve)");
 };
 </script>
 
@@ -255,7 +246,7 @@ const handleCollect = () => {
 }
 
 /* BOTÕES DE AÇÃO */
-.btn-action, .btn-action-danger, .btn-action-warning { 
+.btn-action, .btn-action-danger { 
   border: 1px solid #ced4da; 
   background-color: white; 
   color: #6c757d; 
@@ -271,12 +262,6 @@ const handleCollect = () => {
   background-color: #fff5f5; 
   color: #dc3545; 
   border-color: #dc3545; 
-}
-
-.btn-action-warning:hover { 
-  background-color: #fff9e6; 
-  color: #b48900; 
-  border-color: #ffc107; 
 }
 
 /* ESTADO ATIVO DO LIKE (Novo) */

@@ -10,4 +10,7 @@ export default {
   async register(credentials: RegisterCredentials): Promise<void> {
     await api.post("/auth/register-user", credentials);
   },
+  async registerAdmin(credentials: RegisterCredentials): Promise<void> {
+    await api.post('/auth/register-admin', credentials);
+  },
 };

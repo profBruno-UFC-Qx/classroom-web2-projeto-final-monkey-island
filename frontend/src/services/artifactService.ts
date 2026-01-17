@@ -25,5 +25,29 @@ export default {
     const cleanPath = path.startsWith('/') ? path.slice(1) : path;
     // Usa a constante exportada do api.ts em vez de string mágica
     return `${BASE_URL}/images/${cleanPath}`;
-  }
+  },
+  // Adicione estes métodos ao objeto exportado em src/services/artifactService.ts
+
+  async getAllArtifacts(): Promise<Artifact[]> {
+    const response = await api.get<Artifact[]>('/artifacts');
+    return response.data;
+  },
+
+  async createArtifact(formData: FormData): Promise<Artifact> {
+    const response = await api.post<Artifact>('/artifacts', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
+  async updateArtifact(id: string, data: Partial<Artifact>): Promise<Artifact> {
+    const response = await api.put<Artifact>(`/artifacts/${id}`, data);
+    return response.data;
+  },
+
+  async deleteArtifact(id: string): Promise<void> {
+    await api.delete(`/artifacts/${id}`);
+  },
 };

@@ -22,4 +22,12 @@ export default {
     const response = await api.get(`/users/${userId}`);
     return normalizeUser(response.data);
   },
+  async getAllUsers(): Promise<User[]> {
+    const response = await api.get<User[]>('/users');
+    return response.data.map(normalizeUser);
+  },
+
+  async banUser(userId: string): Promise<void> {
+    await api.patch(`/users/${userId}/ban`);
+  },
 };

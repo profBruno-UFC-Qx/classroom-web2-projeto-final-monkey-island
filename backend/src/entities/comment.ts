@@ -19,10 +19,10 @@ export class Comment {
   @Column({ type: "text" })
   content: string;
 
-  @Column()
+  @Column({ type: "varchar" })
   userId: string;
 
-  @Column()
+  @Column({ type: "varchar" })
   postId: string;
 
   @ManyToOne(() => User, (user) => user.comments, { onDelete: "CASCADE" })
@@ -33,14 +33,14 @@ export class Comment {
   @JoinColumn({ name: "postId" })
   post: Post;
 
-  @ManyToOne(() => Comment, (comment) => comment.replies, { 
-    nullable: true, 
-    onDelete: "CASCADE" 
+  @ManyToOne(() => Comment, (comment) => comment.replies, {
+    nullable: true,
+    onDelete: "CASCADE",
   })
   @JoinColumn({ name: "parentId" })
   parent: Comment;
 
-  @Column({ nullable: true })
+  @Column({ type: "varchar", nullable: true })
   parentId: string | null;
 
   @OneToMany(() => Comment, (comment) => comment.parent)

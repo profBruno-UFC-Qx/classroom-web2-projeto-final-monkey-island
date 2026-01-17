@@ -130,7 +130,6 @@ export const usePostStore = defineStore('post', () => {
       loadingRankings.value = true;
       
       // Busca uma amostra maior (200 posts) para análise estatística
-      // Nota: Em produção real, isso deveria ser um endpoint dedicado no backend
       const response = await postService.getPublicFeed(1, 200);
       const postsData = response.data || [];
       analyzedCount.value = postsData.length;
@@ -138,18 +137,28 @@ export const usePostStore = defineStore('post', () => {
       const userMap = new Map<string, RankItem>();
       const commMap = new Map<string, RankItem>();
 
-      postsData.forEach(post => {
+      postsData.forEach((item: any) => {
+        // Normaliza o acesso aos dados, verificando dentro do objeto 'post' (novo formato do back)
+        // e também na raiz (formato legado/fallback)
+        const p = item.post || {};
+
+        const authorId = item.authorId || p.authorId || p.author?.id;
+        const authorName = p.authorName || item.authorName || p.author?.name;
+
+        const communityId = item.communityId || p.communityId || p.community?.id;
+        const communityName = p.communityName || item.communityName || p.community?.name;
+
         // Contabiliza Usuários
-        if (post.authorId && post.authorName) {
-          const curr = userMap.get(post.authorId) || { id: post.authorId, name: post.authorName, count: 0 };
+        if (authorId && authorName) {
+          const curr = userMap.get(authorId) || { id: authorId, name: authorName, count: 0 };
           curr.count++;
-          userMap.set(post.authorId, curr);
+          userMap.set(authorId, curr);
         }
         // Contabiliza Comunidades
-        if (post.communityId && post.communityName) {
-          const curr = commMap.get(post.communityId) || { id: post.communityId, name: post.communityName, count: 0 };
+        if (communityId && communityName) {
+          const curr = commMap.get(communityId) || { id: communityId, name: communityName, count: 0 };
           curr.count++;
-          commMap.set(post.communityId, curr);
+          commMap.set(communityId, curr);
         }
       });
 

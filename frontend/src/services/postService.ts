@@ -1,6 +1,7 @@
 import api from "@/api/api";
 import { useAuthStore } from "@/stores/authStore";
-import type { Post, PostMedia, FeedResponse,LikeToggleResponse } from "@/types/post";
+import type { Post, PostMedia, FeedResponse, LikeToggleResponse, PostResponse } from "@/types/post";
+
 export default {
   async getPublicFeed(page = 1, limit = 10): Promise<FeedResponse> {
     const response = await api.get<FeedResponse>("/feed/public", {
@@ -43,26 +44,21 @@ export default {
        return { data: [], totalItems: 0, totalPages: 0 };
     }
 
-    // Alerta de Performance: Filtragem no Client-Side
-    // Idealmente, solicitar ao backend um endpoint GET /users/me/posts
     const response = await api.get<FeedResponse>("/feed", {
-      params: { page, limit: 50 }, // Aumentado limite para tentar pegar mais posts do usuário
+      params: { page, limit: 50 },
     });
 
     const allPosts = response.data.data || [];
-    const myPosts = allPosts.filter((post) => post.authorId === myUserId);
+    const myPosts = allPosts.filter((post) => {
+      const authorId = post.author?.id || post.authorId;
+      return authorId === myUserId;
+    });
 
     return {
       ...response.data,
       data: myPosts,
       totalItems: myPosts.length,
     };
-  },
-
-  async likePost(postId: string): Promise<void> {
-     // TODO: Integrar com backend
-    console.log(`Like simulado no post: ${postId}`);
-    // await api.post(`/posts/${postId}/like`);
   },
 
   async createDraft(
@@ -77,7 +73,6 @@ export default {
 
     const data = response.data;
 
-    // Normalização defensiva
     if (data.post && data.post.id) {
       return {
         ...data.post,
@@ -88,7 +83,6 @@ export default {
       } as Post;
     }
     
-    // Fallback se a estrutura já vier correta
     return data as Post;
   },
 
@@ -107,10 +101,12 @@ export default {
     const response = await api.patch<Post>(`/posts/${postId}/publish`);
     return response.data;
   },
+
   async toggleLike(postId: string): Promise<LikeToggleResponse> {
     const { data } = await api.post<LikeToggleResponse>(`/posts/${postId}/like`);
     return data;
   },
+
   async getPostById(postId: string): Promise<PostResponse> {
     const { data } = await api.get<PostResponse>(`/posts/${postId}`);
     return data;

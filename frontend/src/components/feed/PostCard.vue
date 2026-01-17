@@ -20,8 +20,8 @@
             <span class="font-monospace x-small text-muted">
               <i class="bi bi-calendar-event me-1"></i> {{ formatDate(postData.createdAt) }}
             </span>
-            <span v-if="postData.communityName" class="badge bg-secondary rounded-0 font-monospace x-small">
-              <i class="bi bi-shield-shaded me-1"></i> {{ postData.communityName }}
+            <span v-if="postData.community?.name || postData.communityName" class="badge bg-secondary rounded-0 font-monospace x-small">
+              <i class="bi bi-shield-shaded me-1"></i> {{ postData.community?.name || postData.communityName }}
             </span>
           </div>
         </div>
@@ -29,7 +29,7 @@
         <div class="text-end">
           <small class="text-muted x-small d-block text-uppercase fw-bold">Autorizado por</small>
           <span class="fw-bold text-dark-jungle">
-            {{ postData.authorName || "Ranger Desconhecido" }}
+            {{ postData.author?.name || postData.authorName || "Ranger Desconhecido" }}
           </span>
         </div>
       </div>

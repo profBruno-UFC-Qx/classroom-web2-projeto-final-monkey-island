@@ -2,7 +2,13 @@ import api from "@/api/api";
 import type {
   CreateResearcherRequestPayload,
   ResearcherRequestResponse,
-} from "../types/researcherRequest";
+} from "@/types/researcherRequest";
+
+interface PaginatedResponse<T> {
+  data: T[];
+  totalItems: number;
+  totalPages: number;
+}
 
 export default {
   async createRequest(motivation: string): Promise<ResearcherRequestResponse> {
@@ -15,21 +21,27 @@ export default {
   },
 
   async getMyRequests(): Promise<ResearcherRequestResponse[]> {
-    const response = await api.get<ResearcherRequestResponse[]>(
+    const response = await api.get<PaginatedResponse<ResearcherRequestResponse>>(
       "/researcher-request/me"
     );
-    return response.data;
+    return response.data.data;
   },
 
-  async getPendingRequests() {
-    return (await api.get("/researcher-request")).data;
+  async getPendingRequests(): Promise<ResearcherRequestResponse[]> {
+    const response = await api.get<PaginatedResponse<ResearcherRequestResponse>>(
+      "/researcher-request",
+      {
+        params: { status: "pending" },
+      }
+    );
+    return response.data.data;
   },
 
-  async approveRequest(requestId: string) {
-    return (await api.put(`/researcher-request/${requestId}/approve`)).data;
+  async approveRequest(requestId: string): Promise<void> {
+    await api.put(`/researcher-request/${requestId}/approve`);
   },
 
-  async rejectRequest(requestId: string) {
-    return (await api.put(`/researcher-request/${requestId}/reject`)).data;
+  async rejectRequest(requestId: string): Promise<void> {
+    await api.put(`/researcher-request/${requestId}/reject`);
   },
 };

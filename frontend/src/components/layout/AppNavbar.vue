@@ -16,12 +16,7 @@
         <router-link to="/comunidades" class="nav-lab-link">
           <i class="bi bi-shield-shaded"></i> Setores
         </router-link>
-
-        <router-link v-if="authStore.user?.role === 'researcher' || authStore.user?.role === 'admin'" 
-          to="/area-pesquisador" class="nav-lab-link text-warning">
-          <i class="bi bi-microscope"></i> Laboratório
-        </router-link>
-      </div>
+        </div>
 
       <div class="d-flex align-items-center gap-3">
         <template v-if="!authStore.isAuthenticated">
@@ -38,15 +33,43 @@
               <i class="bi bi-person-badge text-warning"></i>
               <span class="small fw-bold">{{ authStore.user?.name || 'Explorador' }}</span>
             </button>
-            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark bg-dark border-secondary">
+            
+            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark bg-dark border-secondary shadow-lg">
               <li>
                 <router-link class="dropdown-item" to="/perfil">
                   <i class="bi bi-person me-2"></i>Perfil
                 </router-link>
               </li>
-              <li><hr class="dropdown-divider border-secondary"></li>
+              
+              <template v-if="authStore.user?.role === 'admin'">
+                <li><hr class="dropdown-divider border-secondary opacity-25"></li>
+                <li><h6 class="dropdown-header text-warning opacity-75 small fw-bold tracking-wide">ADMINISTRAÇÃO</h6></li>
+                
+                <li>
+                  <router-link class="dropdown-item d-flex justify-content-between align-items-center" to="/admin/requests">
+                    <span><i class="bi bi-clipboard-check me-2"></i>Solicitações</span>
+                    <span v-if="adminStore.pendingRequests.length > 0" class="badge bg-danger rounded-pill">
+                      {{ adminStore.pendingRequests.length }}
+                    </span>
+                  </router-link>
+                </li>
+                
+                <li>
+                  <router-link class="dropdown-item" to="/admin/artifacts">
+                    <i class="bi bi-gem me-2"></i>Artefatos
+                  </router-link>
+                </li>
+                
+                <li>
+                  <router-link class="dropdown-item" to="/admin/users">
+                    <i class="bi bi-people me-2"></i>Usuários
+                  </router-link>
+                </li>
+              </template>
+
+              <li><hr class="dropdown-divider border-secondary opacity-25"></li>
               <li>
-                <button @click="handleLogout" class="dropdown-item text-danger">
+                <button @click="handleLogout" class="dropdown-item text-danger fw-bold">
                   <i class="bi bi-box-arrow-right me-2"></i>Sair
                 </button>
               </li>
@@ -67,11 +90,21 @@
 </template>
 
 <script setup lang="ts">
-import { useAuthStore } from '../stores/authStore';
+import { onMounted } from 'vue';
+import { useAuthStore } from '@/stores/authStore';
+import { useAdminStore } from '@/stores/adminStore';
 import { useRouter } from 'vue-router';
 
 const authStore = useAuthStore();
+const adminStore = useAdminStore();
 const router = useRouter();
+
+onMounted(() => {
+  // Mantemos o fetch para garantir que o badge do dropdown funcione
+  if (authStore.user?.role === 'admin') {
+    adminStore.fetchPendingRequests();
+  }
+});
 
 const handleLogout = () => {
   authStore.logout();
@@ -122,4 +155,15 @@ const handleLogout = () => {
 .status-offline {
   box-shadow: 0 0 8px rgba(220, 53, 69, 0.8);
 }
+
+/* Ajustes finos no dropdown */
+.dropdown-item {
+  color: #e8e2d9;
+  transition: all 0.2s;
+}
+.dropdown-item:hover {
+  background-color: rgba(255, 180, 0, 0.1);
+  color: #ffb400;
+}
+.tracking-wide { letter-spacing: 1px; }
 </style>

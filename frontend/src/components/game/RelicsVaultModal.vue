@@ -204,8 +204,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import * as bootstrap from "bootstrap";
-import type { ArtifactCollectionItem } from "../../types/artifact";
-import artifactCollectionService from "../../services/artifactCollectionService";
+import type { ArtifactCollectionItem } from "@/types/artifact";
+import artifactCollectionService from "@/services/artifactCollectionService";
 
 const artifacts = ref<ArtifactCollectionItem[]>([]);
 const totalItems = ref(0);

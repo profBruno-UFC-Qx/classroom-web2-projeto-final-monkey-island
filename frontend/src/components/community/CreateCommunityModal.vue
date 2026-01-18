@@ -48,7 +48,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import * as bootstrap from "bootstrap";
-import communityService from "../../services/communityService";
+import communityService from "@/services/communityService";
 
 const name = ref("");
 const description = ref("");

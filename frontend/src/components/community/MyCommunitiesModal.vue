@@ -149,9 +149,9 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import * as bootstrap from "bootstrap";
-import communityService from "../../services/communityService";
-import type { Community } from "../../types/community";
-import { useAuthStore } from "../../stores/authStore";
+import communityService from "@/services/communityService";
+import type { Community } from "@/types/community";
+import { useAuthStore } from "@/stores/authStore";
 import { useRouter } from "vue-router";
 
 const router = useRouter();

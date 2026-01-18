@@ -28,14 +28,24 @@ export const useAdminStore = defineStore('admin', () => {
   async function banUserAction(userId: string, reason: string) {
     try {
       await userService.banUser(userId, reason);
+      
+      // Sucesso: Atualiza o status localmente
       const user = users.value.find(u => u.id === userId);
-      if (user) user.status = false;
+      if (user) user.status = 'banned';
+
     } catch (err: any) {
-      console.error('Erro ao banir usuário', err);
-      throw err;
+      // Verifica se o erro é "usuário já banido" (erro 400)
+      if (err.response && err.response.status === 400 && err.response.data.message === 'user already banned') {
+        // Se já estava banido no banco, apenas atualizamos a tela para refletir a realidade
+        const user = users.value.find(u => u.id === userId);
+        if (user) user.status = 'banned';
+      } else {
+        // Se for outro erro, exibe no console e repassa o erro
+        console.error('Erro ao banir usuário', err);
+        throw err;
+      }
     }
   }
-
   async function fetchAdminArtifacts() {
     loading.value = true;
     try {

@@ -24,9 +24,9 @@
 
         <div 
           class="rounded-circle"
-          :class="user.status ? 'bg-success' : 'bg-danger'"
+          :class="user.status === 'active' ? 'bg-success' : 'bg-danger'"
           style="width: 10px; height: 10px;"
-          :title="user.status ? 'Ativo' : 'Banido'"
+          :title="user.status === 'active' ? 'Ativo' : 'Banido'"
         ></div>
       </div>
 
@@ -41,7 +41,7 @@
 
       <div class="mt-auto">
         <button 
-          v-if="user.status"
+          v-if="user.status === 'active'"
           @click="$emit('ban', user.id)" 
           class="btn btn-sm btn-outline-danger w-100 text-uppercase fw-bold"
           :disabled="isAdmin"
@@ -88,7 +88,8 @@ const roleClasses = computed(() => {
 });
 
 const statusClasses = computed(() => {
-  return props.user.status
+  // CORREÇÃO: Ajuste na lógica de cores do avatar baseado no status string
+  return props.user.status === 'active'
     ? { bg: 'bg-success bg-opacity-10 text-success border-success' }
     : { bg: 'bg-danger bg-opacity-10 text-danger border-danger' };
 });

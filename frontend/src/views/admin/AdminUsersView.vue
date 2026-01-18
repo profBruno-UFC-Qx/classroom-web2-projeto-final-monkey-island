@@ -54,30 +54,31 @@ onMounted(() => {
 
 const sortedUsers = computed(() => {
   return [...adminStore.users].sort((a, b) => {
-    // Ativos primeiro
+    // CORREÇÃO: Comparação explícita com a string 'active'
+    // Usuários ativos ('active') devem vir antes de banidos ('banned')
     if (a.status !== b.status) {
-      return a.status ? -1 : 1;
+      return a.status === 'active' ? -1 : 1;
     }
-    // Depois alfabético
+    // Critério de desempate: ordem alfabética pelo nome
     return a.name.localeCompare(b.name);
   });
 });
 
 const handleBan = async (userId: string) => {
-  // 1. Pede o motivo
+  // 1. Solicita o motivo do banimento ao administrador
   const reason = prompt('Por favor, digite o motivo do banimento (Obrigatório):');
   
-  // 2. Valida
-  if (reason === null) return; // Cancelou
+  // 2. Validações de entrada
+  if (reason === null) return; // O administrador cancelou o prompt
   if (reason.trim() === '') return alert('O motivo é obrigatório para banir um usuário.');
 
   try {
-    // 3. Chama a store corrigida passando ID e Motivo
+    // 3. Executa a ação de banimento na store
     await adminStore.banUserAction(userId, reason);
     alert('Usuário banido com sucesso.');
   } catch (error) {
-    console.error(error);
-    alert('Erro ao banir usuário. Verifique se você tem permissão.');
+    console.error('Falha ao banir usuário:', error);
+    alert('Erro ao banir usuário. Verifique se você tem permissão ou se o usuário já está banido.');
   }
 };
 </script>

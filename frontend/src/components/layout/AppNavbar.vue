@@ -16,26 +16,7 @@
         <router-link to="/comunidades" class="nav-lab-link">
           <i class="bi bi-shield-shaded"></i> Setores
         </router-link>
-
-        <template v-if="authStore.user?.role === 'admin'">
-          <div class="vr text-secondary mx-1" style="height: 20px;"></div>
-          
-          <router-link to="/admin/requests" class="nav-lab-link text-info" title="Solicitações">
-            <i class="bi bi-inbox-fill"></i>
-            <span v-if="adminStore.pendingRequests.length > 0" class="badge bg-danger rounded-pill" style="font-size: 0.6rem;">
-              {{ adminStore.pendingRequests.length }}
-            </span>
-          </router-link>
-          
-          <router-link to="/admin/artifacts" class="nav-lab-link text-info" title="Gerir Artefatos">
-            <i class="bi bi-gem"></i>
-          </router-link>
-          
-          <router-link to="/admin/users" class="nav-lab-link text-info" title="Gerir Usuários">
-            <i class="bi bi-people-fill"></i>
-          </router-link>
-        </template>
-      </div>
+        </div>
 
       <div class="d-flex align-items-center gap-3">
         <template v-if="!authStore.isAuthenticated">
@@ -52,7 +33,8 @@
               <i class="bi bi-person-badge text-warning"></i>
               <span class="small fw-bold">{{ authStore.user?.name || 'Explorador' }}</span>
             </button>
-            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark bg-dark border-secondary">
+            
+            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark bg-dark border-secondary shadow-lg">
               <li>
                 <router-link class="dropdown-item" to="/perfil">
                   <i class="bi bi-person me-2"></i>Perfil
@@ -60,18 +42,24 @@
               </li>
               
               <template v-if="authStore.user?.role === 'admin'">
-                <li><hr class="dropdown-divider border-secondary"></li>
-                <li><h6 class="dropdown-header text-warning opacity-75">ADMINISTRAÇÃO</h6></li>
+                <li><hr class="dropdown-divider border-secondary opacity-25"></li>
+                <li><h6 class="dropdown-header text-warning opacity-75 small fw-bold tracking-wide">ADMINISTRAÇÃO</h6></li>
+                
                 <li>
-                  <router-link class="dropdown-item" to="/admin/requests">
-                    <i class="bi bi-clipboard-check me-2"></i>Solicitações
+                  <router-link class="dropdown-item d-flex justify-content-between align-items-center" to="/admin/requests">
+                    <span><i class="bi bi-clipboard-check me-2"></i>Solicitações</span>
+                    <span v-if="adminStore.pendingRequests.length > 0" class="badge bg-danger rounded-pill">
+                      {{ adminStore.pendingRequests.length }}
+                    </span>
                   </router-link>
                 </li>
+                
                 <li>
                   <router-link class="dropdown-item" to="/admin/artifacts">
                     <i class="bi bi-gem me-2"></i>Artefatos
                   </router-link>
                 </li>
+                
                 <li>
                   <router-link class="dropdown-item" to="/admin/users">
                     <i class="bi bi-people me-2"></i>Usuários
@@ -79,9 +67,9 @@
                 </li>
               </template>
 
-              <li><hr class="dropdown-divider border-secondary"></li>
+              <li><hr class="dropdown-divider border-secondary opacity-25"></li>
               <li>
-                <button @click="handleLogout" class="dropdown-item text-danger">
+                <button @click="handleLogout" class="dropdown-item text-danger fw-bold">
                   <i class="bi bi-box-arrow-right me-2"></i>Sair
                 </button>
               </li>
@@ -112,7 +100,7 @@ const adminStore = useAdminStore();
 const router = useRouter();
 
 onMounted(() => {
-  // CORREÇÃO AQUI: role === 'admin'
+  // Mantemos o fetch para garantir que o badge do dropdown funcione
   if (authStore.user?.role === 'admin') {
     adminStore.fetchPendingRequests();
   }
@@ -153,13 +141,6 @@ const handleLogout = () => {
   transform: translateY(-2px);
 }
 
-.text-info {
-  color: #0dcaf0 !important;
-}
-.text-info:hover {
-  color: #3dd5f3 !important;
-}
-
 .status-indicator {
   width: 12px;
   height: 12px;
@@ -174,4 +155,15 @@ const handleLogout = () => {
 .status-offline {
   box-shadow: 0 0 8px rgba(220, 53, 69, 0.8);
 }
+
+/* Ajustes finos no dropdown */
+.dropdown-item {
+  color: #e8e2d9;
+  transition: all 0.2s;
+}
+.dropdown-item:hover {
+  background-color: rgba(255, 180, 0, 0.1);
+  color: #ffb400;
+}
+.tracking-wide { letter-spacing: 1px; }
 </style>

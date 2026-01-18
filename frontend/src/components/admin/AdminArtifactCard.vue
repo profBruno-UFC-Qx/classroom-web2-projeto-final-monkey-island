@@ -1,114 +1,105 @@
 <template>
-  <div class="card h-100 bg-dark border-secondary artifact-card shadow-sm">
-    <div class="card-img-wrapper position-relative p-3 d-flex align-items-center justify-content-center bg-black bg-opacity-25">
+  <div class="card h-100 bg-dark border-secondary artifact-card">
+    <div class="card-img-top position-relative p-4 bg-black d-flex align-items-center justify-content-center" style="height: 200px;">
       
       <img 
         v-if="hasValidImage"
         :src="fullImageUrl" 
         :alt="artifact.name" 
-        class="img-fluid object-fit-contain artifact-img drop-shadow"
+        class="img-fluid artifact-img"
         @error="handleImageError"
       />
       
-      <div v-else class="d-flex align-items-center justify-content-center h-100 w-100 text-secondary">
-        <i class="bi bi-gem fs-1 opacity-50" :class="badgeTextClass"></i>
+      <div v-else class="text-center opacity-50">
+        <i class="bi display-4" :class="[config.icon, `text-${config.color}`]"></i>
       </div>
 
       <span 
-        class="position-absolute top-0 end-0 m-2 badge rounded-pill shadow-sm text-uppercase fw-bold border border-opacity-25"
-        :class="badgeClass"
-        style="font-size: 0.6rem; letter-spacing: 1px;"
+        class="position-absolute top-0 end-0 m-2 badge rounded-0 fw-normal text-uppercase border border-opacity-25"
+        :class="[`bg-${config.color}`, config.color === 'warning' || config.color === 'info' ? 'text-dark' : 'text-white']"
       >
-        {{ formatRarity(artifact.rarity) }}
+        {{ config.label }}
       </span>
     </div>
 
-    <div class="card-body d-flex flex-column border-top border-secondary border-opacity-25">
-      <h6 class="card-title text-light fw-bold mb-1 text-truncate" :title="artifact.name">
+    <div class="card-body d-flex flex-column border-top border-secondary">
+      <h6 class="card-title text-white text-truncate fw-bold" :title="artifact.name">
         {{ artifact.name }}
       </h6>
       
-      <p class="card-text text-secondary small mb-3 text-truncate" style="min-height: 20px;">
-        {{ artifact.description || 'Sem descrição' }}
+      <p class="card-text text-secondary small flex-grow-1 line-clamp-2">
+        {{ artifact.description || 'Sem descrição disponível.' }}
       </p>
       
-      <button 
-        @click="$emit('delete', artifact.id)" 
-        class="btn btn-sm btn-outline-danger mt-auto w-100 border-opacity-50 hover-danger"
-      >
-        <i class="bi bi-trash-fill me-1"></i> Excluir
-      </button>
+      <div class="mt-3">
+        <button 
+          @click="$emit('delete', artifact.id)" 
+          class="btn btn-sm btn-outline-danger w-100"
+        >
+          <i class="bi bi-trash me-2"></i>Excluir
+        </button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import type { Artifact } from '@/types/artifact';
 import { getImageUrl } from '@/utils/mediaUtils';
 
 const props = defineProps<{ artifact: Artifact }>();
 defineEmits(['delete']);
 
-// Verifica se a imagem existe e não é um placeholder (Lógica do RelicsVaultModal)
-const hasValidImage = computed(() => {
-  return props.artifact.image && !props.artifact.image.includes('placeholder');
-});
+const imageError = ref(false);
 
-// Computa a URL. REMOVIDO o prefixo 'artifacts/' que estava causando o erro 404
-const fullImageUrl = computed(() => {
-  return getImageUrl(props.artifact.image);
-});
-
-// Cores baseadas no Enum (fundo do badge)
-const badgeClass = computed(() => {
-  const map: Record<string, string> = {
-    'fragment': 'bg-secondary text-light',
-    'partial_fossil': 'bg-info text-dark',
-    'rare': 'bg-primary text-light',
-    'exceptional_specimen': 'bg-warning text-dark',
-    'unique_specimen': 'bg-danger text-light shadow-danger'
-  };
-  return map[props.artifact.rarity] || 'bg-secondary';
-});
-
-// Cores do ícone de fallback (texto)
-const badgeTextClass = computed(() => {
-  const map: Record<string, string> = {
-    'fragment': 'text-secondary',
-    'partial_fossil': 'text-info',
-    'rare': 'text-primary',
-    'exceptional_specimen': 'text-warning',
-    'unique_specimen': 'text-danger'
-  };
-  return map[props.artifact.rarity] || 'text-secondary';
-});
-
-const formatRarity = (rarity: string) => {
-  const labels: Record<string, string> = {
-    'fragment': 'Fragmento',
-    'partial_fossil': 'Parcial',
-    'rare': 'Raro',
-    'exceptional_specimen': 'Excepcional',
-    'unique_specimen': 'Único'
-  };
-  return labels[rarity] || rarity;
+// Configuração Visual (Mapeamento Declarativo)
+const RARITY_MAP: Record<string, { label: string; color: string; icon: string }> = {
+  fragment: { label: 'Fragmento', color: 'secondary', icon: 'bi-puzzle' },
+  partial_fossil: { label: 'Parcial', color: 'info', icon: 'bi-bounding-box' },
+  rare: { label: 'Raro', color: 'primary', icon: 'bi-gem' },
+  exceptional_specimen: { label: 'Excepcional', color: 'warning', icon: 'bi-star-fill' },
+  unique_specimen: { label: 'Único', color: 'danger', icon: 'bi-trophy-fill' }
 };
 
-const handleImageError = (event: Event) => {
-  // Fallback visual simples se a imagem quebrar
-  (event.target as HTMLElement).style.display = 'none';
-  if ((event.target as HTMLElement).parentElement) {
-      // Opcional: mostrar o ícone de fallback forçando a reatividade ou manipulando DOM
-      // Aqui apenas escondemos a imagem quebrada para mostrar o fundo do card
-  }
+// Computed Helpers
+const config = computed(() => RARITY_MAP[props.artifact.rarity] || RARITY_MAP.fragment);
+
+const fullImageUrl = computed(() => getImageUrl(props.artifact.image));
+
+const hasValidImage = computed(() => {
+  return props.artifact.image && 
+         !props.artifact.image.includes('placeholder') && 
+         !imageError.value;
+});
+
+// UI Handlers
+const handleImageError = () => {
+  imageError.value = true;
 };
 </script>
 
 <style scoped>
-.artifact-card { transition: transform 0.2s, border-color 0.2s; border: 1px solid #333; }
-.artifact-card:hover { transform: translateY(-3px); border-color: #ffb400; }
-.card-img-wrapper { height: 160px; overflow: hidden; }
-.artifact-img { max-height: 100%; max-width: 100%; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)); }
-.hover-danger:hover { background-color: #dc3545; color: white; }
+.artifact-card {
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.artifact-card:hover {
+  border-color: #ffc107 !important; /* Amarelo Industrial */
+  transform: translateY(-2px);
+}
+
+.artifact-img {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 </style>

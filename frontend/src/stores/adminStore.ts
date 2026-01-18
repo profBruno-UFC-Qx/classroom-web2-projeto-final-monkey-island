@@ -29,23 +29,20 @@ export const useAdminStore = defineStore('admin', () => {
     try {
       await userService.banUser(userId, reason);
       
-      // Sucesso: Atualiza o status localmente
       const user = users.value.find(u => u.id === userId);
       if (user) user.status = 'banned';
 
     } catch (err: any) {
-      // Verifica se o erro é "usuário já banido" (erro 400)
       if (err.response && err.response.status === 400 && err.response.data.message === 'user already banned') {
-        // Se já estava banido no banco, apenas atualizamos a tela para refletir a realidade
         const user = users.value.find(u => u.id === userId);
         if (user) user.status = 'banned';
       } else {
-        // Se for outro erro, exibe no console e repassa o erro
         console.error('Erro ao banir usuário', err);
         throw err;
       }
     }
   }
+
   async function fetchAdminArtifacts() {
     loading.value = true;
     try {
@@ -85,7 +82,6 @@ export const useAdminStore = defineStore('admin', () => {
       const requestsWithUsers = await Promise.all(data.map(async (req) => {
         try {
           if (!req.user_id) {
-             console.warn(`Solicitação ${req.id} sem user_id`);
              return req;
           }
 
@@ -97,7 +93,7 @@ export const useAdminStore = defineStore('admin', () => {
         }
       }));
 
-      pendingRequests.value = requestsWithUsers;
+      pendingRequests.value = requestsWithUsers.filter(req => req.user?.status === 'active');
       
     } catch (err: any) {
       error.value = 'Erro ao buscar solicitações';

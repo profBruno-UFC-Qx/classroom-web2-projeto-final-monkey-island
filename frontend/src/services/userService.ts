@@ -8,7 +8,7 @@ function normalizeUser(data: any): User {
     email: data.email,
     role: data.role,
     status: data.status,
-    institution: data.instituition || data.institution,
+    institution: data.institution || data.instituition || 'Não informada', 
   } as User;
 }
 
@@ -22,12 +22,15 @@ export default {
     const response = await api.get(`/users/${userId}`);
     return normalizeUser(response.data);
   },
+
   async getAllUsers(): Promise<User[]> {
     const response = await api.get<User[]>('/users');
     return response.data.map(normalizeUser);
   },
 
-  async banUser(userId: string): Promise<void> {
-    await api.patch(`/users/${userId}/ban`);
+  async banUser(id: string, reason: string): Promise<void> {
+    await api.patch(`/users/${id}/ban`, { 
+      reason: reason 
+    });
   },
 };

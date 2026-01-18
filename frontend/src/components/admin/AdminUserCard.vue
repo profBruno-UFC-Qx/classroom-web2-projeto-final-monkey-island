@@ -1,41 +1,41 @@
 <template>
-  <div class="card bg-dark border-secondary shadow-sm h-100 user-card">
+  <div class="card bg-dark border-secondary h-100 user-card">
     <div class="card-body p-4 d-flex flex-column">
       
       <div class="d-flex justify-content-between align-items-start mb-3">
         <div class="d-flex align-items-center gap-3">
           <div 
-            class="avatar-box rounded-circle d-flex align-items-center justify-content-center border"
-            :class="statusColorClass"
+            class="rounded-circle d-flex align-items-center justify-content-center border"
+            :class="statusClasses.bg"
+            style="width: 48px; height: 48px; font-weight: bold;"
           >
-            {{ getInitials(user.name) }}
+            {{ userInitials }}
           </div>
           
           <div class="overflow-hidden">
             <h6 class="text-white fw-bold mb-0 text-truncate" :title="user.name">
               {{ user.name }}
             </h6>
-            <span class="badge rounded-pill mt-1 border" :class="roleConfig.class">
-              {{ roleConfig.label }}
+            <span class="badge rounded-pill mt-1 border" :class="roleClasses">
+              {{ userRoleLabel }}
             </span>
           </div>
         </div>
 
         <div 
-          class="rounded-circle status-dot"
-          :class="user.status ? 'bg-success shadow-success' : 'bg-danger shadow-danger'"
-          :title="user.status ? 'Ativo' : 'Suspenso'"
+          class="rounded-circle"
+          :class="user.status ? 'bg-success' : 'bg-danger'"
+          style="width: 10px; height: 10px;"
+          :title="user.status ? 'Ativo' : 'Banido'"
         ></div>
       </div>
 
       <div class="d-flex flex-column gap-2 text-secondary small mb-4">
-        <div class="d-flex align-items-center gap-2 text-truncate">
-          <i class="bi bi-envelope"></i>
-          <span>{{ user.email }}</span>
+        <div class="text-truncate">
+          <i class="bi bi-envelope me-2"></i>{{ user.email }}
         </div>
-        <div class="d-flex align-items-center gap-2 text-truncate">
-          <i class="bi bi-building"></i>
-          <span>{{ user.institution || 'Sem instituição' }}</span>
+        <div class="text-truncate">
+          <i class="bi bi-building me-2"></i>{{ user.institution }}
         </div>
       </div>
 
@@ -43,14 +43,14 @@
         <button 
           v-if="user.status"
           @click="$emit('ban', user.id)" 
-          class="btn btn-sm btn-outline-danger w-100 fw-bold text-uppercase"
+          class="btn btn-sm btn-outline-danger w-100 text-uppercase fw-bold"
           :disabled="isAdmin"
           :title="isAdmin ? 'Não é possível banir administradores' : 'Banir usuário'"
         >
-          <i class="bi bi-slash-circle me-2"></i> Banir Acesso
+          <i class="bi bi-slash-circle me-2"></i> Banir
         </button>
 
-        <div v-else class="alert alert-danger py-2 mb-0 text-center small fw-bold border-danger">
+        <div v-else class="text-center py-1 text-danger small fw-bold border border-danger rounded bg-danger bg-opacity-10">
           <i class="bi bi-lock-fill me-1"></i> Acesso Bloqueado
         </div>
       </div>
@@ -66,57 +66,40 @@ import type { User } from '@/types/user';
 const props = defineProps<{ user: User }>();
 defineEmits(['ban']);
 
-// Configuração visual baseada no Role
-const ROLE_MAP: Record<string, { label: string; class: string }> = {
-  admin: { label: 'Admin', class: 'bg-warning text-dark border-warning' },
-  researcher: { label: 'Pesquisador', class: 'bg-info text-dark border-info' },
-  user: { label: 'Visitante', class: 'bg-secondary text-light border-secondary' }
-};
+const isAdmin = computed(() => props.user.role?.toLowerCase() === 'admin');
 
-// Computed Helpers
-const roleConfig = computed(() => {
-  const roleKey = props.user.role?.toLowerCase() || 'user';
-  return ROLE_MAP[roleKey] || ROLE_MAP.user;
+const userInitials = computed(() => {
+  const name = props.user.name || '?';
+  return name.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
 });
 
-const isAdmin = computed(() => props.user.role?.toUpperCase() === 'ADMIN');
-
-const statusColorClass = computed(() => {
-  return props.user.status 
-    ? 'bg-success bg-opacity-10 text-success border-success' 
-    : 'bg-danger bg-opacity-10 text-danger border-danger';
+const userRoleLabel = computed(() => {
+  const map: Record<string, string> = { 
+    admin: 'Admin', researcher: 'Pesquisador', user: 'Visitante' 
+  };
+  return map[props.user.role?.toLowerCase()] || 'Visitante';
 });
 
-// Utilitário simples de formatação
-const getInitials = (name: string) => {
-  if (!name) return '?';
-  const parts = name.trim().split(' ');
-  return parts.slice(0, 2).map(p => p[0]).join('').toUpperCase();
-};
+const roleClasses = computed(() => {
+  const role = props.user.role?.toLowerCase();
+  if (role === 'admin') return 'bg-warning text-dark border-warning';
+  if (role === 'researcher') return 'bg-info text-dark border-info';
+  return 'bg-secondary text-light border-secondary';
+});
+
+const statusClasses = computed(() => {
+  return props.user.status
+    ? { bg: 'bg-success bg-opacity-10 text-success border-success' }
+    : { bg: 'bg-danger bg-opacity-10 text-danger border-danger' };
+});
 </script>
 
 <style scoped>
 .user-card {
   transition: transform 0.2s ease, border-color 0.2s ease;
 }
-
 .user-card:hover {
-  transform: translateY(-4px);
-  border-color: #6c757d !important; /* Secondary border on hover */
+  transform: translateY(-2px);
+  border-color: #6c757d !important;
 }
-
-.avatar-box {
-  width: 48px;
-  height: 48px;
-  font-weight: bold;
-  font-size: 1.1rem;
-}
-
-.status-dot {
-  width: 10px;
-  height: 10px;
-}
-
-.shadow-success { box-shadow: 0 0 6px rgba(25, 135, 84, 0.6); }
-.shadow-danger { box-shadow: 0 0 6px rgba(220, 53, 69, 0.6); }
 </style>

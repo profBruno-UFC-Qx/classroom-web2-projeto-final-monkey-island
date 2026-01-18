@@ -25,12 +25,11 @@ export const useAdminStore = defineStore('admin', () => {
     }
   }
 
-  async function banUserAction(userId: string) {
+  async function banUserAction(userId: string, reason: string) {
     try {
-      await userService.banUser(userId);
+      await userService.banUser(userId, reason);
       const user = users.value.find(u => u.id === userId);
-      // Ajuste o status conforme sua interface User (boolean ou string)
-      if (user) user.status = 'banned'; 
+      if (user) user.status = false;
     } catch (err: any) {
       console.error('Erro ao banir usuário', err);
       throw err;
@@ -68,18 +67,13 @@ export const useAdminStore = defineStore('admin', () => {
     }
   }
 
-  // --- CORREÇÃO PRINCIPAL ---
   async function fetchPendingRequests() {
     loading.value = true;
     try {
-      // 1. Busca solicitações do backend
       const data = await researcherRequestService.getPendingRequests();
       
-      // 2. Busca dados do usuário para cada solicitação
-      // Agora acessando 'req.user_id' que é o campo correto vindo do back
       const requestsWithUsers = await Promise.all(data.map(async (req) => {
         try {
-          // Verifica se user_id existe antes de chamar a API
           if (!req.user_id) {
              console.warn(`Solicitação ${req.id} sem user_id`);
              return req;
@@ -102,7 +96,6 @@ export const useAdminStore = defineStore('admin', () => {
       loading.value = false;
     }
   }
-  // -------------------------
 
   async function approveRequestAction(requestId: string) {
     try {

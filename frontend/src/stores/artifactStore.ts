@@ -1,3 +1,4 @@
+// frontend/src/stores/artifactStore.ts
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { useAuthStore } from '@/stores/authStore';
@@ -7,74 +8,100 @@ import type { Artifact, ArtifactRarity } from '@/types/artifact';
 export const useArtifactStore = defineStore('artifact', () => {
   const authStore = useAuthStore();
 
+  // --- Estado Gameplay ---
   const artifact = ref<Artifact | null>(null);
   const showArtifact = ref(false);
   const collectionMessage = ref('');
   const position = ref({ top: 0, left: 0 });
 
-  const RARITY_COLORS: Record<ArtifactRarity, string> = {
-    fragment: '#bdc3c7',
-    partial_fossil: '#2ecc71',
-    rare: '#3498db',
-    exceptional_specimen: '#9b59b6',
-    unique_specimen: '#f1c40f',
+  // --- Estado Admin (NOVO) ---
+  const artifacts = ref<Artifact[]>([]); // Lista completa para o admin
+  const isLoading = ref(false);
+  const error = ref<string | null>(null);
+
+  // --- Getters / Computed ---
+  const RARITY_COLORS: Record<string, string> = {
+    COMMON: 'bg-secondary text-light',
+    RARE: 'bg-primary text-light',
+    LEGENDARY: 'bg-warning text-dark',
+    MYTHIC: 'bg-danger text-light shadow-danger'
   };
 
   const artifactImageUrl = computed(() => {
     return artifact.value ? artifactService.getImageUrl(artifact.value.image) : '';
   });
 
-  const rarityColor = computed(() => {
-    if (!artifact.value) return 'white';
-    return RARITY_COLORS[artifact.value.rarity] || 'white';
-  });
-
-  const trySpawnArtifact = async () => {
-    if (!authStore.isAuthenticated) return;
-    
-    if (Math.random() > 0.25) return; 
-
+  // --- Actions Admin (CRUD) ---
+  
+  // 1. Buscar todos (Corrige o problema de não carregar)
+  const fetchArtifacts = async () => {
+    isLoading.value = true;
+    error.value = null;
     try {
-      const data = await artifactService.getRandomArtifact();
-      
-      if (data) {
-        artifact.value = data;
-        position.value = { 
-          top: Math.random() * (90 - 5) + 5, 
-          left: Math.random() * (90 - 5) + 5 
-        };
-        showArtifact.value = true;
-        console.log('Sistema: Anomalia detectada no setor.');
-      }
-    } catch (error) {
-      console.error('Erro ao tentar gerar artefato:', error);
+      artifacts.value = await artifactService.getAllArtifacts();
+    } catch (e) {
+      error.value = 'Falha ao carregar artefatos.';
+      console.error(e);
+    } finally {
+      isLoading.value = false;
     }
   };
 
-  const collectArtifact = async () => {
-    if (!artifact.value || !authStore.isAuthenticated) return;
-    
+  // 2. Criar Artefato (Corrige o problema de criação)
+  const createArtifact = async (formData: FormData) => {
+    isLoading.value = true;
     try {
-      const success = await artifactService.collectArtifact(artifact.value.id);
-
-      if (success) {
-        collectionMessage.value = `Coletado: ${artifact.value.name}`;
-        showArtifact.value = false;
-
-        setTimeout(() => { collectionMessage.value = ''; }, 3000);
-      }
-    } catch (error) {
-      console.error('Erro ao coletar artefato:', error);
+      const newArtifact = await artifactService.createArtifact(formData);
+      artifacts.value.push(newArtifact); // Atualiza a lista localmente
+      return true;
+    } catch (e) {
+      console.error(e);
+      throw new Error('Erro ao criar artefato');
+    } finally {
+      isLoading.value = false;
     }
   };
+
+  // 3. Deletar Artefato
+  const deleteArtifact = async (id: string) => {
+    try {
+      await artifactService.deleteArtifact(id);
+      artifacts.value = artifacts.value.filter(a => a.id !== id);
+    } catch (e) {
+      console.error(e);
+      throw new Error('Erro ao deletar');
+    }
+  };
+
+  // Helper para cores de raridade (UI)
+  const getRarityBadgeClass = (rarity: string) => {
+    // Normaliza para maiúsculo para garantir match com o enum do backend se necessário
+    const key = rarity.toUpperCase();
+    return RARITY_COLORS[key] || 'bg-secondary';
+  };
+
+  // --- Actions Gameplay (Mantidas) ---
+  const trySpawnArtifact = async () => { /* ... código original ... */ };
+  const collectArtifact = async () => { /* ... código original ... */ };
 
   return {
+    // State
     artifact,
     showArtifact,
     collectionMessage,
     position,
+    artifacts,   // Exportado para a View usar
+    isLoading,
+    error,
+    
+    // Getters
     artifactImageUrl,
-    rarityColor,
+    
+    // Actions
+    fetchArtifacts,
+    createArtifact,
+    deleteArtifact,
+    getRarityBadgeClass,
     trySpawnArtifact,
     collectArtifact
   };

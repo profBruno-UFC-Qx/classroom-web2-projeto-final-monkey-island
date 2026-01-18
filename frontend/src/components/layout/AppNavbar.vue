@@ -17,7 +17,7 @@
           <i class="bi bi-shield-shaded"></i> Setores
         </router-link>
 
-        <template v-if="authStore.user?.role === 'ADMIN'">
+        <template v-if="authStore.user?.role === 'admin'">
           <div class="vr text-secondary mx-1" style="height: 20px;"></div>
           
           <router-link to="/admin/requests" class="nav-lab-link text-info" title="Solicitações">
@@ -59,7 +59,7 @@
                 </router-link>
               </li>
               
-              <template v-if="authStore.user?.role === 'ADMIN'">
+              <template v-if="authStore.user?.role === 'admin'">
                 <li><hr class="dropdown-divider border-secondary"></li>
                 <li><h6 class="dropdown-header text-warning opacity-75">ADMINISTRAÇÃO</h6></li>
                 <li>
@@ -102,18 +102,18 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'; // Importado para buscar requests ao montar
+import { onMounted } from 'vue';
 import { useAuthStore } from '@/stores/authStore';
-import { useAdminStore } from '@/stores/adminStore'; // Importe a store do admin
+import { useAdminStore } from '@/stores/adminStore';
 import { useRouter } from 'vue-router';
 
 const authStore = useAuthStore();
-const adminStore = useAdminStore(); // Instancia a store
+const adminStore = useAdminStore();
 const router = useRouter();
 
-// Opcional: Buscar contagem de solicitações se for admin
 onMounted(() => {
-  if (authStore.user?.role === 'ADMIN') {
+  // CORREÇÃO AQUI: role === 'admin'
+  if (authStore.user?.role === 'admin') {
     adminStore.fetchPendingRequests();
   }
 });
@@ -153,7 +153,6 @@ const handleLogout = () => {
   transform: translateY(-2px);
 }
 
-/* Classe utilitária para os links de admin */
 .text-info {
   color: #0dcaf0 !important;
 }

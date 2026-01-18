@@ -38,10 +38,10 @@ export default {
   },
 
   async approveRequest(requestId: string): Promise<void> {
-    await api.patch(`/researcher-request/${requestId}/approve`);
+    await api.put(`/researcher-request/${requestId}/approve`);
   },
 
   async rejectRequest(requestId: string): Promise<void> {
-    await api.patch(`/researcher-request/${requestId}/reject`);
+    await api.put(`/researcher-request/${requestId}/reject`);
   },
 };

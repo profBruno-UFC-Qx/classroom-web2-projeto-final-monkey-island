@@ -38,7 +38,6 @@
               @openVault="handleOpenVault"
               @openCommunities="handleOpenCommunities"
               @requestResearcher="handleRequestResearcher"
-              @openAdminRequests="handleOpenAdminRequests"
             />
 
             <ProfileFeed />
@@ -50,7 +49,6 @@
     <RelicsVaultModal ref="vaultModal" />
     <MyCommunitiesModal ref="communitiesModal" />
     <ResearcherRequestModal ref="requestModal" />
-    <ResearcherRequestsAdminModal ref="adminRequestsModal" />
   </div>
 </template>
 
@@ -58,24 +56,18 @@
 import { ref, onMounted } from "vue";
 import { useAuthStore } from "../stores/authStore";
 
-// Importação dos componentes visuais
 import ProfileCard from "@/components/profile/ProfileCard.vue";
 import ProfileFeed from "@/components/profile/ProfileFeed.vue";
 import RelicsVaultModal from "@/components/game/RelicsVaultModal.vue";
 import MyCommunitiesModal from "@/components/community/MyCommunitiesModal.vue";
 import ResearcherRequestModal from "@/components/admin/ResearcherRequestModal.vue";
-import ResearcherRequestsAdminModal from "@/components/admin/ResearcherRequestsAdminModal.vue";
 
-// Inicializa a store de autenticação
 const authStore = useAuthStore();
 
-// Referencias para controlar os modais
 const vaultModal = ref();
 const communitiesModal = ref();
 const requestModal = ref();
-const adminRequestsModal = ref();
 
-// Funções simples para abrir cada modal
 const handleOpenVault = () => {
   vaultModal.value?.open();
 };
@@ -88,18 +80,12 @@ const handleRequestResearcher = () => {
   requestModal.value?.open();
 };
 
-const handleOpenAdminRequests = () => {
-  adminRequestsModal.value?.open();
-};
-
-// Busca os dados mais recentes assim que a tela abre
 onMounted(() => {
   authStore.refreshProfile();
 });
 </script>
 
 <style scoped>
-/* Estilos simples para complementar o bootstrap */
 .text-dark {
   color: #212529;
 }

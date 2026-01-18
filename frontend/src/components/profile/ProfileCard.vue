@@ -13,15 +13,6 @@
           <i class="bi bi-person-up"></i>
           <span class="d-none d-md-inline">Virar Pesquisador</span>
         </button>
-
-        <button 
-          v-else-if="user.role === 'admin'"
-          @click="emit('openAdminRequests')"
-          class="btn btn-sm btn-danger fw-bold text-uppercase shadow-sm d-flex align-items-center gap-2 border-white"
-        >
-          <i class="bi bi-shield-lock-fill"></i>
-          <span>Gerenciar Pedidos</span>
-        </button>
       </div>
 
       <div class="d-flex align-items-center gap-4 position-relative z-1">
@@ -102,7 +93,6 @@ const emit = defineEmits<{
   (e: 'openVault'): void;
   (e: 'openCommunities'): void;
   (e: 'requestResearcher'): void;
-  (e: 'openAdminRequests'): void;
 }>();
 
 // Computed para limpar a lógica do template
@@ -120,7 +110,7 @@ const formattedId = computed(() => {
 });
 
 const statusIcon = computed(() => {
-  return props.user.status === 'active' 
+  return props.user.status 
     ? 'bi bi-check-circle-fill text-success' 
     : 'bi bi-dash-circle-fill text-danger';
 });

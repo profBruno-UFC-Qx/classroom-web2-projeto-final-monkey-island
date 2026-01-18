@@ -8,14 +8,12 @@ import artifactService from '@/services/artifactService';
 import researcherRequestService from '@/services/researcherRequestService';
 
 export const useAdminStore = defineStore('admin', () => {
-  // Estado
   const users = ref<User[]>([]);
   const adminArtifacts = ref<Artifact[]>([]);
   const pendingRequests = ref<ResearcherRequestResponse[]>([]);
   const loading = ref(false);
   const error = ref<string | null>(null);
 
-  // Ações de Usuários
   async function fetchUsers() {
     loading.value = true;
     try {
@@ -30,16 +28,14 @@ export const useAdminStore = defineStore('admin', () => {
   async function banUserAction(userId: string) {
     try {
       await userService.banUser(userId);
-      // Atualiza a lista localmente para refletir o banimento sem recarregar tudo
       const user = users.value.find(u => u.id === userId);
-      if (user) user.status = false; // Assumindo que false = banido/inativo no booleano
+      if (user) user.status = false;
     } catch (err: any) {
       console.error('Erro ao banir usuário', err);
       throw err;
     }
   }
 
-  // Ações de Artefatos
   async function fetchAdminArtifacts() {
     loading.value = true;
     try {
@@ -71,16 +67,11 @@ export const useAdminStore = defineStore('admin', () => {
     }
   }
 
-  // Ações de Solicitações de Pesquisador
   async function fetchPendingRequests() {
     loading.value = true;
     try {
-      // O endpoint do backend retorna uma lista diretamente ou um objeto com data?
-      // Baseado no service atual: return (await api.get("/researcher-request")).data;
       const data = await researcherRequestService.getPendingRequests();
-      // Verifique se o backend retorna array direto ou { requests: [] }
-      // Assumindo que é array baseado no tipo esperado
-      pendingRequests.value = Array.isArray(data) ? data : []; 
+      pendingRequests.value = data;
     } catch (err: any) {
       error.value = 'Erro ao buscar solicitações';
     } finally {

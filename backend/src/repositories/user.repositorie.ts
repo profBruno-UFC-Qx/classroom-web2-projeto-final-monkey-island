@@ -1,3 +1,4 @@
+import { injectable } from "inversify";
 import { User, UserRole } from "../entities/User";
 import { AppDataSource } from "../config/db.connection";
 
@@ -7,9 +8,11 @@ export interface IUserRepository {
   findByEmail(email: string): Promise<User | null>;
   existsByEmail(email: string): Promise<boolean>;
   findById(id: string): Promise<User | null>;
+  getById(id: string): Promise<User | null>; 
   userIsResearcher(userId: string): Promise<boolean>;
 }
 
+@injectable()
 export class UserRepositoryDB implements IUserRepository {
   private get repo() {
     return AppDataSource.getRepository(User);
@@ -20,7 +23,12 @@ export class UserRepositoryDB implements IUserRepository {
   }
 
   async findById(id: string): Promise<User | null> {
+    if (!id) return null;
     return await this.repo.findOne({ where: { id } });
+  }
+
+  async getById(id: string): Promise<User | null> {
+    return this.findById(id);
   }
 
   async save(user: User): Promise<void> {
@@ -36,6 +44,10 @@ export class UserRepositoryDB implements IUserRepository {
   }
 
   async userIsResearcher(userId: string): Promise<boolean> {
-    return await this.repo.existsBy({ id: userId, role: UserRole.RESEARCHER });
+    if (!userId) return false;
+    return await this.repo.existsBy({ 
+      id: userId, 
+      role: UserRole.RESEARCHER 
+    });
   }
 }

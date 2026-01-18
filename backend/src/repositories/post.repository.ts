@@ -11,6 +11,7 @@ export interface IPostRepository {
     skip: number,
     take: number
   ): Promise<[Post[], number]>;
+  
   findPostById(postId: string): Promise<Post | null>;
   postExistsById(postId: string): Promise<boolean>;
 
@@ -18,6 +19,13 @@ export interface IPostRepository {
     authorId: string,
     communityId: string,
     skip: number,
+    take: number
+  ): Promise<[Post[], number]>;
+
+  // Método essencial para o Feed do Perfil (Meus Posts)
+  findAllByUserId(
+    userId: string, 
+    skip: number, 
     take: number
   ): Promise<[Post[], number]>;
 
@@ -56,15 +64,10 @@ export class PostRepositoryDB implements IPostRepository {
   ): Promise<[Post[], number]> {
     return await this.repo
       .createQueryBuilder("post")
-      .innerJoin("post.author", "author")
-      .innerJoin("post.community", "community")
-      .select([
-        "post",
-        "community.id",
-        "community.name",
-        "author.id",
-        "author.name",
-      ])
+      // leftJoinAndSelect garante que o objeto venha completo (com nome, avatar, etc)
+      .leftJoinAndSelect("post.author", "author")
+      .leftJoinAndSelect("post.community", "community")
+      .leftJoinAndSelect("post.medias", "medias") // Importante para as imagens aparecerem
       .where("community.id = :communityId", { communityId })
       .andWhere("post.status = :postStatus", {
         postStatus: PostStatus.PUBLISHED,
@@ -78,15 +81,9 @@ export class PostRepositoryDB implements IPostRepository {
   async findPostById(postId: string): Promise<Post | null> {
     return await this.repo
       .createQueryBuilder("post")
-      .innerJoin("post.author", "author")
-      .innerJoin("post.community", "community")
-      .select([
-        "post",
-        "community.id",
-        "community.name",
-        "author.id",
-        "author.name",
-      ])
+      .leftJoinAndSelect("post.author", "author")
+      .leftJoinAndSelect("post.community", "community")
+      .leftJoinAndSelect("post.medias", "medias")
       .where("post.id = :postId", { postId })
       .getOne();
   }
@@ -99,20 +96,31 @@ export class PostRepositoryDB implements IPostRepository {
   ): Promise<[Post[], number]> {
     return await this.repo
       .createQueryBuilder("post")
-      .innerJoin("post.author", "author")
-      .innerJoin("post.community", "community")
-      .select([
-        "post",
-        "community.id",
-        "community.name",
-        "author.id",
-        "author.name",
-      ])
+      .leftJoinAndSelect("post.author", "author")
+      .leftJoinAndSelect("post.community", "community")
+      .leftJoinAndSelect("post.medias", "medias")
       .where("author.id = :authorId", { authorId })
       .andWhere("community.id = :communityId", { communityId })
       .andWhere("post.status = :postStatus", {
         postStatus: PostStatus.PUBLISHED,
       })
+      .orderBy("post.createdAt", "DESC")
+      .skip(skip)
+      .take(take)
+      .getManyAndCount();
+  }
+
+  async findAllByUserId(
+    userId: string,
+    skip: number,
+    take: number
+  ): Promise<[Post[], number]> {
+    return await this.repo
+      .createQueryBuilder("post")
+      .leftJoinAndSelect("post.author", "author")
+      .leftJoinAndSelect("post.community", "community")
+      .leftJoinAndSelect("post.medias", "medias")
+      .where("author.id = :userId", { userId })
       .orderBy("post.createdAt", "DESC")
       .skip(skip)
       .take(take)
@@ -154,15 +162,9 @@ export class PostRepositoryDB implements IPostRepository {
   async findPublicFeed(skip: number, take: number): Promise<[Post[], number]> {
     return await this.repo
       .createQueryBuilder("post")
-      .innerJoin("post.author", "author")
-      .innerJoin("post.community", "community")
-      .select([
-        "post",
-        "community.id",
-        "community.name",
-        "author.id",
-        "author.name",
-      ])
+      .leftJoinAndSelect("post.author", "author")
+      .leftJoinAndSelect("post.community", "community")
+      .leftJoinAndSelect("post.medias", "medias")
       .where("post.status = :postStatus", { postStatus: PostStatus.PUBLISHED })
       .orderBy("post.createdAt", "DESC")
       .skip(skip)
@@ -177,16 +179,11 @@ export class PostRepositoryDB implements IPostRepository {
   ): Promise<[Post[], number]> {
     return await this.repo
       .createQueryBuilder("post")
-      .innerJoin("post.author", "author")
-      .innerJoin("post.community", "community")
+      .leftJoinAndSelect("post.author", "author")
+      .leftJoinAndSelect("post.community", "community")
+      .leftJoinAndSelect("post.medias", "medias")
+      // Join interno apenas para filtrar posts das comunidades que sigo
       .innerJoin("community.members", "member")
-      .select([
-        "post",
-        "community.id",
-        "community.name",
-        "author.id",
-        "author.name",
-      ])
       .where("member.user.id = :userId", { userId })
       .andWhere("member.status = :memberStatus", {
         memberStatus: CommunityUserStatus.ACTIVE,

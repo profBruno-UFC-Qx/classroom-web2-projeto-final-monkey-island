@@ -8,8 +8,10 @@ import communityRoutes from "./routes/community.route";
 import communityUserRoutes from "./routes/community.user.route";
 import postRoutes from "./routes/post.route";
 import postMediaRoutes from "./routes/post.media.routes";
+import likeRoutes from "./routes/like.route";
 import path from "node:path";
 import userRoutes from "./routes/user.routes";
+import commentRoutes from "./routes/comment.route";
 
 const app = express();
 app.use(express.json());
@@ -33,7 +35,9 @@ app.use(
   communityRoutes,
   communityUserRoutes,
   postRoutes,
-  postMediaRoutes
+  postMediaRoutes,
+  likeRoutes,
+  commentRoutes,
 );
 
 export default app;

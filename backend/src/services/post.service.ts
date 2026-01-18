@@ -256,7 +256,7 @@ export class PostService implements IPostService {
     };
   }
 
-  private entityToResponse(post: Post): PostResponseDto {
+private entityToResponse(post: Post): PostResponseDto {
     return {
       post: {
         id: post.id,
@@ -264,11 +264,12 @@ export class PostService implements IPostService {
         content: post.content,
         createdAt: post.createdAt,
         status: post.status,
+        likeCount: post.likeCount,
+        communityName: post.community.name ?? undefined,
+        authorName: post.author.name ?? undefined,
       },
       communityId: post.community.id,
-      communityName: post.community.name ?? undefined,
       authorId: post.author.id,
-      authorName: post.author.name ?? undefined,
     };
   }
 }

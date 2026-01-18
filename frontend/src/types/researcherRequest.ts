@@ -1,3 +1,5 @@
+import type { User } from "./user";
+
 export type ResearcherRequestStatus = "pending" | "approved" | "rejected";
 
 export interface CreateResearcherRequestPayload {
@@ -7,8 +9,18 @@ export interface CreateResearcherRequestPayload {
 export interface ResearcherRequestResponse {
   id: string;
   status: ResearcherRequestStatus;
-  userId: string;       
+  
+  // CORREÇÃO: O backend retorna 'user_id', não 'userId'
+  user_id: string; 
+  
   motivation: string;
-  updatedAt: string;    
-  createdAt: string;    
+  
+  // CORREÇÃO: O backend retorna 'updated_at', não 'updatedAt'
+  updated_at: string; 
+  
+  // CORREÇÃO: O backend retorna 'created_at', não 'createdAt'
+  created_at: string; 
+  
+  // Campo opcional para preenchermos manualmente no front
+  user?: User; 
 }

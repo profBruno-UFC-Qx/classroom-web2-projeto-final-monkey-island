@@ -62,9 +62,8 @@
         </p>
 
         <div class="d-flex gap-2 flex-wrap pt-2 border-top border-secondary-subtle">
-          <button @click="handleCommentClick" class="btn btn-action btn-sm px-3">
-            <i class="bi bi-chat-left-text-fill me-2"></i>
-            {{ postData.commentCount || 0 }}
+          <button @click="handleCommentClick" class="btn btn-action btn-sm px-3" title="Comentar">
+            <i class="bi bi-chat-left-text-fill"></i>
           </button>
 
           <button 
@@ -83,7 +82,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
-import { useRouter } from 'vue-router'; // Importar router
+import { useRouter } from 'vue-router';
 import * as bootstrap from "bootstrap";
 
 import { useAuthStore } from "@/stores/authStore";
@@ -96,18 +95,16 @@ import type { PostMedia } from "@/types/post";
 
 const props = defineProps<{
   post: any;
-  isDetailView?: boolean; // Prop para saber se já estamos na view de detalhes
+  isDetailView?: boolean;
 }>();
 
-const router = useRouter(); // Instanciar router
+const router = useRouter();
 const authStore = useAuthStore();
 const postStore = usePostStore();
 
 const medias = ref<PostMedia[]>([]);
 const currentImageIndex = ref(0);
 
-// Normaliza o objeto post para garantir que acessamos os dados corretamente
-// independente se vier dentro de um wrapper 'post' ou direto
 const postData = computed(() => props.post?.post || props.post || {});
 
 onMounted(async () => {
@@ -144,17 +141,13 @@ const checkAuth = () => {
   return true;
 };
 
-// Navegação para a tela de detalhes do post
 const handleCommentClick = () => {
-  if (props.isDetailView) return; // Se já estamos na tela de detalhes, não faz nada
-  // Navega para a rota de detalhes passando o ID do post
+  if (props.isDetailView) return;
   router.push(`/posts/${postData.value.id}`);
 };
 
-// Lógica de Like conectada à Store
 const handleLike = async () => {
   if (!checkAuth()) return;
-  // Chama a action criada na Store (toggleLike)
   await postStore.toggleLike(postData.value.id);
 };
 </script>

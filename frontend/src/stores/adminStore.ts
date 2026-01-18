@@ -29,7 +29,8 @@ export const useAdminStore = defineStore('admin', () => {
     try {
       await userService.banUser(userId);
       const user = users.value.find(u => u.id === userId);
-      if (user) user.status = false;
+      // Ajuste o status conforme sua interface User (boolean ou string)
+      if (user) user.status = 'banned'; 
     } catch (err: any) {
       console.error('Erro ao banir usuário', err);
       throw err;
@@ -67,17 +68,41 @@ export const useAdminStore = defineStore('admin', () => {
     }
   }
 
+  // --- CORREÇÃO PRINCIPAL ---
   async function fetchPendingRequests() {
     loading.value = true;
     try {
+      // 1. Busca solicitações do backend
       const data = await researcherRequestService.getPendingRequests();
-      pendingRequests.value = data;
+      
+      // 2. Busca dados do usuário para cada solicitação
+      // Agora acessando 'req.user_id' que é o campo correto vindo do back
+      const requestsWithUsers = await Promise.all(data.map(async (req) => {
+        try {
+          // Verifica se user_id existe antes de chamar a API
+          if (!req.user_id) {
+             console.warn(`Solicitação ${req.id} sem user_id`);
+             return req;
+          }
+
+          const user = await userService.getUserById(req.user_id);
+          return { ...req, user };
+        } catch (e) {
+          console.error(`Erro ao carregar usuário para a solicitação ${req.id}`, e);
+          return req;
+        }
+      }));
+
+      pendingRequests.value = requestsWithUsers;
+      
     } catch (err: any) {
       error.value = 'Erro ao buscar solicitações';
+      console.error(err);
     } finally {
       loading.value = false;
     }
   }
+  // -------------------------
 
   async function approveRequestAction(requestId: string) {
     try {

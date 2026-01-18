@@ -32,7 +32,9 @@
           </p>
           <div class="d-flex align-items-center gap-2">
             <i class="bi bi-clock-history text-info small"></i>
-            <span class="text-secondary x-small">Solicitado em: {{ formatDate(request.createdAt) }}</span>
+            <span class="text-secondary x-small">
+            Solicitado em: {{ formatDate(request.created_at) }}
+            </span>
           </div>
         </div>
       </div>

@@ -1,0 +1,155 @@
+import { Artifact, ArtifactRarity } from "../entities/artifact";
+import { ArtifactCollectionResponseDto } from "../dtos/artifact_collection/response/artifact.collection.response.dto";
+import { injectable, inject } from "inversify";
+import { TYPES } from "../types/types";
+import { IArtifactCollectionRepository } from "../repositories/artifact.collection.repository";
+import { ArtifactResponsetDto } from "../dtos/artifact/response/artifact.response";
+import { ArtifactCollection } from "../entities/artifact.collection";
+import { User } from "../entities/User";
+
+export interface IArtifactCollectionService {
+  addArtifactInCollection(user_id: string, artifact_id: string): Promise<void>;
+
+  getAllArtifactsByUser(
+    user_id: string,
+    page?: number,
+    limit?: number
+  ): Promise<ArtifactCollectionResponseDto>;
+
+  getAllArtifactsByUserAndRarity(
+    user_id: string,
+    rarity: ArtifactRarity,
+    page?: number,
+    limit?: number
+  ): Promise<ArtifactCollectionResponseDto>;
+
+  getAllArtifactsByUserAndNameLike(
+    user_id: string,
+    name: string,
+    page?: number,
+    limit?: number
+  ): Promise<ArtifactCollectionResponseDto>;
+}
+
+@injectable()
+export class ArtifactCollectionService implements IArtifactCollectionService {
+  constructor(
+    @inject(TYPES.ArtifactCollectionRepositoryDB)
+    private readonly artifactCollectionRepository: IArtifactCollectionRepository
+  ) {}
+
+  async addArtifactInCollection(
+    user_id: string,
+    artifact_id: string
+  ): Promise<void> {
+    let artifactCollection =
+      await this.artifactCollectionRepository.FindByUserIdAndArtifactId(
+        user_id,
+        artifact_id
+      );
+
+    if (artifactCollection) {
+      artifactCollection.quantity += 1;
+    } else {
+      artifactCollection = new ArtifactCollection();
+      artifactCollection.user = { id: user_id } as User;
+      artifactCollection.artifact = { id: artifact_id } as Artifact;
+      artifactCollection.quantity = 1;
+    }
+
+    await this.artifactCollectionRepository.save(artifactCollection);
+  }
+
+  async getAllArtifactsByUser(
+    user_id: string,
+    page?: number,
+    limit?: number
+  ): Promise<ArtifactCollectionResponseDto> {
+    const currentPage = Math.max(page ?? 1, 1);
+    const currentLimit = Math.min(limit ?? 10, 20);
+
+    const skip = (currentPage - 1) * currentLimit;
+
+    const [items, total] =
+      await this.artifactCollectionRepository.findAllArtifactsOfCollectionByUserId(
+        user_id,
+        skip,
+        currentLimit
+      );
+
+    return {
+      data: items.map((item) => ({
+        artifact: this.mapArtifact(item.artifact),
+        quantity: item.quantity,
+      })),
+      totalItems: total,
+      totalPages: Math.ceil(total / currentLimit),
+    };
+  }
+
+  async getAllArtifactsByUserAndRarity(
+    user_id: string,
+    rarity: ArtifactRarity,
+    page?: number,
+    limit?: number
+  ): Promise<ArtifactCollectionResponseDto> {
+    const currentPage = Math.max(page ?? 1, 1);
+    const currentLimit = Math.min(limit ?? 10, 20);
+    const skip = (currentPage - 1) * currentLimit;
+
+    const [items, total] =
+      await this.artifactCollectionRepository.findAllArtifactsByUserIdAndRarity(
+        user_id,
+        rarity,
+        skip,
+        currentLimit
+      );
+
+    return {
+      data: items.map((item) => ({
+        artifact: this.mapArtifact(item.artifact),
+        quantity: item.quantity,
+      })),
+      totalItems: total,
+      totalPages: Math.ceil(total / currentLimit),
+    };
+  }
+
+  async getAllArtifactsByUserAndNameLike(
+    user_id: string,
+    name: string,
+    page?: number,
+    limit?: number
+  ): Promise<ArtifactCollectionResponseDto> {
+    const currentPage = Math.max(page ?? 1, 1);
+    const currentLimit = Math.min(limit ?? 10, 20);
+    const skip = (currentPage - 1) * currentLimit;
+
+    const [items, total] =
+      await this.artifactCollectionRepository.findAllArtifactsByUserIdAndNameLike(
+        user_id,
+        name,
+        skip,
+        currentLimit
+      );
+
+    return {
+      data: items.map((item) => ({
+        artifact: this.mapArtifact(item.artifact),
+        quantity: item.quantity,
+      })),
+      totalItems: total,
+      totalPages: Math.ceil(total / currentLimit),
+    };
+  }
+
+  private mapArtifact(artifact: Artifact): ArtifactResponsetDto {
+    return {
+      id: artifact.id,
+      name: artifact.name,
+      description: artifact.description,
+      rarity: artifact.rarity,
+      image: artifact.image,
+    };
+  }
+}

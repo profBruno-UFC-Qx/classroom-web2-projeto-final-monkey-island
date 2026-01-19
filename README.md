@@ -41,3 +41,10 @@ Na aplicação haverão as funcionalidade de postagem, comentário, busca, login
 
 Liste as principais entidades do sistema.
 
+## 1. User
+## 2. Post
+## 3. Comment
+## 4. Likes
+## 5. Artifact
+## 6. Community
+
